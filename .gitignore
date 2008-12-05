@@ -1,0 +1,6 @@
+cache
+urlgrab
+*.pyc
+watch.db
+episodes.log
+.*.swp
