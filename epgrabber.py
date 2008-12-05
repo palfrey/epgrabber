@@ -12,9 +12,7 @@ from time import strptime,strftime,localtime,time
 from os.path import exists,getsize
 from os import remove
 from urlparse import urljoin
-from datetime import datetime
-from datetime import timedelta,date
-
+from datetime import datetime, timedelta,date
 from optparse import OptionParser
 
 import urllib
@@ -22,7 +20,6 @@ class AppURLopener(urllib.FancyURLopener):
     version = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11"
 
 urllib._urlopener = AppURLopener()
-
 
 options = None
 cur = None
