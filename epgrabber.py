@@ -5,7 +5,7 @@ try:
 	from urlgrab.GetURL import GetURL
 	from urlgrab.URLTimeout import URLTimeoutError
 except:
-	print "You need to install urlgrab. Get it using 'darcs get http://tevp.net/projects/urlgrab'"
+	print "You need to install urlgrab. Get it using 'git clone git://github.com/palfrey/urlgrab.git urlgrab'"
 	sys.exit(1)
 from re import compile,IGNORECASE,MULTILINE,DOTALL
 from time import strptime,strftime,localtime,time
