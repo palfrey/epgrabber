@@ -4,3 +4,5 @@ urlgrab
 watch.db
 episodes.log
 .*.swp
+dump
+*.torrent
