@@ -19,9 +19,9 @@ def db(inf,prefix):
 	best = sorted(poss)[0]
 
 	if best.find("-")==-1:
-		best = int(best)
+		number = int(best)
 	else:
-		best = int(best.split("-",2)[1])
+		number = int(best.split("-",2)[1])
 	
-	return {"name":inf["name"],"season":best,"epnum":0,"date":inf["yesterday"],"url":"http://www.dattebayo.com/t/%s%s.torrent"%(prefix,best)}
+	return {"name":inf["name"],"season":number,"epnum":0,"date":inf["yesterday"],"url":"http://www.dattebayo.com/t/%s%s.torrent"%(prefix,best)}
 
