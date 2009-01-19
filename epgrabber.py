@@ -208,7 +208,6 @@ class Isohunt:
 		url ="http://isohunt.com/torrents/%s?ihp=1&iht=-1&ihs1=2&iho1=d"%terms.replace(" ","+")
 		print "url",url
 		torr = cache.get(url,max_age=60*60).read()
-		file('dump','w').write(torr)
 		rows = self.row.finditer(torr)
 		return rows
 
@@ -231,6 +230,20 @@ class Mininova:
 	def torrent(self,r):
 		return "http://www.mininova.org/get/%s"%r["path"]
 
+class PirateBay:
+	row = compile("<a href=\"[^\"]+\" class=\"detLink\" title=\"[^\"]+\">(?P<name>[^<]+)</a>.*?(?P<path>http://torrents.thepiratebay.org/\d+/[^\"]+)\" title=\"Download this torrent\">.*?<td align=\"right\">\d+\.\d+&nbsp;(?:G|M|K)iB</td>.*?<td align=\"right\">(?P<seeds>\d+)</td>.*?<td align=\"right\">(?P<peers>\d+)</td>",MULTILINE|DOTALL)
+
+	def rows(self,terms):
+		url = "http://thepiratebay.org/search/%s/0/7/0"%terms.replace(" ","+")
+		print "url",url
+		torr = cache.get(url,max_age=60*60).read()
+		file('dump','w').write(torr)
+		rows = self.row.finditer(torr)
+		return rows
+
+	def torrent(self,r):
+		return r["path"]
+	
 if __name__ == "__main__":
 	idnum = compile("(?:S(\d+)E(\d+))|(?:\[(\d+)x(\d+)\])|(?: (\d)(\d{2}) - )|(?: (\d+)X(\d+) )|(?:\.(\d+)(\d{2}).)|(?: (\d{2}))",IGNORECASE)
 
@@ -287,7 +300,7 @@ if __name__ == "__main__":
 	print "series",series,"\n"
 
 	#sites = [Isohunt(),Mininova()]
-	sites = [Mininova(),Isohunt()]
+	sites = [PirateBay(),Mininova(),Isohunt()]
 
 	shorttd = timedelta(0,0,0,0,0,6,0)
 	longtd = timedelta(7)
