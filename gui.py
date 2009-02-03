@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 
 import sys
-import pygtk
-pygtk.require("2.0")
 import gtk
+
+ver = gtk.check_version(2,12,0)
+if ver:
+	raise Exception,ver
+
 import gobject
 from pysqlite2 import dbapi2 as sqlite
 from time import *
