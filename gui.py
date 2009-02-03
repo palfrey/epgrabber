@@ -8,7 +8,10 @@ if ver:
 	raise Exception,ver
 
 import gobject
-from pysqlite2 import dbapi2 as sqlite
+try:
+	import sqlite3 as sqlite
+except ImportError:
+	from pysqlite2 import dbapi2 as sqlite
 from time import *
 
 class EpgrabberGUI:
