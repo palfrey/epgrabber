@@ -64,8 +64,17 @@ class EpgrabberGUI:
 		cell.set_property('markup', when)
 	
 	def edit_data(self, cellrenderertext, path, new_text, (model,column)):
-		print "changed",path,new_text,column
+		print "trying to change",path,new_text,column
 		cmd = "update series set %s=\"%s\" where name=\"%s\""%(self.mapping[column].lower(),new_text,self.episodes[path][self.rev_mapping["Name"]])
+		typ = self.episodes.get_column_type(column)
+		if typ == gobject.TYPE_UINT:
+			try:
+				new_text = int(new_text)
+			except ValueError:
+				dialog = gtk.MessageDialog(parent=self.window, flags=gtk.DIALOG_MODAL, type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK, message_format="Only allowed numbers in that column!")
+				dialog.run()
+				dialog.destroy()
+				return
 		print cmd
 		try:
 			self.cur.execute(cmd)
