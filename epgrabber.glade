@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<interface>
+  <requires lib="gtk+" version="2.12"/>
+  <object class="GtkWindow" id="wndMain">
+    <property name="title" translatable="yes">Episode grabber</property>
+    <property name="icon_name">emblem-downloads</property>
+    <child>
+      <object class="GtkTreeView" id="tblEpisodes">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+      </object>
+    </child>
+  </object>
+</interface>
