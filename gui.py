@@ -29,10 +29,10 @@ class EpgrabberGUI:
 		self.window.show()
 
 		self.episodes = gtk.ListStore(gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_UINT, gobject.TYPE_UINT,gobject.TYPE_STRING, gobject.TYPE_STRING) # name, search, series, episode, command
-		con = sqlite.connect("watch.db")
-		cur = con.cursor()
-		cur.execute("select name,search,season,episode,command,last from series order by last desc")
-		for row in cur.fetchall():
+		self.con = sqlite.connect("watch.db")
+		self.cur = self.con.cursor()
+		self.cur.execute("select name,search,season,episode,command,last from series order by last desc")
+		for row in self.cur.fetchall():
 			self.episodes.append(row)
 		
 		def build_tree_column(name,column):
@@ -65,7 +65,20 @@ class EpgrabberGUI:
 	
 	def edit_data(self, cellrenderertext, path, new_text, (model,column)):
 		print "changed",path,new_text,column
+		cmd = "update series set %s=\"%s\" where name=\"%s\""%(self.mapping[column].lower(),new_text,self.episodes[path][self.rev_mapping["Name"]])
+		print cmd
+		try:
+			self.cur.execute(cmd)
+			assert self.cur.rowcount == 1, self.cur.rowcount
+			self.episodes[path][column] = new_text
+			self.con.commit()
+		except sqlite.IntegrityError,e:
+			dialog = gtk.MessageDialog(parent=self.window, flags=gtk.DIALOG_MODAL, type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK, message_format="Sqlite integrity failure. Can't use that name!")
+			dialog.run()
+			dialog.destroy()
+
 
 if __name__ == "__main__":
 	main = EpgrabberGUI()
 	gtk.main()
+
