@@ -59,11 +59,8 @@ class EpgrabberGUI:
 			when = strftime("%a, %d %b %Y",localtime(when))
 		cell.set_property('markup', when)
 	
-	def edit_data(self):
-		pass
-
-
-
+	def edit_data(self, cellrenderertext, path, new_text, (model,column)):
+		print "changed",path,new_text,column
 
 if __name__ == "__main__":
 	main = EpgrabberGUI()
