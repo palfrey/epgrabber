@@ -43,11 +43,12 @@ class EpgrabberGUI:
 
 		self.episodesList = self.wTree.get_object("tblEpisodes")
 		self.episodesList.set_model(self.episodes)
-		self.episodesList.append_column(build_tree_column("Name",0))
-		self.episodesList.append_column(build_tree_column("Search",1))
-		self.episodesList.append_column(build_tree_column("Series",2))
-		self.episodesList.append_column(build_tree_column("Episode",3))
-		self.episodesList.append_column(build_tree_column("Command",4))
+		
+		self.mapping = ("Name","Search","Season","Episode","Command")
+		self.mapping = dict(zip(range(len(self.mapping)),self.mapping))
+		self.rev_mapping = dict([list(x)[::-1] for x in self.mapping.items()])
+		for k in self.mapping:
+			self.episodesList.append_column(build_tree_column(self.mapping[k],k))
 		
 		cell = gtk.CellRendererText()
 		col = gtk.TreeViewColumn("Last retrieved",cell,text=5)
