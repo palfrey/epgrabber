@@ -36,7 +36,13 @@ class EpgrabberGUI:
 			self.episodes.append(row)
 		
 		def build_tree_column(name,column):
-			editable = gtk.CellRendererText()
+			typ = self.episodes.get_column_type(column)
+			if typ == gobject.TYPE_UINT:
+				editable = gtk.CellRendererSpin()
+				editable.set_property("adjustment",gtk.Adjustment(lower=0,upper=1000,step_incr=1)) # FIXME: 1000 is a randomly picked "probably highest" value
+				editable.connect('editing-started',self.edit_spin)
+			else:
+				editable = gtk.CellRendererText()
 			editable.set_property('editable', True)
 			editable.connect('edited', self.edit_data,(self.episodes,column))
 			return gtk.TreeViewColumn(name,editable,text=column)
@@ -85,7 +91,9 @@ class EpgrabberGUI:
 			dialog = gtk.MessageDialog(parent=self.window, flags=gtk.DIALOG_MODAL, type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK, message_format="Sqlite integrity failure. Can't use that name!")
 			dialog.run()
 			dialog.destroy()
-
+	
+	def edit_spin(self, cellrenderer, editable, path):
+		editable.set_numeric(True)
 
 if __name__ == "__main__":
 	main = EpgrabberGUI()
