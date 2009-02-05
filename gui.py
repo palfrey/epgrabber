@@ -16,7 +16,6 @@ from time import *
 
 class EpgrabberGUI:
 	def __init__(self):
-		
 		#Set the Glade file
 		self.intffile = "epgrabber.glade"  
 		self.wTree = gtk.Builder()
@@ -28,7 +27,7 @@ class EpgrabberGUI:
 			self.window.connect("destroy", gtk.main_quit)
 		self.window.show()
 
-		self.episodes = gtk.ListStore(gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_UINT, gobject.TYPE_UINT,gobject.TYPE_STRING, gobject.TYPE_STRING) # name, search, series, episode, command
+		self.episodes = gtk.ListStore(gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_UINT, gobject.TYPE_UINT,gobject.TYPE_STRING, gobject.TYPE_STRING)
 		self.con = sqlite.connect("watch.db")
 		self.cur = self.con.cursor()
 		self.cur.execute("select name,search,season,episode,command,last from series order by last desc")
