@@ -22,7 +22,6 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="label" translatable="yes">button</property>
-                <property name="response_id">0</property>
               </object>
             </child>
             <child>
