@@ -45,7 +45,9 @@ class EpgrabberGUI:
 				editable = gtk.CellRendererText()
 			editable.set_property('editable', True)
 			editable.connect('edited', self.edit_data,(self.episodes,column))
-			return gtk.TreeViewColumn(name,editable,text=column)
+			tvc = gtk.TreeViewColumn(name,editable,text=column)
+			tvc.set_sort_column_id(column)
+			return tvc
 
 		self.episodesList = self.wTree.get_object("tblEpisodes")
 		self.episodesList.set_model(self.episodes)
@@ -59,6 +61,7 @@ class EpgrabberGUI:
 		cell = gtk.CellRendererText()
 		col = gtk.TreeViewColumn("Last retrieved",cell,text=5)
 		col.set_cell_data_func(cell,self.date_field,5)
+		col.set_sort_column_id(5)
 		self.episodesList.append_column(col)
 
 	def date_field(self, column, cell, model, iter, user_data):
