@@ -27,13 +27,34 @@ class EpgrabberGUI:
 		if self.window:
 			self.window.connect("destroy", gtk.main_quit)
 		self.window.show()
-
-		self.episodes = gtk.ListStore(gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_UINT, gobject.TYPE_UINT,gobject.TYPE_STRING, gobject.TYPE_STRING) # name, search, series, episode, command
+		types = (gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_UINT, gobject.TYPE_UINT,gobject.TYPE_STRING, gobject.TYPE_FLOAT)
+		self.episodes = gtk.ListStore(*types) # name, search, series, episode, command
 		self.con = sqlite.connect("watch.db")
 		self.cur = self.con.cursor()
 		self.cur.execute("select name,search,season,episode,command,last from series order by last desc")
 		for row in self.cur.fetchall():
-			self.episodes.append(row)
+			iter = None
+			try:
+				iter = self.episodes.append(row)
+			except TypeError:
+				self.episodes.remove(self.episodes[-1].iter)
+				newrow = []
+				for (t,val) in zip(types,row):
+					if t == gobject.TYPE_STRING:
+						newrow.append(str(val))
+					elif t == gobject.TYPE_UINT:
+						if val == None:
+							newrow.append(0)
+						else:
+							newrow.append(int(val))
+					elif t == gobject.TYPE_FLOAT:
+						if val == None:
+							newrow.append(0.0)
+						else:
+							newrow.append(float(val))
+					else:
+						raise Exception,t
+				self.episodes.append(newrow)
 		
 		def build_tree_column(name,column):
 			typ = self.episodes.get_column_type(column)
