@@ -28,7 +28,7 @@ class EpgrabberGUI:
 		self.window.connect("destroy", gtk.main_quit)
 		self.window.show()
 		types = (gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_UINT, gobject.TYPE_UINT,gobject.TYPE_STRING, gobject.TYPE_FLOAT)
-		self.episodes = gtk.ListStore(*types) # name, search, series, episode, command
+		self.episodes = gtk.ListStore(*types)
 		self.con = sqlite.connect("watch.db")
 		self.cur = self.con.cursor()
 		self.cur.execute("select name,search,season,episode,command,last from series order by last desc")
