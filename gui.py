@@ -115,12 +115,18 @@ class EpgrabberGUI:
 			dialog = gtk.MessageDialog(parent=self.window, flags=gtk.DIALOG_MODAL, type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK, message_format="Sqlite integrity failure. Can't use that name!")
 			dialog.run()
 			dialog.destroy()
-	
+
 	def edit_spin(self, cellrenderer, editable, path):
 		editable.set_numeric(True)
 	
+	def add_changed(self,editable):
+		self.wTree.get_object("btnAddNew").set_sensitive(editable.get_text()!="")
+	
 	def btnAdd_clicked_cb(self, button):
 		dlg = self.wTree.get_object("dlgSeries")
+		self.wTree.get_object("entNewSeries").connect('changed',self.add_changed)
+		self.wTree.get_object("btnAddNew").connect('clicked',lambda x:dlg.response(gtk.RESPONSE_OK))
+		self.wTree.get_object("btnCancelNew").connect('clicked',lambda x:dlg.response(gtk.RESPONSE_CANCEL))
 		ret = dlg.run()
 		dlg.destroy()
 
