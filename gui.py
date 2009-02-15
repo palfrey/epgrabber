@@ -21,11 +21,11 @@ class EpgrabberGUI:
 		self.intffile = "epgrabber.glade"  
 		self.wTree = gtk.Builder()
 		self.wTree.add_from_file(self.intffile)
+		self.wTree.connect_signals(self)
 		
 		#Get the Main Window, and connect the "destroy" event
 		self.window = self.wTree.get_object("wndMain")
-		if self.window:
-			self.window.connect("destroy", gtk.main_quit)
+		self.window.connect("destroy", gtk.main_quit)
 		self.window.show()
 		types = (gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_UINT, gobject.TYPE_UINT,gobject.TYPE_STRING, gobject.TYPE_FLOAT)
 		self.episodes = gtk.ListStore(*types) # name, search, series, episode, command
@@ -118,6 +118,16 @@ class EpgrabberGUI:
 	
 	def edit_spin(self, cellrenderer, editable, path):
 		editable.set_numeric(True)
+	
+	def btnAdd_clicked_cb(self, button):
+		dlg = self.wTree.get_object("dlgSeries")
+		ret = dlg.run()
+		dlg.destroy()
+
+	def btnWizard_clicked_cb(self, button):
+		dlg = self.wTree.get_object("dlgEpguides")
+		ret = dlg.run()
+		dlg.destroy()
 
 if __name__ == "__main__":
 	main = EpgrabberGUI()
