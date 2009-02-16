@@ -20,19 +20,40 @@ class EpgrabberGUI:
 		self.intffile = "epgrabber.glade"  
 		self.wTree = gtk.Builder()
 		self.wTree.add_from_file(self.intffile)
+		self.wTree.connect_signals(self)
 		
 		#Get the Main Window, and connect the "destroy" event
 		self.window = self.wTree.get_object("wndMain")
-		if self.window:
-			self.window.connect("destroy", gtk.main_quit)
+		self.window.connect("destroy", gtk.main_quit)
 		self.window.show()
-
-		self.episodes = gtk.ListStore(gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_UINT, gobject.TYPE_UINT,gobject.TYPE_STRING, gobject.TYPE_STRING)
+		types = (gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_UINT, gobject.TYPE_UINT,gobject.TYPE_STRING, gobject.TYPE_FLOAT)
+		self.episodes = gtk.ListStore(*types)
 		self.con = sqlite.connect("watch.db")
 		self.cur = self.con.cursor()
 		self.cur.execute("select name,search,season,episode,command,last from series order by last desc")
 		for row in self.cur.fetchall():
-			self.episodes.append(row)
+			iter = None
+			try:
+				iter = self.episodes.append(row)
+			except TypeError:
+				self.episodes.remove(self.episodes[-1].iter)
+				newrow = []
+				for (t,val) in zip(types,row):
+					if t == gobject.TYPE_STRING:
+						newrow.append(str(val))
+					elif t == gobject.TYPE_UINT:
+						if val == None:
+							newrow.append(0)
+						else:
+							newrow.append(int(val))
+					elif t == gobject.TYPE_FLOAT:
+						if val == None:
+							newrow.append(0.0)
+						else:
+							newrow.append(float(val))
+					else:
+						raise Exception,t
+				self.episodes.append(newrow)
 		
 		def build_tree_column(name,column):
 			typ = self.episodes.get_column_type(column)
@@ -44,7 +65,9 @@ class EpgrabberGUI:
 				editable = gtk.CellRendererText()
 			editable.set_property('editable', True)
 			editable.connect('edited', self.edit_data,(self.episodes,column))
-			return gtk.TreeViewColumn(name,editable,text=column)
+			tvc = gtk.TreeViewColumn(name,editable,text=column)
+			tvc.set_sort_column_id(column)
+			return tvc
 
 		self.episodesList = self.wTree.get_object("tblEpisodes")
 		self.episodesList.set_model(self.episodes)
@@ -58,6 +81,7 @@ class EpgrabberGUI:
 		cell = gtk.CellRendererText()
 		col = gtk.TreeViewColumn("Last retrieved",cell,text=5)
 		col.set_cell_data_func(cell,self.date_field,5)
+		col.set_sort_column_id(5)
 		self.episodesList.append_column(col)
 
 	def date_field(self, column, cell, model, iter, user_data):
@@ -90,9 +114,25 @@ class EpgrabberGUI:
 			dialog = gtk.MessageDialog(parent=self.window, flags=gtk.DIALOG_MODAL, type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK, message_format="Sqlite integrity failure. Can't use that name!")
 			dialog.run()
 			dialog.destroy()
-	
+
 	def edit_spin(self, cellrenderer, editable, path):
 		editable.set_numeric(True)
+	
+	def add_changed(self,editable):
+		self.wTree.get_object("btnAddNew").set_sensitive(editable.get_text()!="")
+	
+	def btnAdd_clicked_cb(self, button):
+		dlg = self.wTree.get_object("dlgSeries")
+		self.wTree.get_object("entNewSeries").connect('changed',self.add_changed)
+		self.wTree.get_object("btnAddNew").connect('clicked',lambda x:dlg.response(gtk.RESPONSE_OK))
+		self.wTree.get_object("btnCancelNew").connect('clicked',lambda x:dlg.response(gtk.RESPONSE_CANCEL))
+		ret = dlg.run()
+		dlg.destroy()
+
+	def btnWizard_clicked_cb(self, button):
+		dlg = self.wTree.get_object("dlgEpguides")
+		ret = dlg.run()
+		dlg.destroy()
 
 if __name__ == "__main__":
 	main = EpgrabberGUI()

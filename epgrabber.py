@@ -423,7 +423,7 @@ if __name__ == "__main__":
 						patt += " %d"%season
 					if epnum!=0:
 						patt +=" %d"%epnum
-					rows = site.rows(info(name)["search"]+ " -zip -rar -ita -crimson -raw -mkv -720"+patt)
+					rows = site.rows(info(name)["search"]+ " -zip -rar -ita -crimson -raw -mkv -720 -mp4"+patt)
 					print site
 					newrows = []
 					for nr in rows:
