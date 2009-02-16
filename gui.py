@@ -15,6 +15,33 @@ except ImportError:
 from time import *
 
 class EpgrabberGUI:
+	def _addrow(self,row):
+		iter = None
+		try:
+			iter = self.episodes.append(row)
+		except TypeError:
+			self.episodes.remove(self.episodes[-1].iter)
+			newrow = []
+			for (t,val) in zip(self.types,row):
+				if t == gobject.TYPE_STRING:
+					if val == None:
+						newrow.append("")
+					else:
+						newrow.append(str(val))
+				elif t == gobject.TYPE_UINT:
+					if val == None:
+						newrow.append(0)
+					else:
+						newrow.append(int(val))
+				elif t == gobject.TYPE_FLOAT:
+					if val == None:
+						newrow.append(0.0)
+					else:
+						newrow.append(float(val))
+				else:
+					raise Exception,t
+			self.episodes.append(newrow)
+
 	def __init__(self):
 		#Set the Glade file
 		self.intffile = "epgrabber.glade"  
@@ -27,35 +54,15 @@ class EpgrabberGUI:
 		self.window.connect("destroy", gtk.main_quit)
 		self.window.show_all()
 
-		types = (gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_UINT, gobject.TYPE_UINT,gobject.TYPE_STRING, gobject.TYPE_FLOAT)
-		self.episodes = gtk.ListStore(*types)
+		self.types = (gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_UINT, gobject.TYPE_UINT,gobject.TYPE_STRING, gobject.TYPE_FLOAT)
+		self.episodes = gtk.ListStore(*self.types)
+
 		self.con = sqlite.connect("watch.db")
 		self.cur = self.con.cursor()
 		self.cur.execute("select name,search,season,episode,command,last from series order by last desc")
 		for row in self.cur.fetchall():
-			iter = None
-			try:
-				iter = self.episodes.append(row)
-			except TypeError:
-				self.episodes.remove(self.episodes[-1].iter)
-				newrow = []
-				for (t,val) in zip(types,row):
-					if t == gobject.TYPE_STRING:
-						newrow.append(str(val))
-					elif t == gobject.TYPE_UINT:
-						if val == None:
-							newrow.append(0)
-						else:
-							newrow.append(int(val))
-					elif t == gobject.TYPE_FLOAT:
-						if val == None:
-							newrow.append(0.0)
-						else:
-							newrow.append(float(val))
-					else:
-						raise Exception,t
-				self.episodes.append(newrow)
-		
+			self._addrow(row)
+				
 		def build_tree_column(name,column):
 			typ = self.episodes.get_column_type(column)
 			if typ == gobject.TYPE_UINT:
@@ -124,11 +131,21 @@ class EpgrabberGUI:
 	
 	def btnAdd_clicked_cb(self, button):
 		dlg = self.wTree.get_object("dlgSeries")
+		self.wTree.get_object("entNewSeries").set_text("")
 		self.wTree.get_object("entNewSeries").connect('changed',self.add_changed)
 		self.wTree.get_object("btnAddNew").connect('clicked',lambda x:dlg.response(gtk.RESPONSE_OK))
+		self.wTree.get_object("entNewSeries").connect('activate',lambda x:dlg.response(gtk.RESPONSE_OK))
 		self.wTree.get_object("btnCancelNew").connect('clicked',lambda x:dlg.response(gtk.RESPONSE_CANCEL))
 		ret = dlg.run()
-		dlg.destroy()
+		if ret == gtk.RESPONSE_OK:
+			series = self.wTree.get_object("entNewSeries").get_text()
+			cmd = "insert into series (name) values(\"%s\")"%series
+			self.cur.execute(cmd)
+			self.con.commit()
+			self.cur.execute("select name,search,season,episode,command,last from series where name=\"%s\" order by last desc"%series)
+			for row in self.cur.fetchall():
+				self._addrow(row)
+			dlg.hide()
 
 	def btnWizard_clicked_cb(self, button):
 		dlg = self.wTree.get_object("dlgEpguides")
