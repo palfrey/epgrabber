@@ -61,6 +61,7 @@ def epguides(inf,name):
 	patt = compile("\d+.\s+(\d+)-([\s\d]{2})\s*(?:[\dA-Z\-]+)?\s+(\d+ [A-Z][a-z]+ \d+)?\s+<a target=\"(?:visit|_blank)\" href=\"[^\"]+\">([^<]+)</a>")
 	eps = patt.findall(data)
 	if len(eps) ==0:
+		file('dump','w').write(torr)
 		raise Exception
 	neweps = []
 	for e in eps:
