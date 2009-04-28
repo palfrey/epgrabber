@@ -205,7 +205,7 @@ class Isohunt:
 	#row = compile("<tr class=\"hlRow\" onClick=\"servOC\(\d+,\\'/torrent_details/(?P<path>[^']+)'.*?<td class=\"row3\" id=name\d+>(?P<name>.*?)(?=</td>)</td><td class=\"row3\" title='\d+ file(?:s)?'>\d+.\d+ (?:M|G|K)B</td><td class=\"row1\">(?P<seeds>\d*)</td><td class=\"row3\">(?P<peers>\d*)</td>")
 	row = compile("<a onClick=\"servOC\(\d+,\\'/torrent_details/(?P<path>[^']+)'.*?<td class=\"row3\" id=name\d+>.+?tab=summary'>(?P<name>.*?)(?=</td>)</td><td class=\"row3\" title='\d+ file(?:s)?'>\d+.\d+ (?:M|G|K)B</td><td class=\"row1\">(?P<seeds>\d*)</td><td class=\"row3\">(?P<peers>\d*)</td>")
 
-	def rows(self,terms):
+	def rows(self,terms, numbers):
 		url ="http://isohunt.com/torrents/%s?ihp=1&iht=-1&ihs1=2&iho1=d"%terms.replace(" ","+")
 		print "url",url
 		torr = cache.get(url,max_age=60*60).read()
@@ -218,11 +218,11 @@ class Isohunt:
 class Mininova:
 	row = compile("<a href=\"/get/(?P<path>\d+)\"[^>]*><img src=\"/images/down.gif\" alt=\"\[D\]\"/></a><a href=\"/tor/\d+\">(?P<name>.*?)(?=</a>)</a>.*?(?=</td>)</td><td align=\"right\">\d+.\d+&nbsp;(?:G|M|K)B</td><td align=\"right\"><span class=\"g\">(?P<seeds>\d+)</span></td><td align=\"right\"><span class=\"b\">(?P<peers>\d+)</span>")
 
-	def rows(self,terms):
+	def rows(self,terms, numbers):
 		print "terms",terms
 		terms = " ".join([t for t in terms.split(" ") if len(t)>1])
 		print "terms",terms
-		url = "http://www.mininova.org/search/%s/seeds"%terms.replace(" ","+")
+		url = "http://www.mininova.org/search/%s/seeds"%(terms+numbers).replace(" ","+")
 		print "url",url
 		torr = cache.get(url,max_age=60*60).read()
 		rows = self.row.finditer(torr)
@@ -234,8 +234,8 @@ class Mininova:
 class PirateBay:
 	row = compile("<a href=\"[^\"]+\" class=\"detLink\" title=\"[^\"]+\">(?P<name>[^<]+)</a>.*?(?P<path>http://torrents.thepiratebay.org/\d+/[^\"]+)\" title=\"Download this torrent\">.*?<td align=\"right\">\d+\.\d+&nbsp;(?:G|M|K)iB</td>.*?<td align=\"right\">(?P<seeds>\d+)</td>.*?<td align=\"right\">(?P<peers>\d+)</td>",MULTILINE|DOTALL)
 
-	def rows(self,terms):
-		url = "http://thepiratebay.org/search/%s/0/7/0"%terms.replace(" ","+")
+	def rows(self,terms,numbers):
+		url = "http://thepiratebay.org/search/%s/0/7/0"%(terms+numbers).replace(" ","+")
 		print "url",url
 		torr = cache.get(url,max_age=60*60).read()
 		file('dump','w').write(torr)
@@ -424,7 +424,7 @@ if __name__ == "__main__":
 						patt += " %d"%season
 					if epnum!=0:
 						patt +=" %d"%epnum
-					rows = site.rows(info(name)["search"]+ " -zip -rar -ita -crimson -raw -mkv -720 -mp4"+patt)
+					rows = site.rows(info(name)["search"]+ " -zip -rar -ita -crimson -raw -mkv -720 -mp4",patt)
 					print site
 					newrows = []
 					for nr in rows:
