@@ -147,6 +147,18 @@ class EpgrabberGUI:
 				self._addrow(row)
 			dlg.hide()
 
+	def _removerow(self, model, path, iter):
+		series = model.get_value(iter, 0)
+		print "del series",series
+		model.remove(iter)
+		cmd = "delete from series where name=\"%s\""%series
+		self.cur.execute(cmd)
+
+	def btnRemove_clicked_cb(self, button):
+		sel = self.episodesList.get_selection()
+		sel.selected_foreach(self._removerow)
+		self.con.commit()
+
 	def btnWizard_clicked_cb(self, button):
 		dlg = self.wTree.get_object("dlgEpguides")
 		ret = dlg.run()
