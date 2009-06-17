@@ -407,92 +407,91 @@ if __name__ == "__main__":
 				print "\n"
 				continue
 
-			if next.has_key("url"):
-				fname = torrent(name,season,epnum)
-				if options.download:
+			if options.download:
+				if next.has_key("url"):
+					fname = torrent(name,season,epnum)
 					if not saferetrieve(next["url"],fname):
 						continue
-				update(name,season,epnum)
-				con.commit()
-				print ""
-				continue
-			gotit = False
-			for site in sites:
-				try:
-					patt = ""
-					if season!=0:
-						patt += " %d"%season
-					if epnum!=0:
-						patt +=" %d"%epnum
-					rows = site.rows(info(name)["search"]+ " -zip -rar -ita -crimson -raw -mkv -720 -mp4",patt)
-					print site
-					newrows = []
-					for nr in rows:
-						r = nr.groupdict()
-						#print "r",r
-						try:
-							r["seeds"] = int(r["seeds"])
-						except ValueError:
-							r["seeds"] = 0
-						try:
-							r["peers"] = int(r["peers"])
-						except ValueError:
-							r["peers"] = 0
-						newrows.append(r)
-
-					rows = newrows
-					#assert(rows!=[])
-					rows.sort(lambda x,y:cmp(y["seeds"],x["seeds"]))
-						
-					for r in rows:
-						sp = "<span title=\""
-						if r["name"].find(sp)!=-1:
-							r["name"] = r["name"][r["name"].find(sp)+len(sp):r["name"][len(sp)+1:].find("\"")+len(sp)+1]
-						r["name"] = r["name"].replace("<b>","").replace("</b>","")
-						ok = False
-						print "row",r["name"]
-						if next.has_key("idnum"):
-							print "options",options
-							globals()["options"] = options
+					update(name,season,epnum)
+					con.commit()
+					print ""
+					continue
+				gotit = False
+				for site in sites:
+					try:
+						patt = ""
+						if season!=0:
+							patt += " %d"%season
+						if epnum!=0:
+							patt +=" %d"%epnum
+						rows = site.rows(info(name)["search"]+ " -zip -rar -ita -crimson -raw -mkv -720 -mp4",patt)
+						print site
+						newrows = []
+						for nr in rows:
+							r = nr.groupdict()
+							#print "r",r
 							try:
-								ok = next["idnum"](r["name"],name,season,epnum)
-							except TypeError:
-								ok = globals()[next["idnum"]](r["name"],name,season,epnum)
-						else:
-							num = idnum.search(r["name"])
-							if num!=None:
-								print num.groups()
-								try:
-									which = [int(x) for x in num.groups() if x!=None]
-								except TypeError:
-									print r["name"],num.groups()
-									raise
-								if len(which) == 1:
-									which += [0]
-								if which == [season,epnum]:
-									ok = True
-								else:
-									print "wrong ep, want",(season,epnum),"got",which
+								r["seeds"] = int(r["seeds"])
+							except ValueError:
+								r["seeds"] = 0
+							try:
+								r["peers"] = int(r["peers"])
+							except ValueError:
+								r["peers"] = 0
+							newrows.append(r)
 
-								print r,which
-						if ok:
-							fname = torrent(name,season,epnum)
-							if options.download:
+						rows = newrows
+						#assert(rows!=[])
+						rows.sort(lambda x,y:cmp(y["seeds"],x["seeds"]))
+							
+						for r in rows:
+							sp = "<span title=\""
+							if r["name"].find(sp)!=-1:
+								r["name"] = r["name"][r["name"].find(sp)+len(sp):r["name"][len(sp)+1:].find("\"")+len(sp)+1]
+							r["name"] = r["name"].replace("<b>","").replace("</b>","")
+							ok = False
+							print "row",r["name"]
+							if next.has_key("idnum"):
+								print "options",options
+								globals()["options"] = options
+								try:
+									ok = next["idnum"](r["name"],name,season,epnum)
+								except TypeError:
+									ok = globals()[next["idnum"]](r["name"],name,season,epnum)
+							else:
+								num = idnum.search(r["name"])
+								if num!=None:
+									print num.groups()
+									try:
+										which = [int(x) for x in num.groups() if x!=None]
+									except TypeError:
+										print r["name"],num.groups()
+										raise
+									if len(which) == 1:
+										which += [0]
+									if which == [season,epnum]:
+										ok = True
+									else:
+										print "wrong ep, want",(season,epnum),"got",which
+
+									print r,which
+							if ok:
+								fname = torrent(name,season,epnum)
 								if not saferetrieve(site.torrent(r),fname):
 									continue
-							update(name,season,epnum)
-							con.commit()
-							gotit = True
-							break
-						else:
-							print "not an ep",r
-							print
-							
-				except URLTimeoutError:
-					print "URLTimeout for",site
-					continue
-				if gotit:
-					break
-			else:
-				print "can't get %d-%d for %s"%(season,epnum,name)
+								update(name,season,epnum)
+								con.commit()
+								gotit = True
+								break
+							else:
+								print "not an ep",r
+								print
+								
+					except URLTimeoutError:
+						print "URLTimeout for",site
+						continue
+					if gotit:
+						break
+				else:
+					print "can't get %d-%d for %s"%(season,epnum,name)
 		print ""
