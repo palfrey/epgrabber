@@ -14,6 +14,7 @@ from os import remove
 from urlparse import urljoin
 from datetime import datetime, timedelta,date
 from optparse import OptionParser
+import vobject
 
 import urllib
 class AppURLopener(urllib.FancyURLopener):
@@ -173,7 +174,7 @@ def core(inf,eps):
 			continue
 		else:
 			print "last",last
-		return {"name":inf["name"],"season":season,"epnum":epnum,"date":date}
+		return {"name":inf["name"],"season":season,"epnum":epnum,"date":date, "title":title}
 	else:
 		print "ran out of episodes!"
 		return None
@@ -244,6 +245,27 @@ class PirateBay:
 
 	def torrent(self,r):
 		return r["path"]
+
+def setup(options):
+	try:
+		from pysqlite2 import dbapi2 as sqlite
+	except ImportError,e:
+		print e
+		import sqlite
+
+	con = sqlite.connect("watch.db")
+	cur = con.cursor()
+
+	yesterday = date.fromtimestamp(time())-timedelta(days=1)
+	yesterday = yesterday.timetuple()
+
+	cache = GetURL(debug=options.debug)
+	cache.user_agent = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.3) Gecko/20070309 Firefox/2.0.0.3"
+
+	items = {"cur": cur, "yesterday":yesterday, "cache":cache, "con":con}
+	for x in items:
+		globals()[x] = items[x]
+	return items
 	
 if __name__ == "__main__":
 	idnum = compile("(?:S(\d+)E(\d+))|(?:\[(\d+)x(\d+)\])|(?: (\d)(\d{2}) - )|(?: (\d+)X(\d+) )|(?:\.(\d+)(\d{2}).)|(?: (\d{2}))",IGNORECASE)
@@ -265,23 +287,14 @@ if __name__ == "__main__":
 
 	(options,args) = parser.parse_args()
 
-	cache = GetURL(debug=options.debug)
-	cache.user_agent = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.3) Gecko/20070309 Firefox/2.0.0.3"
 
 	globals()["options"] =  options
 	if len(args)!=0:
 		parser.print_help()
 		parser.error("args after main text")
 
-	try:
-		from pysqlite2 import dbapi2 as sqlite
-	except ImportError,e:
-		print e
-		import sqlite
+	setup(options)
 
-	con = sqlite.connect("watch.db")
-	cur = con.cursor()
-	globals()["cur"] = cur
 	cur.execute("select name from sqlite_master where type='table' and name='series'")
 	if len(cur.fetchall())==0:
 		cur.execute("create table series (name varchar(30) primary key,search varchar(100),season integer, episode integer, last datetime, command varchar(100), checked datetime);")
@@ -308,8 +321,8 @@ if __name__ == "__main__":
 	limit = timedelta(21)
 
 	curr = time()
-	yesterday = date.fromtimestamp(time())-timedelta(days=1)
-	yesterday = yesterday.timetuple()
+
+	calendar = vobject.iCalendar()
 
 	for name in series:
 		print name
@@ -388,8 +401,14 @@ if __name__ == "__main__":
 			cur.execute("update series set checked=? where name=?",(curr,name))
 			con.commit()
 		if next!=None:
-			for x in ["season","epnum","date"]:
-				locals()[x] = next[x]
+			for x in ["season","epnum","date", "title"]:
+				if x in next:
+					locals()[x] = next[x]
+			utc = vobject.icalendar.utc
+			event = calendar.add('vevent')
+			event.add('summary').value = str("%s - %02dx%02d: %s"%(name, season, epnum, title))
+			event.add('dtstart').value = datetime(date[0],date[1],date[2],tzinfo=utc)
+			event.add('dtend').value = datetime(date[0],date[1],date[2],tzinfo=utc)
 			delta = None
 			if date!=None:
 				delta = datetime(date[0],date[1],date[2])-datetime(now[0],now[1],now[2])
@@ -495,3 +514,4 @@ if __name__ == "__main__":
 				else:
 					print "can't get %d-%d for %s"%(season,epnum,name)
 		print ""
+	open("episodes.ics","w").write(calendar.serialize())
