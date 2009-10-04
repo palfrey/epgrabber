@@ -15,6 +15,7 @@ from urlparse import urljoin
 from datetime import datetime, timedelta,date
 from optparse import OptionParser
 import vobject
+from enum import Enum
 
 import urllib
 class AppURLopener(urllib.FancyURLopener):
@@ -57,24 +58,50 @@ def geass(inf):
 		ret["idnum"] = animeep
 	return ret
 
+class EpType(Enum):
+	TVRage = 1
+	TVcom = 2
+
 def epguides(inf,name):
 	data = cache.get("http://epguides.com/%s/"%name,max_age=60*60*24*2).read()
-	patt = compile("\d+.\s+(\d+)-([\s\d]{2})\s*(?:[\dA-Z\-]+)?\s+(\d+ [A-Z][a-z]+ \d+)?\s+<a target=\"(?:visit|_blank)\" href=\"[^\"]+\">([^<]+)</a>")
+	if data.find("TVRage present")!=-1:
+		patt = compile("(\d+)\s+(\d+)-([\s\d]{2})\s+(?:[\dA-Z\-]+)\s+(\d+/[A-Za-z]+/\d+)\s+<a href=\'[^\']+\'>([^<]+)</a>")
+		kind = EpType.TVRage
+	elif data.find("TV.com")!=-1:
+		patt = compile("(\d+).\s+(\d+)-(.+?)\s+(?:[\dA-Z\-]+)?\s+(\d+ [A-Z][a-z]+ \d+)?\s+<a target=\"(?:visit|_blank)\" href=\"[^\"]+\">([^<]+)</a>")
+		kind = EpType.TVcom
+	else:
+		file('dump','w').write(data)
+		raise Exception
 	eps = patt.findall(data)
 	if len(eps) ==0:
-		file('dump','w').write(torr)
+		file('dump','w').write(data)
 		raise Exception
 	neweps = []
 	for e in eps:
-		n = list(e)
+		(epnum, season, identifier, date, title) = e
 		try:
-			n[2] = strptime(n[2],"%d %b %y")
+			epnum = str(int(identifier))
+		except ValueError,e:
+			valid = ""
+			for x in identifier.strip():
+				if x.isdigit():
+					valid += x
+				else:
+					break
+			if valid !="":
+				epnum = valid
+		try:
+			if kind == EpType.TVRage:
+				date = strptime(date,"%d/%b/%y")
+			else:
+				date = strptime(date,"%d %b %y")
 		except ValueError:
-			if n[2] != "":
+			if date != "":
 				print n
 				raise
-			n[2] = None
-		neweps.append(n)
+			date = None
+		neweps.append((season, epnum, date,title))
 	return core(inf,neweps)
 
 def multisplit(text,items):
