@@ -170,7 +170,7 @@ def core(inf,eps):
 	num = inf["episode"]
 	has_prev = False
 
-	eps.sort(lambda a,b:cmp(a[0]*100+a[1],b[0]*100+b[1]))
+	eps.sort(lambda a,b:cmp(int(a[0])*100+int(a[1]),int(b[0])*100+int(b[1])))
 		
 	prev = (0,0)
 	last = None
