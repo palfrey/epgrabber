@@ -7,7 +7,7 @@ try:
 except:
 	print "You need to install urlgrab. Get it using 'git clone git://github.com/palfrey/urlgrab.git urlgrab'"
 	sys.exit(1)
-from re import compile,IGNORECASE,MULTILINE,DOTALL
+from re import compile,IGNORECASE,MULTILINE,DOTALL,split
 from time import strptime,strftime,localtime,time
 from os.path import exists,getsize
 from os import remove
@@ -65,15 +65,31 @@ class EpType(Enum):
 def epguides(inf,name):
 	data = cache.get("http://epguides.com/%s/"%name,max_age=60*60*24*2).read()
 	if data.find("TVRage present")!=-1:
-		patt = compile("(\d+)\s+(\d+)-([\s\d]{2})\s+(?:[\dA-Z\-]+)\s+(\d+/[A-Za-z]+/\d+)\s+<a href=\'[^\']+\'>([^<]+)</a>")
 		kind = EpType.TVRage
+		matcher = compile("www.tvrage.com/.+?/episodes/\d+")
+		lines = []
+		hrefname = compile("<a[^>]+>(.+?)</a>")
+		for line in data.split("\n"):
+			if matcher.search(line)!=None:
+				bits = list(split("\s+",line,3))
+				if bits[-1].find("<a href=")!=0:
+					bits = list(split("\s+",line,4))
+					del bits[2] # remove the ident
+				assert bits[-1].find("<a href=")==0,bits
+				bits[-1] = hrefname.search(bits[-1]).groups()[0]
+				assert bits[1].find("-")!=-1,bits
+				(season,ident) = bits[1].split("-",1)
+				del bits[1]
+				bits[1:1] = (season,ident)
+				lines.append(bits)
+		eps = lines
 	elif data.find("TV.com")!=-1:
 		patt = compile("(\d+).\s+(\d+)-(.+?)\s+(?:[\dA-Z\-]+)?\s+(\d+ [A-Z][a-z]+ \d+)?\s+<a target=\"(?:visit|_blank)\" href=\"[^\"]+\">([^<]+)</a>")
 		kind = EpType.TVcom
+		eps = patt.findall(data)
 	else:
 		file('dump','w').write(data)
 		raise Exception
-	eps = patt.findall(data)
 	if len(eps) ==0:
 		file('dump','w').write(data)
 		raise Exception
@@ -98,7 +114,7 @@ def epguides(inf,name):
 				date = strptime(date,"%d %b %y")
 		except ValueError:
 			if date != "":
-				print n
+				print e
 				raise
 			date = None
 		neweps.append((season, epnum, date,title))
