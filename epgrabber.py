@@ -508,7 +508,10 @@ if __name__ == "__main__":
 								except TypeError:
 									ok = globals()[next["idnum"]](r["name"],name,season,epnum)
 							else:
-								num = idnum.search(r["name"])
+								if season == 0: # assume no proper season numbers
+									num = compile("[^a-zA-Z](\d+)[^a-zA-Z]").search(r["name"])
+								else:
+									num = idnum.search(r["name"])
 								if num!=None:
 									print num.groups()
 									try:
@@ -517,7 +520,7 @@ if __name__ == "__main__":
 										print r["name"],num.groups()
 										raise
 									if len(which) == 1:
-										which += [0]
+										which = [0]+which
 									if which == [season,epnum]:
 										ok = True
 									else:
