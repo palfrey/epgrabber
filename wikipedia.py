@@ -9,7 +9,7 @@ year = compile("<a href=\"/wiki/\d+\" title=\"\d+\">(\d+)</a>")
 title = compile(">([^<]+)</a>")
 tags = compile(r'<[^<]*?/?>')
 
-def wikipedia(inf,page):
+def wikipedia(inf,page,anime=False):
 	cache = inf["cache"]
 	data = cache.get("http://en.wikipedia.org/wiki/%s"%page,max_age=60*60).read()
 	blocks = trs.findall(data)
@@ -41,6 +41,8 @@ def wikipedia(inf,page):
 						m = m[:m.find("<")]
 					if m[0] in ["\"","\'"]:
 						m = m[1:]
+					if len(m) == 0:
+						continue
 					if m[-1] in ["\"","\'"]:
 						m = m[:-1]
 					blob["title"] = m
@@ -102,8 +104,8 @@ def wikipedia(inf,page):
 			print "no valid number. keys are",ma
 			continue
 			
-		if len(number)<3:
-			season = 1
+		if len(number)<3 or anime:
+			season = 0
 			epnum = number
 		elif number.find("x")!=-1:
 			(season,epnum) = number.split("x")
@@ -118,4 +120,5 @@ def wikipedia(inf,page):
 			print "no valid title. keys are",ma
 	if len(eps) == 0:
 		raise Exception
+	#print eps
 	return inf["core"](inf,eps)
