@@ -433,7 +433,10 @@ if __name__ == "__main__":
 					locals()[x] = next[x]
 			utc = vobject.icalendar.utc
 			event = calendar.add('vevent')
-			event.add('summary').value = str("%s - %02dx%02d: %s"%(name, season, epnum, title))
+			if "title" in next:
+				event.add('summary').value = str("%s - %02dx%02d: %s"%(name, season, epnum, title))
+			else:
+				event.add('summary').value = str("%s - %02dx%02d"%(name, season, epnum))
 			event.add('dtstart').value = datetime(date[0],date[1],date[2],tzinfo=utc)
 			event.add('dtend').value = datetime(date[0],date[1],date[2],tzinfo=utc)
 			delta = None
