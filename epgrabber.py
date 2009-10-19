@@ -9,13 +9,15 @@ except:
 	sys.exit(1)
 from re import compile,IGNORECASE,MULTILINE,DOTALL,split
 from time import strptime,strftime,localtime,time
-from os.path import exists,getsize
+from os.path import exists,getsize,basename,join
 from os import remove
 from urlparse import urljoin
 from datetime import datetime, timedelta,date
 from optparse import OptionParser
 import vobject
 from enum import Enum
+from shutil import move
+from BitTorrent.bencode import bdecode
 
 import urllib
 class AppURLopener(urllib.FancyURLopener):
@@ -31,21 +33,17 @@ cache = None
 def saferetrieve(url,fname):
 	try:
 		print "Trying",url
-		#try:
-		#	global cache
-		#	#cache.debug = True
-		#	data = cache.get(url)
-		#except URLTimeoutError,e:
-		#	print e
-		#	return False
-		#file(fname,"wb").write(data.read())
-		urllib.urlretrieve(url,fname)
-		if exists(fname) and getsize(fname)>1000:
+		tmpname = join("/tmp",basename(fname))
+		urllib.urlretrieve(url,tmpname)
+		if exists(tmpname) and getsize(tmpname)>1000:
 			print "Retrieved!",url
+			length = bdecode(open(tmpname).read())['info']['length']
+			assert length != 367001606, tmpname
+			move(tmpname, fname)
 			return True
 		else:
-			if exists(fname):
-				remove(fname)
+			if exists(tmpname):
+				remove(tmpname)
 			print "Too small!"
 			return False
 	except IOError:
