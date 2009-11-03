@@ -117,7 +117,7 @@ def epguides(inf,name):
 			else:
 				date = strptime(date,"%d %b %y")
 		except ValueError:
-			if date != "":
+			if date.find(" ")!=-1 or date.find(" ")!=-1:
 				print e
 				raise
 			date = None
