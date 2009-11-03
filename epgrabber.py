@@ -286,7 +286,6 @@ class PirateBay:
 		url = "http://thepiratebay.org/search/%s/0/7/0"%(terms+numbers).replace(" ","+")
 		print "url",url
 		torr = cache.get(url,max_age=60*60).read()
-		file('dump','w').write(torr)
 		rows = self.row.finditer(torr)
 		return rows
 

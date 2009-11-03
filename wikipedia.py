@@ -14,7 +14,7 @@ def wikipedia(inf,page,anime=False):
 	data = cache.get("http://en.wikipedia.org/wiki/%s"%page,max_age=60*60).read()
 	blocks = trs.findall(data)
 	items = []
-	file("dump","wb").write(data)
+	#file("dump","wb").write(data)
 	for b in blocks:
 		if b.find("<td")==-1:
 			continue
