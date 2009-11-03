@@ -11,7 +11,7 @@ tags = compile(r'<[^<]*?/?>')
 
 def wikipedia(inf,page,anime=False):
 	cache = inf["cache"]
-	data = cache.get("http://en.wikipedia.org/wiki/%s"%page,max_age=60*60).read()
+	data = cache.get("http://en.wikipedia.org/wiki/%s"%page,max_age=60*60*24).read()
 	blocks = trs.findall(data)
 	items = []
 	#file("dump","wb").write(data)
