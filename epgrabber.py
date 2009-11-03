@@ -37,8 +37,14 @@ def saferetrieve(url,fname):
 		urllib.urlretrieve(url,tmpname)
 		if exists(tmpname) and getsize(tmpname)>1000:
 			print "Retrieved!",url
-			length = bdecode(open(tmpname).read())['info']['length']
-			assert length != 367001606, tmpname
+			try:
+				length = bdecode(open(tmpname).read())['info']['length']
+			except KeyError:
+				print bdecode(open(tmpname).read())['info'].keys()
+				raise
+			if length in [367001606,364904448,183500806]:
+				print "Bad torrent!"
+				return False
 			move(tmpname, fname)
 			return True
 		else:
