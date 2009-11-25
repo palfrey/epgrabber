@@ -361,7 +361,7 @@ if __name__ == "__main__":
 	print "series",series,"\n"
 
 	#sites = [Isohunt(),Mininova()]
-	sites = [Mininova(),Isohunt(),PirateBay()]
+	sites = [Isohunt(),Mininova(),PirateBay()]
 
 	shorttd = timedelta(0,0,0,0,0,6,0)
 	longtd = timedelta(7)
