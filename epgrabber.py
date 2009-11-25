@@ -271,7 +271,7 @@ class Mininova:
 		print "terms",terms
 		terms = " ".join([t for t in terms.split(" ") if len(t)>1])
 		print "terms",terms
-		url = "http://www.mininova.org/search/%s/seeds"%(terms+numbers).replace(" ","+")
+		url = "http://www.mininova.org/search/%s/seeds"%(terms).replace(" ","+")
 		print "url",url
 		torr = cache.get(url,max_age=60*60).read()
 		rows = self.row.finditer(torr)
