@@ -6,7 +6,7 @@ def scarywater(*args):
 		(inf,group,name,exclude) = args
 	global yesterday
 	base = "http://a.scarywater.net/%s/"%group
-	data = cache.get(base,max_age=60*60).read()
+	data = inf["cache"].get(base,max_age=60*60).read()
 	href = compile("<a href=\"([^\"]+)\"[^>]+>([^<]+)</a>")
 	eps = []
 	added = []
