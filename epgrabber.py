@@ -368,7 +368,7 @@ if __name__ == "__main__":
 			cmd = None
 			if c not in globals():
 				try:
-					mod = __import__(c,globals(),locals(),[c])
+					mod = __import__("fetch.%s"%c,globals(),locals(),[c])
 					cmd = getattr(mod,c)
 				except ImportError:
 					raise Exception, "can't find command %s"%c
