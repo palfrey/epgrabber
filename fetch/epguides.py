@@ -55,5 +55,3 @@ def epguides(inf,name):
 			date = None
 		neweps.append((season, epnum, date,title))
 	return core(inf,neweps)
-
-
