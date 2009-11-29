@@ -52,6 +52,7 @@ class EpgrabberGUI:
 		#Get the Main Window, and connect the "destroy" event
 		self.window = self.wTree.get_object("wndMain")
 		self.window.connect("destroy", gtk.main_quit)
+		self.window.maximize()
 		self.window.show_all()
 
 		self.types = (gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_UINT, gobject.TYPE_UINT,gobject.TYPE_STRING, gobject.TYPE_FLOAT)
