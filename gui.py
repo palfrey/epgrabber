@@ -44,7 +44,7 @@ class EpgrabberGUI:
 
 	def __init__(self):
 		#Set the Glade file
-		self.intffile = "epgrabber.glade"  
+		self.intffile = "epgrabber.xml"
 		self.wTree = gtk.Builder()
 		self.wTree.add_from_file(self.intffile)
 		self.wTree.connect_signals(self)
