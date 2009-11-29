@@ -146,7 +146,7 @@ class EpgrabberGUI:
 			self.cur.execute("select name,search,season,episode,command,last from series where name=\"%s\" order by last desc"%series)
 			for row in self.cur.fetchall():
 				self._addrow(row)
-			dlg.hide()
+		dlg.hide()
 
 	def _removerow(self, model, path, iter):
 		series = model.get_value(iter, 0)
