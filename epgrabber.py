@@ -242,7 +242,7 @@ def setup(options):
 		print e
 		import sqlite
 
-	con = sqlite.connect("watch.db")
+	con = sqlite.connect(options.database)
 	cur = con.cursor()
 
 	yesterday = date.fromtimestamp(time())-timedelta(days=1)
@@ -265,6 +265,7 @@ if __name__ == "__main__":
 	now = tuple(now)
 
 	parser = OptionParser(description="Episode grabber by Tom Parker <palfrey@tevp.net>")
+	parser.add_option("--database",dest="database", type="string", default="watch.db",help="Series database (Default: watch.db)")
 	parser.add_option("-n","--series",dest="series",action="append",type="string")
 	parser.add_option("-o","--override",dest="override",action="store_true",help="Override normal date values",default=False)
 	parser.add_option("-s","--season",dest="season",type="int",default=-1)
