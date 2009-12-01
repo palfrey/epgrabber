@@ -19,6 +19,8 @@ from enum import Enum
 from shutil import move
 from BitTorrent.bencode import bdecode
 
+import fetch
+
 import urllib
 class AppURLopener(urllib.FancyURLopener):
     version = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11"
@@ -366,15 +368,10 @@ if __name__ == "__main__":
 			else:
 				args = []
 			print "cmd: '%s' args: "%c,args
-			cmd = None
-			if c not in globals():
-				try:
-					mod = __import__("fetch.%s"%c,globals(),locals(),[c])
-					cmd = getattr(mod,c)
-				except ImportError:
-					raise Exception, "can't find command %s"%c
-			if cmd == None:
-				cmd = globals()[c]
+			try:
+				cmd = getattr(fetch,c)
+			except ImportError:
+				raise Exception, "can't find command %s"%c
 			args = [info(name)]+args
 			try:
 				next = cmd().run(*args)
