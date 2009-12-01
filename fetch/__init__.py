@@ -4,16 +4,12 @@ keep = []
 for f in listdir(dirname(__file__)):
 	if f[-3:] == ".py" and f[0] != "_":
 		s = f[:-3]
-		#print s
-		locals()[s] = __import__("fetch.%s"%s,globals(),locals(),s)
+		locals()[s] = getattr(__import__("fetch.%s"%s,globals(),locals(),[s]),s)
 		keep.append(s)
 
-toremove = ["keep"]
-l = None
-for l in locals():
+for l in list(locals()):
 	if l[0]!="_" and l!="keep" and l not in keep:
-		toremove.append(l)
+		del locals()[l]
 
-for r in toremove:
-	del locals()[r]
-del r
+del l
+del keep
