@@ -377,7 +377,7 @@ if __name__ == "__main__":
 				cmd = globals()[c]
 			args = [info(name)]+args
 			try:
-				next = cmd(*args)
+				next = cmd().run(*args)
 			except URLTimeoutError,e:
 				print "URL TIMEOUT!",e.url
 				continue
