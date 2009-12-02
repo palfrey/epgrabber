@@ -268,7 +268,7 @@ if __name__ == "__main__":
 
 	parser = OptionParser(description="Episode grabber by Tom Parker <palfrey@tevp.net>")
 	parser.add_option("--database",dest="database", type="string", default="watch.db",help="Series database (Default: watch.db)")
-	parser.add_option("-n","--series",dest="series",action="append",type="string")
+	parser.add_option("-n","--series",dest="series",action="append",type="string",default=[])
 	parser.add_option("-o","--override",dest="override",action="store_true",help="Override normal date values",default=False)
 	parser.add_option("-s","--season",dest="season",type="int",default=-1)
 	parser.add_option("-e","--episode",dest="episode",type="int",default=-1)
@@ -290,20 +290,28 @@ if __name__ == "__main__":
 	if len(cur.fetchall())==0:
 		cur.execute("create table series (name varchar(30) primary key,search varchar(100),season integer, episode integer, last datetime, command varchar(100), checked datetime);")
 		con.commit()
-	if options.series!=None and len(options.series)>0:
+	if options.series:
 		query = "select name from series where name='"+("' or name='".join(options.series))+"'"
 		cur.execute(query)
 	else:
 		cur.execute("select name from series order by last desc")
+	
 	series = [x[0] for x in cur.fetchall()]
-	print "Selected series:",(", ".join(series)),"\n"
+	if options.series != []:
+		missing = [x for x in options.series if x not in series]
+		if len(missing)>0:
+			cur.execute("select name from series order by name")
+			series = [x[0] for x in cur.fetchall()]
+			parser.error("Can't find series called: "+(", ".join(missing))+"\nWe have: "+(", ".join(series)))
 
-	if len(series)==0:
+	if series == []:
 		print "Don't have any selected series!"
 		cur.execute("select name from series order by name")
 		series = [x[0] for x in cur.fetchall()]
 		print "We have:",(", ".join(series))
 		sys.exit(1)
+	
+	print "Selected series:",(", ".join(series)),"\n"
 
 	#sites = [Isohunt(),Mininova()]
 	sites = [Isohunt(),Mininova(),PirateBay()]
