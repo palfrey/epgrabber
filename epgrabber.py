@@ -279,7 +279,6 @@ if __name__ == "__main__":
 
 	(options,args) = parser.parse_args()
 
-
 	globals()["options"] =  options
 	if len(args)!=0:
 		parser.print_help()
@@ -292,18 +291,19 @@ if __name__ == "__main__":
 		cur.execute("create table series (name varchar(30) primary key,search varchar(100),season integer, episode integer, last datetime, command varchar(100), checked datetime);")
 		con.commit()
 	if options.series!=None and len(options.series)>0:
-		cur.execute("select name from series where name='"+("' or name='name='".join(options.series))+"'")
+		query = "select name from series where name='"+("' or name='".join(options.series))+"'"
+		cur.execute(query)
 	else:
 		cur.execute("select name from series order by last desc")
-	d = cur.fetchall()
-	series = [x[0] for x in d]
-	print "d",d
+	series = [x[0] for x in cur.fetchall()]
+	print "Selected series:",(", ".join(series)),"\n"
 
 	if len(series)==0:
-		print "You need to add some series!"
+		print "Don't have any selected series!"
+		cur.execute("select name from series order by name")
+		series = [x[0] for x in cur.fetchall()]
+		print "We have:",(", ".join(series))
 		sys.exit(1)
-
-	print "series",series,"\n"
 
 	#sites = [Isohunt(),Mininova()]
 	sites = [Isohunt(),Mininova(),PirateBay()]
