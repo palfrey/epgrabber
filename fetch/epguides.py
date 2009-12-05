@@ -1,3 +1,12 @@
+# vim: set fileencoding=utf-8
+from re import compile
+from enum import Enum
+from time import strptime
+
+class EpType(Enum):
+	TVRage = 1
+	TVcom = 2
+
 class epguides:
 	def run(self,inf,name):
 		data = inf["cache"].get("http://epguides.com/%s/"%name,max_age=60*60*24*2).read()
@@ -55,4 +64,4 @@ class epguides:
 					raise
 				date = None
 			neweps.append((season, epnum, date,title))
-		return core(inf,neweps)
+		return inf["core"](inf,neweps)

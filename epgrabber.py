@@ -15,7 +15,6 @@ from urlparse import urljoin
 from datetime import datetime, timedelta,date
 from optparse import OptionParser
 import vobject
-from enum import Enum
 from shutil import move
 from BitTorrent.bencode import bdecode
 
@@ -64,10 +63,6 @@ def geass(inf):
 	if ret!=None:
 		ret["idnum"] = animeep
 	return ret
-
-class EpType(Enum):
-	TVRage = 1
-	TVcom = 2
 
 def multisplit(text,items):
 	out = [text]
