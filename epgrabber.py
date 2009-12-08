@@ -203,22 +203,6 @@ class Isohunt:
 	def torrent(self,r):
 		return "http://isohunt.com/download/"+r["path"]
 
-class Mininova:
-	row = compile("<a href=\"/get/(?P<path>\d+)\"[^>]*><img src=\"/images/down.gif\" alt=\"\[D\]\"/></a><a href=\"/tor/\d+\">(?P<name>.*?)(?=</a>)</a>.*?(?=</td>)</td><td align=\"right\">\d+.\d+&nbsp;(?:G|M|K)B</td><td align=\"right\"><span class=\"g\">(?P<seeds>\d+)</span></td><td align=\"right\"><span class=\"b\">(?P<peers>\d+)</span>")
-
-	def rows(self,terms, numbers):
-		print "terms",terms
-		terms = " ".join([t for t in terms.split(" ") if len(t)>1])
-		print "terms",terms
-		url = "http://www.mininova.org/search/%s/seeds"%(terms).replace(" ","+")
-		print "url",url
-		torr = cache.get(url,max_age=60*60).read()
-		rows = self.row.finditer(torr)
-		return rows
-
-	def torrent(self,r):
-		return "http://www.mininova.org/get/%s"%r["path"]
-
 class PirateBay:
 	row = compile("<a href=\"[^\"]+\" class=\"detLink\" title=\"[^\"]+\">(?P<name>[^<]+)</a>.*?(?P<path>http://torrents.thepiratebay.org/\d+/[^\"]+)\" title=\"Download this torrent\">.*?<td align=\"right\">\d+\.\d+&nbsp;(?:G|M|K)iB</td>.*?<td align=\"right\">(?P<seeds>\d+)</td>.*?<td align=\"right\">(?P<peers>\d+)</td>",MULTILINE|DOTALL)
 
@@ -308,8 +292,7 @@ if __name__ == "__main__":
 	
 	print "Selected series:",(", ".join(series)),"\n"
 
-	#sites = [Isohunt(),Mininova()]
-	sites = [Isohunt(),Mininova(),PirateBay()]
+	sites = [Isohunt(),PirateBay()]
 
 	shorttd = timedelta(0,0,0,0,0,6,0)
 	longtd = timedelta(7)
