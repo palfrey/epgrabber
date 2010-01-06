@@ -1,5 +1,5 @@
 # vim: set fileencoding=utf-8
-from re import compile
+from re import compile,split
 from enum import Enum
 from time import strptime
 
