@@ -207,7 +207,7 @@ class PirateBay:
 	row = compile("<a href=\"[^\"]+\" class=\"detLink\" title=\"[^\"]+\">(?P<name>[^<]+)</a>.*?(?P<path>http://torrents.thepiratebay.org/\d+/[^\"]+)\" title=\"Download this torrent\">.*?<td align=\"right\">\d+\.\d+&nbsp;(?:G|M|K)iB</td>.*?<td align=\"right\">(?P<seeds>\d+)</td>.*?<td align=\"right\">(?P<peers>\d+)</td>",MULTILINE|DOTALL)
 
 	def rows(self,terms,numbers):
-		url = "http://thepiratebay.org/search/%s/0/7/0"%(terms+numbers).replace(" ","+")
+		url = "http://thepiratebay.org/search/%s/0/7/0"%(terms).replace(" ","+")
 		print "url",url
 		torr = cache.get(url,max_age=60*60).read()
 		rows = self.row.finditer(torr)
