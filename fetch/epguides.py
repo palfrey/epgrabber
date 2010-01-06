@@ -14,15 +14,16 @@ class epguides:
 			kind = EpType.TVRage
 			matcher = compile("www.tvrage.com/.+?/episodes/\d+")
 			lines = []
-			hrefname = compile("<a[^>]+>(.+?)</a>")
+			tagstrip = compile(r'<.*?>')
 			for line in data.split("\n"):
 				if matcher.search(line)!=None:
 					bits = list(split("\s+",line,3))
+					#print "bits",bits
 					if bits[-1].find("<a href=")!=0:
 						bits = list(split("\s+",line,4))
 						del bits[2] # remove the ident
 					assert bits[-1].find("<a href=")==0,bits
-					bits[-1] = hrefname.search(bits[-1]).groups()[0]
+					bits[-1] = tagstrip.sub('',bits[-1])
 					assert bits[1].find("-")!=-1,bits
 					(season,ident) = bits[1].split("-",1)
 					del bits[1]
