@@ -2,7 +2,7 @@ from os import listdir
 from os.path import dirname
 keep = []
 for f in listdir(dirname(__file__)):
-	if f[-3:] == ".py" and f[0] != "_":
+	if f[-3:] == ".py" and f[0] != "_" and f!="enum.py":
 		s = f[:-3]
 		locals()[s] = getattr(__import__("fetch.%s"%s,globals(),locals(),[s]),s)
 		keep.append(s)
