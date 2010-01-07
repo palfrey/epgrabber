@@ -58,7 +58,7 @@ class wikipedia:
 				except IndexError:
 					pass
 				try:
-					if bi.find("200")!=-1: # first bit of 200?
+					if bi.find("20")!=-1: # first bit of 20xx?
 						blob["date"] = dm.findall(bi)[0]
 				except IndexError:
 					try:
