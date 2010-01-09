@@ -14,7 +14,11 @@ from os import remove
 from urlparse import urljoin
 from datetime import datetime, timedelta,date
 from optparse import OptionParser
-import vobject
+try:
+	import vobject
+except ImportError:
+	vobject = None
+from enum import Enum
 from shutil import move
 from BitTorrent.bencode import bdecode
 
@@ -300,7 +304,8 @@ if __name__ == "__main__":
 
 	curr = time()
 
-	calendar = vobject.iCalendar()
+	if vobject:
+		calendar = vobject.iCalendar()
 
 	for name in series:
 		print name
@@ -493,4 +498,5 @@ if __name__ == "__main__":
 				else:
 					print "can't get %d-%d for %s"%(season,epnum,name)
 		print ""
-	open("episodes.ics","w").write(calendar.serialize())
+	if vobject:
+		open("episodes.ics","w").write(calendar.serialize())
