@@ -10,6 +10,10 @@ title = compile(">([^<]+)</a>")
 tags = compile(r'<[^<]*?/?>')
 
 class wikipedia:
+	args = {
+			"name":"Wikipedia page name e.g. http://en.wikipedia.org/NAME. Should be a 'List of' page",
+			"anime":"Is this an anime series? i.e. no seasons, just episode numbers"
+			}
 	def run(self,inf,page,anime=False):
 		data = inf["cache"].get("http://en.wikipedia.org/wiki/%s"%page,max_age=60*60*24).read()
 		blocks = trs.findall(data)
