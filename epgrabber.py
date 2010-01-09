@@ -312,7 +312,7 @@ if __name__ == "__main__":
 		calendar = vobject.iCalendar()
 
 	for name in series:
-		print name
+		print "Running: %s"%name
 		if options.save:
 			if len(series)>1:
 				raise Exception
