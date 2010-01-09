@@ -20,7 +20,10 @@ except ImportError:
 	vobject = None
 from enum import Enum
 from shutil import move
-from BitTorrent.bencode import bdecode
+try:
+	from BitTorrent.bencode import bdecode
+except ImportError:
+	pass
 
 import fetch
 
@@ -42,15 +45,16 @@ def saferetrieve(url,fname):
 		urllib.urlretrieve(url,tmpname)
 		if exists(tmpname) and getsize(tmpname)>1000:
 			print "Retrieved!",url
-			bd = bdecode(open(tmpname).read())['info']
+			if bdecode:
+				bd = bdecode(open(tmpname).read())['info']
 
-			try:
-				length = bd['length']
-				if length in ([364904448,183500806,183500808,183656487]+list(range(367001600,367001600+50))):
-					print "Bad torrent!"
-					return False
-			except KeyError:
-				assert "files" in bd,bd.keys()
+				try:
+					length = bd['length']
+					if length in ([364904448,183500806,183500808,183656487]+list(range(367001600,367001600+50))):
+						print "Bad torrent!"
+						return False
+				except KeyError:
+					assert "files" in bd,bd.keys()
 			move(tmpname, fname)
 			return True
 		else:
