@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sys
-import gtk
+import gtk, pango
 
 ver = gtk.check_version(2,12,0)
 if ver:
@@ -13,6 +13,8 @@ try:
 except ImportError:
 	from pysqlite2 import dbapi2 as sqlite
 from time import *
+
+import fetch
 
 class EpgrabberGUI:
 	def _addrow(self,row):
@@ -42,6 +44,91 @@ class EpgrabberGUI:
 					raise Exception,t
 			self.episodes.append(newrow)
 
+	def rowClicked(self,treeview, path, view_column):
+		#print "rowClicked",treeview, path, view_column.get_property("title")
+		if view_column.get_property("title") == "Command":
+			dlg = self.wTree.get_object("dlgCommand")
+			command = self.episodes.get(self.episodes.get_iter(path),4)[0]
+			print "command",command
+			commands = command.split(";")
+			print "commands",commands
+
+			if commands == []:
+				count = 1
+				parsed = [(None,())]
+			else:
+				count = len(commands)
+				parsed = []
+				for k in commands:
+					open_brkt = k.find("(")
+					close_brkt = k.find(")")
+					assert open_brkt!=-1 and close_brkt != -1, k
+					name = k[:open_brkt]
+					args = k[open_brkt+1:close_brkt].split(",")
+					print "name,args",name,args
+					parsed.append(tuple([name,args]))
+
+			# FIXME: we're assembling tblCommands manually. This could also be done with treeview
+			# and a bunch of specialised renderers once we get the whole widget rendering thing fixed
+
+			tbl = self.wTree.get_object("tblCommands")
+		
+			for c in tbl.get_children():
+				tbl.remove(c)
+
+			tbl.resize(count,4)
+			for i in range(count):
+				name = parsed[i][0]
+				args = parsed[i][1]
+
+				argboxes = []
+
+				liststore = gtk.ListStore(gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)
+				cmb = gtk.ComboBox(liststore)
+				cell = gtk.CellRendererText()
+				cmb.pack_start(cell, True)
+				cmb.add_attribute(cell, 'text', 0)
+
+				for k in dir(fetch):
+					if k[0] == "_":
+						continue
+					cls = getattr(fetch,k)
+					liststore.append((k,cls))
+					if k == name:
+						cmb.set_active(len(liststore)-1)
+						arg_count = len(cls.args)
+						if len(args)<arg_count:
+							assert arg_count <= len(args)+len(cls.run.func_defaults),(args,cls.args,cls.run.func_defaults)
+							defaults = [str(x) for x in cls.run.func_defaults]
+							args.extend(defaults[-(arg_count-len(args)):])
+							assert arg_count == len(args),(args,cls.args,defaults)
+							print "args",args
+						for j in range(arg_count):
+							tb = gtk.TextBuffer()
+							tb.set_text(args[j])
+							txt = gtk.TextView(tb)
+							txt.set_property("editable",True)
+							txt.set_tooltip_text(cls.args[cls.args.keys()[j]])
+							txt.set_border_window_size(gtk.TEXT_WINDOW_LEFT, 5)
+							argboxes.append(txt)
+
+				tbl.attach(cmb,0,1, i, i+1)
+				
+				argtable = gtk.Table(rows=1,columns=len(argboxes))
+				for a in range(len(argboxes)):
+					argtable.attach(argboxes[a],a,a+1,0,1)
+				tbl.attach(argtable,1,2, i, i+1)
+				
+				btn = gtk.Button(stock="gtk-add")
+				tbl.attach(btn,2,3, i, i+1)
+				
+				btn = gtk.Button(stock="gtk-remove")
+				tbl.attach(btn,3,4, i, i+1)
+			tbl.show_all()
+			dlg.set_geometry_hints(dlg, max_height = dlg.size_request()[1],max_width=10000)
+			dlg.run()
+			dlg.hide()
+
 	def __init__(self):
 		#Set the Glade file
 		self.intffile = "epgrabber.xml"
@@ -66,20 +153,28 @@ class EpgrabberGUI:
 				
 		def build_tree_column(name,column):
 			typ = self.episodes.get_column_type(column)
+			editable = True
+
 			if typ == gobject.TYPE_UINT:
-				editable = gtk.CellRendererSpin()
-				editable.set_property("adjustment",gtk.Adjustment(lower=0,upper=1000,step_incr=1)) # FIXME: 1000 is a randomly picked "probably highest" value
-				editable.connect('editing-started',self.edit_spin)
+				widget = gtk.CellRendererSpin()
+				widget.set_property("adjustment",gtk.Adjustment(lower=0,upper=1000,step_incr=1)) # FIXME: 1000 is a randomly picked "probably highest" value
+				widget.connect('editing-started',self.edit_spin)
+			elif name == "Command":
+				widget = gtk.CellRendererText()
+				widget.set_property("weight", pango.WEIGHT_BOLD)
+				editable = False
 			else:
-				editable = gtk.CellRendererText()
-			editable.set_property('editable', True)
-			editable.connect('edited', self.edit_data,(self.episodes,column))
-			tvc = gtk.TreeViewColumn(name,editable,text=column)
+				widget = gtk.CellRendererText()
+			if editable:
+				widget.set_property('editable', True)
+				widget.connect('edited', self.edit_data,(self.episodes,column))
+			tvc = gtk.TreeViewColumn(name,widget,text=column)
 			tvc.set_sort_column_id(column)
 			return tvc
 
 		self.episodesList = self.wTree.get_object("tblEpisodes")
 		self.episodesList.set_model(self.episodes)
+		self.episodesList.connect("row-activated",self.rowClicked)
 		
 		self.mapping = ("Name","Search","Season","Episode","Command")
 		self.mapping = dict(zip(range(len(self.mapping)),self.mapping))
@@ -92,6 +187,9 @@ class EpgrabberGUI:
 		col.set_cell_data_func(cell,self.date_field,5)
 		col.set_sort_column_id(5)
 		self.episodesList.append_column(col)
+
+		# FIXME: test code
+		self.episodesList.row_activated((0,),self.episodesList.get_columns()[-2])
 
 	def date_field(self, column, cell, model, iter, user_data):
 		when = float(model.get_value(iter, user_data))
