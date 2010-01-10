@@ -18,7 +18,6 @@ try:
 	import vobject
 except ImportError:
 	vobject = None
-from enum import Enum
 from shutil import move
 try:
 	from BitTorrent.bencode import bdecode
