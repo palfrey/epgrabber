@@ -34,9 +34,8 @@ class AppURLopener(urllib.FancyURLopener):
 urllib._urlopener = AppURLopener()
 
 options = None
-cur = None
-con = None
 cache = None
+db = None
 
 def saferetrieve(url,fname):
 	try:
@@ -67,17 +66,16 @@ def saferetrieve(url,fname):
 		return False
 
 def info(name):
-	global cache,yesterday,cur,options
+	global cache,yesterday,options,db
 	#print "options",options
 	keys = ["name","search","season","episode","last","checked"]
-	cur.execute("select %s from series where name=\"%s\""%(",".join(keys),name))
 	ret = {}
-	data = cur.fetchone()
+	data = [s for s in db.series if s.name == name][0]
 	for k in range(len(keys)):
 		if hasattr(options,keys[k]) and getattr(options,keys[k])!=-1:
 			ret[keys[k]] = getattr(options,keys[k])
 		else:
-			ret[keys[k]] = data[k]
+			ret[keys[k]] = getattr(data,keys[k])
 	ret["cache"] = cache
 	ret["yesterday"] = yesterday
 	ret["core"] = core
@@ -142,12 +140,12 @@ def update(name,season,epnum,force=False):
 		if (season == seas and epnum == num) and not force:
 			print "Duplicate numbers!"
 			return
-		cur.execute("update series set season=%d, episode=%d, last=%d where name=\"%s\""%(season,epnum,curr,name))
-		con.commit()
-		if cur.rowcount!=1:
-			cur.execute("select name,search,season,episode,last from series where name=\"%s\""%ep)
-			print cur.fetchall()
-			raise Exception
+		
+		s = get_series(name)
+		s.season = season
+		s.episode = epnum
+		s.last = curr
+		store_values()
 	return fname
 		
 class Isohunt:
@@ -177,23 +175,29 @@ class PirateBay:
 	def torrent(self,r):
 		return r["path"]
 
+def store_values():
+	global db,options
+	open(options.database,"wb").write(db.SerializeToString())
+
+def get_series(key):
+	global db
+	for s in db.series:
+		if s.name == key:
+			return s
+	raise IndexError
+
 def setup(options):
-	try:
-		from pysqlite2 import dbapi2 as sqlite
-	except ImportError,e:
-		print e
-		import sqlite
+	from episodes_pb2 import All
 
-	con = sqlite.connect(options.database)
-	cur = con.cursor()
-
+	db = All()
+	db.ParseFromString(open(options.database,"rb").read())
 	yesterday = date.fromtimestamp(time())-timedelta(days=1)
 	yesterday = yesterday.timetuple()
 
 	cache = GetURL(debug=options.debug)
 	cache.user_agent = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.3) Gecko/20070309 Firefox/2.0.0.3"
 
-	items = {"cur": cur, "yesterday":yesterday, "cache":cache, "con":con}
+	items = {"yesterday":yesterday, "cache":cache, "db": db}
 	for x in items:
 		globals()[x] = items[x]
 	return items
@@ -207,7 +211,7 @@ if __name__ == "__main__":
 	now = tuple(now)
 
 	parser = OptionParser(description="Episode grabber by Tom Parker <palfrey@tevp.net>")
-	parser.add_option("--database",dest="database", type="string", default="watch.db",help="Series database (Default: watch.db)")
+	parser.add_option("--database",dest="database", type="string", default="watch.list",help="Series database (Default: watch.list)")
 	parser.add_option("-n","--series",dest="series",action="append",type="string",default=[])
 	parser.add_option("-o","--override",dest="override",action="store_true",help="Override normal date values",default=False)
 	parser.add_option("-s","--season",dest="season",type="int",default=-1)
@@ -226,28 +230,23 @@ if __name__ == "__main__":
 
 	setup(options)
 
-	cur.execute("select name from sqlite_master where type='table' and name='series'")
-	if len(cur.fetchall())==0:
-		cur.execute("create table series (name varchar(30) primary key,search varchar(100),season integer, episode integer, last datetime, command varchar(100), checked datetime);")
-		con.commit()
 	if options.series:
-		query = "select name from series where name='"+("' or name='".join(options.series))+"'"
-		cur.execute(query)
+		series = []
+		for s in db.series:
+			if s.name in options.series:
+				series.append(s.name)
 	else:
-		cur.execute("select name from series order by last desc")
+		series = [s.name for s in db.series]
 	
-	series = [x[0] for x in cur.fetchall()]
 	if options.series != []:
 		missing = [x for x in options.series if x not in series]
 		if len(missing)>0:
-			cur.execute("select name from series order by name")
-			series = [x[0] for x in cur.fetchall()]
+			series = sorted([s.name for s in db.series])
 			parser.error("Can't find series called: "+(", ".join(missing))+"\nWe have: "+(", ".join(series)))
 
 	if series == []:
 		print "Don't have any selected series!"
-		cur.execute("select name from series order by name")
-		series = [x[0] for x in cur.fetchall()]
+		series = sorted([s.name for s in db.series])
 		print "We have:",(", ".join(series))
 		sys.exit(1)
 	
@@ -275,19 +274,19 @@ if __name__ == "__main__":
 			if options.episode!=-1:
 				inf["episode"] = options.episode
 			update(name,inf["season"],inf["episode"],force=True)
-			cur.execute("update series set checked=? where name=?",(curr,name))
-			con.commit()
+			get_series(name).checked = curr
+			store_values()
 			#raise Exception,inf
 
-		cur.execute("select last,checked,command from series where name=?",(name,))
-		((last,checked,command),) = cur.fetchall()
+		s = get_series(name)
+		(last,checked,command) = s.last,s.checked,s.listing
 		if last == None:
 			cur.execute("update series set last=? where name=?",(curr,name))
-			con.commit()
+			store_values()
 			last = curr
 		if checked == None:
 			cur.execute("update series set checked=? where name=?",(curr,name))
-			con.commit()
+			store_values()
 			checked = curr
 
 		#print "since",curr-last
@@ -333,8 +332,8 @@ if __name__ == "__main__":
 				break
 
 		if success or options.save:
-			cur.execute("update series set checked=? where name=?",(curr,name))
-			con.commit()
+			get_series(name).checked = curr
+			store_values()
 		if next!=None:
 			for x in ["season","epnum","date", "title"]:
 				if x in next:
@@ -358,7 +357,7 @@ if __name__ == "__main__":
 					print now[:3],date[:3],
 					if delta<longtd and td>longtd:
 						cur.execute("update series set last=? where name=?",(curr,name))
-						con.commit()
+						store_values()
 				else:
 					print "(don't know next date)",
 				print "\n"
@@ -370,7 +369,7 @@ if __name__ == "__main__":
 					if not saferetrieve(next["url"],fname):
 						continue
 					update(name,season,epnum)
-					con.commit()
+					store_values()
 					print ""
 					continue
 				gotit = False
@@ -440,7 +439,7 @@ if __name__ == "__main__":
 								if not saferetrieve(site.torrent(r),fname):
 									continue
 								update(name,season,epnum)
-								con.commit()
+								store_values()
 								gotit = True
 								break
 							else:

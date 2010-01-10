@@ -1,8 +1,9 @@
 cache
 *.pyc
-watch.db
+watch.list
 episodes.log
 .*.swp
 dump
 *.torrent
 episodes.ics
+episodes_pb2.py

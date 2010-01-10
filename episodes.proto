@@ -1,0 +1,18 @@
+package episodes;
+
+message Series
+{
+	required string name = 1;
+	required string search = 2;
+	optional uint32 season = 3;
+	required uint32 episode = 4;
+	required double last = 5;
+	required double checked = 6;
+	required string listing = 7;
+	optional string search_sites = 8;
+}
+
+message All
+{
+	repeated Series series = 1;
+}
