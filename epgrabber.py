@@ -254,7 +254,7 @@ if __name__ == "__main__":
 	
 	print "Selected series:",(", ".join(series)),"\n"
 
-	sites = [Isohunt(),PirateBay()]
+	main_sites = [Isohunt(),PirateBay()]
 
 	shorttd = timedelta(0,0,0,0,0,6,0)
 	longtd = timedelta(7)
@@ -378,6 +378,11 @@ if __name__ == "__main__":
 					print ""
 					continue
 				gotit = False
+				try:
+					sites = [globals()[x] for x in get_series(name).search_sites.split(",")]
+					print "sites",sites
+				except KeyError:
+					sites = main_sites
 				for site in sites:
 					try:
 						patt = ""
