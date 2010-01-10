@@ -177,6 +177,23 @@ class PirateBay:
 	def torrent(self,r):
 		return r["path"]
 
+class NyaaTorrents:
+	row = compile("""title="[^"]+">(?P<name>[^<]+)</a></td><td class="tlistseedstats"><span class="tlistseedstatsnumber">(?P<seeds>\d+)</span></td><td class="tlistleechstats"><span class="tlistleechstatsnumber">(?P<peers>\d+)</span></td><td class="tlistcompletedstats"><span class="tlistcompletedstatsnumber">\d+</span></td></tr>
+	<tr class="mtr" id="torrent-\d+-2"><td class="tlistsize" colspan="2"><b>\d+\.\d+ (?:G|M|K)iB</b></td><td class="tlistcomments">Msg: <b>\d+</b></td></tr>
+	<tr class="ltr" id="torrent-\d+-3"><td colspan="3" class="tlistdownload"><a href="(?P<path>http://www.nyaatorrents.org/\?page=download&amp;tid=\d+)" title="Download torrent"><span>Download torrent</span>""")
+
+	def rows(self,terms,numbers):
+		terms = " ".join([x for x in terms.split(" ") if x[0]!="-"])
+		url = "http://www.nyaatorrents.org/?page=search&term=%s&cat=0_0&tl_page=&sort=1&order=0"%(terms.replace(" ","+"))
+		torr = cache.get(url,max_age=60*60).read()
+		print "url",url
+		open("dump","w").write(torr)
+		rows = self.row.finditer(torr)
+		return rows
+	
+	def torrent(self,r):
+		return r["path"].replace("&amp;","&")
+
 def store_values():
 	global db,options
 	open(options.database,"wb").write(db.SerializeToString())
