@@ -26,7 +26,9 @@ class epguides:
 						del bits[2] # remove the ident
 					assert bits[-1].find("<a href=")==0,bits
 					bits[-1] = tagstrip.sub('',bits[-1])
-					assert bits[1].find("-")!=-1,bits
+					if bits[1].find("-")==-1:
+						print "bits invalid",bits
+						continue
 					(season,ident) = bits[1].split("-",1)
 					del bits[1]
 					bits[1:1] = (season,ident)
