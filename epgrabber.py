@@ -283,11 +283,11 @@ if __name__ == "__main__":
 		s = get_series(name)
 		(last,checked,command) = s.last,s.checked,s.listing
 		if last == None:
-			cur.execute("update series set last=? where name=?",(curr,name))
+			get_series(name).last = curr
 			store_values()
 			last = curr
 		if checked == None:
-			cur.execute("update series set checked=? where name=?",(curr,name))
+			get_series(name).checked = curr
 			store_values()
 			checked = curr
 
@@ -359,7 +359,7 @@ if __name__ == "__main__":
 				if date!=None:
 					print now[:3],date[:3],
 					if delta<longtd and td>longtd:
-						cur.execute("update series set last=? where name=?",(curr,name))
+						get_series(name).last = curr
 						store_values()
 				else:
 					print "(don't know next date)",
