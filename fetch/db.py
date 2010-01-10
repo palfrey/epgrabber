@@ -13,7 +13,7 @@ class db:
 				test = int(number.split("-")[0])
 			else:
 				test = int(number)
-			if prefix == pfx and test>inf["season"]:
+			if prefix == pfx and test>inf["episode"]:
 				poss.append(number)
 		if len(poss) == 0:
 			return None
@@ -24,5 +24,5 @@ class db:
 		else:
 			number = int(best.split("-",2)[1])
 		
-		return {"name":inf["name"],"season":number,"epnum":0,"date":inf["yesterday"],"url":"http://www.dattebayo.com/t/%s%s.torrent"%(prefix,best)}
+		return {"name":inf["name"],"epnum":number,"date":inf["yesterday"],"url":"http://www.dattebayo.com/t/%s%s.torrent"%(prefix,best)}
 

@@ -143,7 +143,8 @@ def update(name,season,epnum,force=False):
 			return
 		
 		s = get_series(name)
-		s.season = season
+		if season !=0:
+			s.season = season
 		s.episode = epnum
 		s.last = curr
 		store_values()
@@ -367,6 +368,8 @@ if __name__ == "__main__":
 
 			if options.download:
 				if next.has_key("url"):
+					if not hasattr(locals(),"season"):
+						season = 0
 					fname = torrent(name,season,epnum)
 					if not saferetrieve(next["url"],fname):
 						continue
