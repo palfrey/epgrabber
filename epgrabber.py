@@ -23,7 +23,7 @@ from shutil import move
 try:
 	from BitTorrent.bencode import bdecode
 except ImportError:
-	pass
+	bdecode = None
 
 import fetch
 
@@ -38,6 +38,7 @@ cache = None
 db = None
 
 def saferetrieve(url,fname):
+	global bdecode
 	try:
 		print "Trying",url
 		tmpname = join("/tmp",basename(fname))
