@@ -49,11 +49,20 @@ def saferetrieve(url,fname):
 
 				try:
 					length = bd['length']
-					if length in ([364904448,183500806,183500808,183656487]+list(range(367001600,367001600+50))):
+					if length in ([364904448,365431575,183500806,183500808,183656487]+list(range(367001600,367001600+50))):
 						print "Bad torrent!"
 						return False
 				except KeyError:
 					assert "files" in bd,bd.keys()
+
+				if 'files' in bd: # folder torrent
+					for path in bd['files']:
+						assert len(path['path'])==1,path
+						path = path['path'][0]
+						if path.find(".wmv")!=-1:
+							print "Found %s, bad torrent!"%path
+							return False
+
 			move(tmpname, fname)
 			return True
 		else:
