@@ -194,8 +194,6 @@ class NyaaTorrents:
 		terms = " ".join([x for x in terms.split(" ") if x[0]!="-"])
 		url = "http://www.nyaatorrents.org/?page=search&term=%s&cat=0_0&tl_page=&sort=1&order=0"%(terms.replace(" ","+"))
 		torr = cache.get(url,max_age=60*60).read()
-		print "url",url
-		open("dump","w").write(torr)
 		rows = self.row.finditer(torr)
 		return rows
 	
