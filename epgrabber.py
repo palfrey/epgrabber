@@ -66,53 +66,6 @@ def saferetrieve(url,fname):
 		print "IOError!"
 		return False
 
-def geass(inf):
-	ret = wikipedia(inf,"List_of_Code_Geass_episodes")
-	if ret!=None:
-		ret["idnum"] = animeep
-	return ret
-
-def multisplit(text,items):
-	out = [text]
-	while len(items)>0:
-		for x in out:
-			sp = x.split(items[0])
-			if len(sp)>1:
-				out.remove(x)
-				out.extend(sp)
-		items = items[1:]
-	print "out",out,text
-	return out
-
-def animeep(title,name,season,epnum):
-	bits = [x.strip() for x in multisplit(title,[" ","."]) if x!="" and x!="-"]
-	print "bits",bits
-	num = -1
-	for x in bits:
-		if x[0] == "[":
-			continue
-		if x.find("-")!=-1:
-			nums = x.split("-")
-			try:
-				while len(nums)>1:
-					val = int(nums[0])
-					if val>season:
-						update(name,int(nums[0]),epnum,force=True)
-						print "updating with",val
-					nums = nums[1:]
-				x = nums[0]
-				if int(nums[0])>season:
-					season = int(nums[0])
-			except ValueError:
-				continue
-		try:
-			num = int(x)
-		except ValueError:
-			continue
-	
-	print "num",num
-	return num == season
-
 def info(name):
 	global cache,yesterday,cur,options
 	#print "options",options
