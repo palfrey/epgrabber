@@ -379,7 +379,7 @@ if __name__ == "__main__":
 					continue
 				gotit = False
 				try:
-					sites = [globals()[x] for x in get_series(name).search_sites.split(",")]
+					sites = [globals()[x]() for x in get_series(name).search_sites.split(",")]
 					print "sites",sites
 				except KeyError:
 					sites = main_sites
