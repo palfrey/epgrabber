@@ -7,3 +7,4 @@ dump
 *.torrent
 episodes.ics
 episodes_pb2.py
+watch.txt
