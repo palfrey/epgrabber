@@ -339,14 +339,15 @@ if __name__ == "__main__":
 			for x in ["season","epnum","date", "title"]:
 				if x in next:
 					locals()[x] = next[x]
-			utc = vobject.icalendar.utc
-			event = calendar.add('vevent')
-			if "title" in next:
-				event.add('summary').value = str("%s - %02dx%02d: %s"%(name, season, epnum, title))
-			else:
-				event.add('summary').value = str("%s - %02dx%02d"%(name, season, epnum))
-			event.add('dtstart').value = datetime(date[0],date[1],date[2],tzinfo=utc)
-			event.add('dtend').value = datetime(date[0],date[1],date[2],tzinfo=utc)
+			if vobject:
+				utc = vobject.icalendar.utc
+				event = calendar.add('vevent')
+				if "title" in next:
+					event.add('summary').value = str("%s - %02dx%02d: %s"%(name, season, epnum, title))
+				else:
+					event.add('summary').value = str("%s - %02dx%02d"%(name, season, epnum))
+				event.add('dtstart').value = datetime(date[0],date[1],date[2],tzinfo=utc)
+				event.add('dtend').value = datetime(date[0],date[1],date[2],tzinfo=utc)
 			delta = None
 			if date!=None:
 				delta = datetime(date[0],date[1],date[2])-datetime(now[0],now[1],now[2])
