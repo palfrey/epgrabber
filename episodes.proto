@@ -6,8 +6,8 @@ message Series
 	required string search = 2;
 	optional uint32 season = 3;
 	required uint32 episode = 4;
-	required double last = 5;
-	required double checked = 6;
+	optional double last = 5;
+	optional double checked = 6;
 	required string listing = 7;
 	optional string search_sites = 8;
 }
