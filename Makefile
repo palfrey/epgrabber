@@ -1,6 +1,6 @@
 all: episodes_pb2.py
 
-episodes_pb2.py:
+episodes_pb2.py: episodes.proto
 	protoc --python_out=. episodes.proto
 
 load::
