@@ -261,7 +261,7 @@ if __name__ == "__main__":
 			if s.name in options.series:
 				series.append(s.name)
 	else:
-		series = [s.name for s in db.series]
+		series = [s.name for s in sorted(db.series,key=lambda x:x.last,reverse=True)]
 	
 	if options.series != []:
 		missing = [x for x in options.series if x not in series]
@@ -275,7 +275,7 @@ if __name__ == "__main__":
 		print "We have:",(", ".join(series))
 		sys.exit(1)
 	
-	print "Selected series:",(", ".join(series)),"\n"
+	print "Selected series:",(", ".join(sorted(series))),"\n"
 
 	main_sites = [Isohunt(),PirateBay()]
 
