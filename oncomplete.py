@@ -26,8 +26,6 @@ if opts.check_torrent:
 		ids[trans.info(k)[k].files()[0]['name']] = k
 
 def remove_dir(top):
-	print "remove dir",top
-	return
 	for root,dirs,files in walk(top, topdown=False):
 		for name in files:
 			remove(join(root,name))
@@ -78,6 +76,8 @@ for f in files:
 					continue
 			else:
 				continue
+		else:
+			f = join(opts.check_dir,f)
 		if not isfile(f):
 			for nf in listdir(f):
 				ext = splitext(nf)[1].lower()
@@ -111,7 +111,7 @@ for f in files:
 		dest = join(opts.dest_dir,destname)
 		if opts.execute:
 			move(f, dest)
-			if "/" in f[opts.check_dir:]:
+			if "/" in f[len(opts.check_dir):]:
 				remove_dir(dirname(f))
 		else:
 			print "Would have moved %s to %s"%(f, dest)
