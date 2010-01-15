@@ -8,7 +8,7 @@ message Series
 	required uint32 episode = 4;
 	optional double last = 5;
 	optional double checked = 6;
-	required string listing = 7;
+	required bytes listing = 7;
 	optional string search_sites = 8;
 }
 

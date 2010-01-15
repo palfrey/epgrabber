@@ -7,6 +7,6 @@ load::
 	python loader.py watch.txt watch.list
 
 dump::
-	python dumper.py watch.list > watch.txt
+	python dumper.py watch.list watch.txt
 
 .PHONY: load dump
