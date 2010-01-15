@@ -1,5 +1,5 @@
 from os import listdir,popen,system,rmdir,remove,walk
-from os.path import isfile,join,dirname, splitext,basename
+from os.path import isfile,join,dirname,splitext,basename,exists
 from shutil import move
 
 from episodes_pb2 import All
@@ -13,6 +13,11 @@ parser.add_option("-i","--ignore-torrent",help="Do action irregardless of torren
 parser.add_option("-c","--check-dir",default=".",type="string",dest="check_dir",help="Directory to check")
 parser.add_option("-d","--dest-dir",default="output",type="string",dest="dest_dir",help="Directory to move files to")
 (opts,args) = parser.parse_args()
+
+if not exists(opts.check_dir):
+	parser.error("Folder '%s' doesn't exist!"%opts.check_dir)
+if not exists(opts.dest_dir):
+	parser.error("Folder '%s' doesn't exist!"%opts.dest_dir)
 
 db = All()
 db.ParseFromString(open("watch.list","rb").read())
