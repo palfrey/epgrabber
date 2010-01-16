@@ -1,4 +1,4 @@
-from os import listdir,popen,system,rmdir,remove,walk
+from os import listdir,popen,system,rmdir,remove,walk,sep
 from os.path import isfile,join,dirname,splitext,basename,exists
 from shutil import move
 
@@ -28,7 +28,10 @@ if opts.check_torrent:
 	torrents = trans.list()
 	ids = {}
 	for k in torrents.keys():
-		ids[trans.info(k)[k].files()[0]['name']] = k
+		f =trans.info(k)[k].files()[0]['name']
+		if f.find(sep)!=-1:
+			f = f[:f.find(sep)]
+		ids[f] = k
 
 def remove_dir(top):
 	for root,dirs,files in walk(top, topdown=False):
@@ -116,7 +119,7 @@ for f in files:
 		dest = join(opts.dest_dir,destname)
 		if opts.execute:
 			move(f, dest)
-			if "/" in f[len(opts.check_dir):]:
+			if sep in f[len(opts.check_dir):]:
 				remove_dir(dirname(f))
 		else:
 			print "Would have moved %s to %s"%(f, dest)
