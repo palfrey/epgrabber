@@ -83,6 +83,8 @@ def info(name):
 	for k in range(len(keys)):
 		if hasattr(options,keys[k]) and getattr(options,keys[k])!=-1:
 			ret[keys[k]] = getattr(options,keys[k])
+		elif keys[k] == "search" and data.search == "":
+			ret[keys[k]] = data.name
 		else:
 			ret[keys[k]] = getattr(data,keys[k])
 	ret["cache"] = cache

@@ -3,7 +3,7 @@ package episodes;
 message Series
 {
 	required string name = 1;
-	required string search = 2;
+	optional string search = 2;
 	optional uint32 season = 3;
 	required uint32 episode = 4;
 	optional double last = 5;
