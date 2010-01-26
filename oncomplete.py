@@ -53,6 +53,8 @@ for f in files:
 	if docheck:
 		small = f.lower().decode("utf-8")
 		for (name,search) in series:
+			if search == "":
+				search = name
 			bits = search.replace("eztv","").strip().lower().decode("utf-8","replace").split(" ")
 			for b in bits:
 				if b == "":
@@ -96,7 +98,7 @@ for f in files:
 				if docheck:
 					small = nf.lower().decode("utf-8")
 					for b in bits:
-						if b[0] == "-": # an ignore
+						if len(b)==0 or b[0] == "-": # an ignore
 							continue
 						if small.find(b)==-1:
 							print "failed with",b,nf
