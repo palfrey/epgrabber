@@ -2,8 +2,7 @@
 
 import sys
 try:
-	from urlgrab.GetURL import GetURL
-	from urlgrab.URLTimeout import URLTimeoutError
+	from urlgrab import Cache, URLTimeoutError
 except:
 	print "You need to install urlgrab. Get it using 'git clone git://github.com/palfrey/urlgrab.git urlgrab'"
 	sys.exit(1)
@@ -221,7 +220,7 @@ def setup(options):
 	yesterday = date.fromtimestamp(time())-timedelta(days=1)
 	yesterday = yesterday.timetuple()
 
-	cache = GetURL(debug=options.debug)
+	cache = Cache(debug=options.debug)
 	cache.user_agent = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.3) Gecko/20070309 Firefox/2.0.0.3"
 
 	items = {"yesterday":yesterday, "cache":cache, "db": db}
