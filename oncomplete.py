@@ -90,12 +90,13 @@ for f in files:
 		else:
 			f = join(opts.check_dir,f)
 		if not isfile(f):
+			found = False
 			for nf in listdir(f):
 				ext = splitext(nf)[1].lower()
 				if ext not in (".avi",):
 					print "not",nf
 					continue
-				found = False
+				print "ext",ext,nf
 				if docheck:
 					small = nf.lower().decode("utf-8")
 					for b in bits:
@@ -113,6 +114,8 @@ for f in files:
 			if found:
 				f = join(f,nf)
 				print f
+			else:
+				continue
 
 		mplayer = popen("mplayer -vo null -frames 0 -identify '%s' 2>&1"%f).readlines()
 		values = {}
