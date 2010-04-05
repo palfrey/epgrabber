@@ -72,6 +72,7 @@ for f in files:
 		name = ""
 	if found:
 		print "Found for %s - %s"%(name,f.decode("utf-8"))
+		remove_id = None
 		if opts.check_torrent:
 			if f in ids:
 				print "torrent id", ids[f]
@@ -79,7 +80,7 @@ for f in files:
 				done = details.progress
 				if done == 100.0:
 					if opts.execute:
-						trans.remove(ids[f])
+						remove_id = ids[f]
 					f = join(opts.check_dir,f)
 				else:
 					print "Only %.2f%% complete"%done
@@ -123,6 +124,8 @@ for f in files:
 			move(f, dest)
 			if sep in f[len(opts.check_dir):]:
 				remove_dir(dirname(f))
+			if remove_id:
+				trans.remove(remove_id)
 		else:
 			print "Would have moved %s to %s"%(f, dest)
 
