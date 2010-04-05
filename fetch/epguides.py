@@ -10,8 +10,12 @@ class EpType(Enum):
 class epguides:
 	args = {"name":"Epguides page name e.g. http://epguides.com/NAME"}
 
-	def run(self,inf,name):
-		data = inf["cache"].get("http://epguides.com/%s/"%name,max_age=60*60*24*2).read()
+	def run(self,inf,name,listp=None):
+		url = "http://epguides.com/%s/"%name
+		if listp:
+			url+="?list=%s"%listp
+		#print url
+		data = inf["cache"].get(url,max_age=60*60*24*2).read()
 		if data.find("TVRage present")!=-1:
 			kind = EpType.TVRage
 			matcher = compile("www.tvrage.com/.+?/episodes/\d+")
