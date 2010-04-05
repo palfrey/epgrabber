@@ -113,6 +113,19 @@ for f in files:
 			if found:
 				f = join(f,nf)
 				print f
+
+		mplayer = popen("mplayer -vo null -frames 0 -identify '%s' 2>&1"%f).readlines()
+		values = {}
+		for l in mplayer:
+			if l.find("=")!=-1 and l.find(" ")==-1 and l.find("==")==-1:
+				key,value = l.split("=",1)
+				values[key] = value.strip()
+		if values['ID_DEMUXER'] == "asf" and float(values['ID_VIDEO_FPS']) == 1000:
+			print "Dodgy file: %s"%f
+			continue
+		else:
+			print values
+
 		data = popen("~/bin/renamer '%s'"%f).readlines()
 		if len(data) == 1:
 			destname = basename("".join(data).split("=>")[1].strip()[1:-1])
