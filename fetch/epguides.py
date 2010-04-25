@@ -13,9 +13,11 @@ class epguides:
 	def run(self,inf,name,listp=None):
 		url = "http://epguides.com/%s/"%name
 		if listp:
-			url+="?list=%s"%listp
+			data= {"list":listp}
+		else:
+			data = None
 		#print url
-		data = inf["cache"].get(url,max_age=60*60*24*2).read()
+		data = inf["cache"].get(url,max_age=60*60*24*2,data=data).read()
 		if data.find("TVRage present")!=-1:
 			kind = EpType.TVRage
 			matcher = compile("www.tvrage.com/.+?/episodes/\d+")
