@@ -187,9 +187,9 @@ class PirateBay:
 		return r["path"]
 
 class NyaaTorrents:
-	row = compile("""title="[^"]+">(?P<name>[^<]+)</a></td><td class="tlistseedstats"><span class="tlistseedstatsnumber">(?P<seeds>\d+)</span></td><td class="tlistleechstats"><span class="tlistleechstatsnumber">(?P<peers>\d+)</span></td><td class="tlistcompletedstats"><span class="tlistcompletedstatsnumber">\d+</span></td></tr>
-	<tr class="(?:trusted )?mtr" id="torrent-\d+-2"><td class="tlistsize" colspan="2"><b>\d+\.\d+ (?:G|M|K)iB</b></td><td class="tlistcomments">Msg: <b>\d+</b></td></tr>
-	<tr class="(?:trusted )?ltr" id="torrent-\d+-3"><td colspan="3"><div class="tlistdownload"><a href="(?P<path>http://www.nyaatorrents.org/\?page=download&amp;tid=\d+)" title="Download torrent"><span>Download torrent</span>""")
+	row = compile("""<td class="tlistname"><a href="http://www.nyaatorrents.org/\?page=torrentinfo&amp;tid=\d+" title="(?P<name>[^"]+)">[^<]+</a></td>
+		<td class="tlistdownload"><a href="(?P<path>http://www.nyaatorrents.org/\?page=download&amp;tid=\d+)" title="Download torrent"><img src="http://www.nyaatorrents.org/images/dl.png" alt="DL" /></a></td>
+		<td class="tlistsize">\d+.\d+ (?:G|M)iB</td><td class="tlistsn">(?P<seeds>\d+)</td><td class="tlistln">(?P<peers>\d+)</td><td class="tlistcn">\d+</td><td class="tlistmn">\d+</td></tr>""")
 
 	def rows(self,terms,numbers):
 		terms = " ".join([x for x in terms.split(" ") if x[0]!="-"])
