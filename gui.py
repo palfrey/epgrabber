@@ -8,11 +8,8 @@ if ver:
 	raise Exception,ver
 
 import gobject
-try:
-	import sqlite3 as sqlite
-except ImportError:
-	from pysqlite2 import dbapi2 as sqlite
 from time import *
+from episodes_pb2 import All
 
 import fetch
 
@@ -145,11 +142,11 @@ class EpgrabberGUI:
 		self.types = (gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_UINT, gobject.TYPE_UINT,gobject.TYPE_STRING, gobject.TYPE_FLOAT)
 		self.episodes = gtk.ListStore(*self.types)
 
-		self.con = sqlite.connect("watch.db")
-		self.cur = self.con.cursor()
-		self.cur.execute("select name,search,season,episode,command,last from series order by last desc")
-		for row in self.cur.fetchall():
-			self._addrow(row)
+		self.db = All()
+		self.db.ParseFromString(open("watch.list","rb").read())
+		for s in self.db.series:
+			fields = ("name","search","season","episode","listing","last")
+			self._addrow([getattr(s,f) for f in fields])
 				
 		def build_tree_column(name,column):
 			typ = self.episodes.get_column_type(column)
