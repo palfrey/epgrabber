@@ -197,7 +197,10 @@ class NyaaTorrents:
 		terms = " ".join([x for x in terms.split(" ") if x[0]!="-"])
 		url = "http://www.nyaatorrents.org/?page=search&term=%s&cat=0_0&tl_page=&sort=1&order=0"%(terms.replace(" ","+"))
 		torr = cache.get(url,max_age=60*60).read()
-		rows = self.row.finditer(torr)
+		rows = list(self.row.finditer(torr))
+		if rows == []:
+			file("dump","wb").write(torr)
+			assert rows!=[],rows
 		return rows
 	
 	def torrent(self,r):
