@@ -189,8 +189,8 @@ class PirateBay:
 		return r["path"]
 
 class NyaaTorrents:
-	row = compile("""<td class="tlistname"><a href="http://www.nyaatorrents.org/\?page=torrentinfo&amp;tid=\d+" title="(?P<name>[^"]+)">[^<]+</a></td>
-		<td class="tlistdownload"><a href="(?P<path>http://www.nyaatorrents.org/\?page=download&amp;tid=\d+)" title="Download torrent"><img src="http://www.nyaatorrents.org/images/dl.png" alt="DL" /></a></td>
+	row = compile("""<td class="tlistname"><a href="http://www.nyaatorrents.org/\?page=torrentinfo&amp;tid=\d+">(?P<name>[^>]+)</a></td>
+		<td class="tlistdownload"><a href="(?P<path>http://www.nyaatorrents.org/\?page=download&amp;tid=\d+)" title="Download"><img src="http://www.nyaatorrents.org/images/dl.png" alt="DL" /></a></td>
 		<td class="tlistsize">\d+.\d+ (?:G|M)iB</td><td class="tlistsn">(?P<seeds>\d+)</td><td class="tlistln">(?P<peers>\d+)</td><td class="tlistcn">\d+</td><td class="tlistmn">\d+</td></tr>""")
 
 	def rows(self,terms,numbers):
