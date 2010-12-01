@@ -25,6 +25,8 @@ except ImportError:
 
 import fetch
 
+from codecs import getdecoder
+
 import urllib
 class AppURLopener(urllib.FancyURLopener):
     version = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11"
@@ -365,10 +367,11 @@ if __name__ == "__main__":
 				if x in next:
 					locals()[x] = next[x]
 			if vobject:
+				encoder = getdecoder("ascii")
 				utc = vobject.icalendar.utc
 				event = calendar.add('vevent')
 				if "title" in next:
-					event.add('summary').value = str("%s - %02dx%02d: %s"%(name, season, epnum, title))
+					event.add('summary').value = "%s - %02dx%02d: %s"%(name, season, epnum, encoder(title,'ignore')[0])
 				else:
 					event.add('summary').value = str("%s - %02dx%02d"%(name, season, epnum))
 				event.add('dtstart').value = datetime(date[0],date[1],date[2],tzinfo=utc)
