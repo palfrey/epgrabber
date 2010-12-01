@@ -123,7 +123,7 @@ for f in files:
 			if l.find("=")!=-1 and l.find(" ")==-1 and l.find("==")==-1:
 				key,value = l.split("=",1)
 				values[key] = value.strip()
-		if values['ID_DEMUXER'] == "asf" and float(values['ID_VIDEO_FPS']) == 1000:
+		if "ID_DEMUXER" in values and values['ID_DEMUXER'] == "asf" and float(values['ID_VIDEO_FPS']) == 1000:
 			print "Dodgy file: %s"%f
 			continue
 		else:
