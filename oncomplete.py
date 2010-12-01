@@ -1,5 +1,5 @@
 from os import listdir,popen,system,rmdir,remove,walk,sep
-from os.path import isfile,join,dirname,splitext,basename,exists
+from os.path import isfile,join,dirname,splitext,basename,exists,samefile
 from shutil import move
 
 from episodes_pb2 import All
@@ -138,7 +138,7 @@ for f in files:
 		dest = join(opts.dest_dir,destname)
 		if opts.execute:
 			move(f, dest)
-			if sep in f[len(opts.check_dir):]:
+			if sep in f[len(opts.check_dir):] and not samefile(dirname(f), opts.check_dir):
 				remove_dir(dirname(f))
 			if remove_id:
 				trans.remove(remove_id)
