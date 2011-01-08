@@ -234,7 +234,7 @@ def setup(options):
 	return items
 	
 if __name__ == "__main__":
-	idnum = compile("(?:S(\d+)E(\d+))|(?:\[(\d+)x(\d+)\])|(?: (\d)(\d{2}) - )|(?: (\d+)X(\d+) )|(?:\.(\d+)(\d{2}).)|(?: (\d{2}))",IGNORECASE)
+	idnum = compile("(?:S(\d+)E(\d+))|(?:(\d+)x(\d+))|(?: (\d)(\d{2}) - )|(?: (\d+)X(\d+) )|(?:\.(\d+)(\d{2}).)|(?: (\d{2}))",IGNORECASE)
 
 	now = list(localtime())
 	for x in range(3,len(now)):
