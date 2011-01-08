@@ -43,7 +43,7 @@ class wikipedia:
 						m = bold.findall(bi)[0]
 						if m.find("<")!=-1:
 							m = m[:m.find("<")]
-						if m[0] in ["\"","\'"]:
+						if len(m)>0 and m[0] in ["\"","\'"]:
 							m = m[1:]
 						if len(m) == 0:
 							continue
