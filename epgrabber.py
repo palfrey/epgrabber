@@ -163,7 +163,7 @@ def update(name,season,epnum,force=False):
 		
 class Isohunt:
 	#row = compile("<tr class=\"hlRow\" onClick=\"servOC\(\d+,\\'/torrent_details/(?P<path>[^']+)'.*?<td class=\"row3\" id=name\d+>(?P<name>.*?)(?=</td>)</td><td class=\"row3\" title='\d+ file(?:s)?'>\d+.\d+ (?:M|G|K)B</td><td class=\"row1\">(?P<seeds>\d*)</td><td class=\"row3\">(?P<peers>\d*)</td>")
-	row = compile("<a onClick=\"servOC\(\d+,\\'/torrent_details/(?P<path>[^']+)'.*?<td class=\"row3\" id=name\d+>.+?tab=summary'>(?P<name>.*?)(?=</td>)</td><td class=\"row3\" title='\d+ file(?:s)?'>\d+.\d+ (?:M|G|K)B</td><td class=\"row1\">(?P<seeds>\d*)</td><td class=\"row3\">(?P<peers>\d*)</td>")
+	row = compile("<a onClick=\"servOC\(\d+,\\'/torrent_details/(?P<path>[^']+)'.*?<td class=\"row3\" id=name\d+>.+?tab=summary'>(?P<name>.*?)(?=</td>)</td><td class=\"row3\" title='\d+ file(?:s)?'>\d+.\d+ (?:M|G|K)B</td><td class=\"row\d\">(?P<seeds>\d*)</td><td class=\"row\d\">(?P<peers>\d*)</td>")
 
 	def rows(self,terms, numbers):
 		url ="http://isohunt.com/torrents/%s?ihp=1&iht=-1&ihs1=2&iho1=d"%terms.replace(" ","+")
