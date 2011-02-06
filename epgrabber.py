@@ -217,7 +217,14 @@ class EZTV:
 		if rows == []:
 			file("dump","wb").write(torr)
 			assert rows!=[],rows
-		return rows
+		
+		ret = []
+		for nr in rows:
+			r = nr.groupdict()
+			if r['name'].find("720p") !=-1:
+				continue
+			ret.append(nr)
+		return ret
 
 	def torrent(self,r):
 		return r["path"]
