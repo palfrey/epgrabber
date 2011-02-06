@@ -425,10 +425,12 @@ if __name__ == "__main__":
 					continue
 				gotit = False
 				try:
-					sites = [globals()[x]() for x in get_series(name).search_sites.split(",")]
-					print "sites",sites
+					sites = [globals()[x]() for x in get_series(name).search_sites.split(",") if x!=""]
+					if sites == []:
+						sites = main_sites
+					print "sites", sites
 				except KeyError:
-					sites = main_sites
+					raise
 				for site in sites:
 					try:
 						patt = ""
