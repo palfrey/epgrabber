@@ -428,11 +428,11 @@ if __name__ == "__main__":
 							#print "r",r
 							try:
 								r["seeds"] = int(r["seeds"])
-							except ValueError:
+							except (KeyError,ValueError):
 								r["seeds"] = 0
 							try:
 								r["peers"] = int(r["peers"])
-							except ValueError:
+							except (KeyError,ValueError):
 								r["peers"] = 0
 							newrows.append(r)
 
