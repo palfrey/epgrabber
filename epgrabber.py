@@ -206,6 +206,22 @@ class NyaaTorrents:
 	def torrent(self,r):
 		return r["path"].replace("&amp;","&")
 
+class EZTV:
+	row = compile("class=\"epinfo\">(?P<name>[^<]+)</a>.+?</td>.+?<td align=\"center\" class=\"forum_thread_post\"><a href=\"(?P<path>[^\"]+)\" class=\"download_1\" title=\"Download Mirror #1\">",MULTILINE|DOTALL)
+
+	def rows(self,terms, numbers):
+		url = "http://eztv.it/search/"
+		torr = cache.get(url, max_age=60*60, data={"SearchString1":terms}).read()
+
+		rows = list(self.row.finditer(torr))
+		if rows == []:
+			file("dump","wb").write(torr)
+			assert rows!=[],rows
+		return rows
+
+	def torrent(self,r):
+		return r["path"]
+
 def store_values():
 	global db,options
 	open(options.database,"wb").write(db.SerializeToString())
