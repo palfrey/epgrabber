@@ -306,7 +306,7 @@ if __name__ == "__main__":
 	
 	print "Selected series:",(", ".join(sorted(series))),"\n"
 
-	main_sites = [Isohunt(),PirateBay()]
+	main_sites = [EZTV(),Isohunt(),PirateBay()]
 
 	shorttd = timedelta(0,0,0,0,0,6,0)
 	longtd = timedelta(7)
