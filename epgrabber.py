@@ -191,13 +191,14 @@ class PirateBay:
 
 class NyaaTorrents:
 	row = compile("""<td class="tlistname"><a href="http://[^/]+/\?page=torrentinfo&amp;tid=\d+">(?P<name>[^<]+)</a></td>
-		<td class="tlistdownload"><a href="(?P<path>http://[^/]+/\?page=download&amp;tid=\d+)" title="Download"><img src="[^\"]+" alt="DL" /></a></td>
+		<td class="tlistdownload">.*?<a href="(?P<path>http://[^/]+/\?page=download&amp;tid=\d+)" title="Download"><img src="[^\"]+" alt="DL" /></a>.*?</td>
 		<td class="tlistsize">\d+.\d+ (?:G|M)iB</td><td class="tlistsn">(?P<seeds>\d+)</td><td class="tlistln">(?P<peers>\d+)</td><td class="tlistcn">\d+</td><td class="tlistmn">\d+</td></tr>""")
 
 	def rows(self,terms,numbers):
 		terms = " ".join([x for x in terms.split(" ") if x[0]!="-"])
 		url = "http://www.nyaatorrents.org/?page=search&term=%s&cat=0_0&tl_page=&sort=1&order=0"%(terms.replace(" ","+"))
 		torr = cache.get(url,max_age=60*60).read()
+		torr = torr.replace("<div><!-- --></div>","")
 		rows = list(self.row.finditer(torr))
 		if rows == []:
 			file("dump","wb").write(torr)
