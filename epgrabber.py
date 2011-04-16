@@ -60,8 +60,7 @@ def saferetrieve(url,fname):
 
 				if 'files' in bd: # folder torrent
 					for path in bd['files']:
-						assert len(path['path'])==1,path
-						path = path['path'][0]
+						path = path['path'][-1]
 						if path.find(".wmv")!=-1:
 							print "Found %s, bad torrent!"%path
 							return False
