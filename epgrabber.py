@@ -219,13 +219,25 @@ class EZTV:
 		if rows == []:
 			file("dump","wb").write(torr)
 			assert rows!=[],rows
+
+		terms = terms.split(" ")
+		goodterms = [x.lower() for x in terms if x[0]!="-"]
+		badterms = [x.lower() for x in terms if x[0] == "-"]
 		
 		ret = []
 		for nr in rows:
 			r = nr.groupdict()
 			if r['name'].find("720p") !=-1:
 				continue
-			ret.append(nr)
+			for x in goodterms:
+				if r['name'].lower().find(x)==-1:
+					break
+			else:
+				for x in badterms:
+					if r['name'].lower().find(x)!=-1:
+						break
+				else:
+					ret.append(nr)
 		return ret
 
 	def torrent(self,r):
