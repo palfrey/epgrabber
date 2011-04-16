@@ -385,9 +385,10 @@ def run(options, parser):
 			get_series(name).checked = curr
 			store_values()
 		if next!=None:
-			for x in ["season","epnum","date", "title"]:
-				if x in next:
-					locals()[x] = next[x]
+			season = next["season"]
+			epnum = next["epnum"]
+			date = next["date"]
+			title = next["title"]
 			if vobject:
 				encoder = getdecoder("ascii")
 				utc = vobject.icalendar.utc
