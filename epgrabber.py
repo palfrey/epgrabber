@@ -37,6 +37,8 @@ options = None
 cache = None
 db = None
 
+idnum = compile("(?:S(\d+)E(\d+))|(?:(\d+)x(\d+))|(?: (\d)(\d{2}) - )|(?: (\d+)X(\d+) )|(?:\.(\d+)(\d{2}).)|(?: (\d{2}))",IGNORECASE)
+
 def saferetrieve(url,fname):
 	global bdecode
 	try:
@@ -255,34 +257,16 @@ def setup(options):
 	for x in items:
 		globals()[x] = items[x]
 	return items
-	
-if __name__ == "__main__":
-	idnum = compile("(?:S(\d+)E(\d+))|(?:(\d+)x(\d+))|(?: (\d)(\d{2}) - )|(?: (\d+)X(\d+) )|(?:\.(\d+)(\d{2}).)|(?: (\d{2}))",IGNORECASE)
+
+def run(options, parser):
+	globals()["options"] = options
+
+	setup(options)
 
 	now = list(localtime())
 	for x in range(3,len(now)):
 		now[x] = 0
 	now = tuple(now)
-
-	parser = OptionParser(description="Episode grabber by Tom Parker <palfrey@tevp.net>")
-	parser.add_option("--database",dest="database", type="string", default="watch.list",help="Series database (Default: watch.list)")
-	parser.add_option("-n","--series",dest="series",action="append",type="string",default=[])
-	parser.add_option("-o","--override",dest="override",action="store_true",help="Override normal date values",default=False)
-	parser.add_option("-s","--season",dest="season",type="int",default=-1)
-	parser.add_option("-e","--episode",dest="episode",type="int",default=-1)
-	parser.add_option("-d","--no-download",dest="download",action="store_false",help="Don't download anything",default=True)
-	parser.add_option("-m","--set",dest="save",action="store_true",default=False,help="Store overriden values")
-	parser.add_option("-f","--fast",dest="fast",action="store_true",default=False,help="Find now (ignoring dates)")
-	parser.add_option("--debug",dest="debug",action="store_true",default=False)
-
-	(options,args) = parser.parse_args()
-
-	globals()["options"] =  options
-	if len(args)!=0:
-		parser.print_help()
-		parser.error("args after main text")
-
-	setup(options)
 
 	if options.series:
 		series = []
@@ -312,7 +296,7 @@ if __name__ == "__main__":
 	longtd = timedelta(7)
 	limit = timedelta(21)
 
-	curr = time()
+	globals()['curr'] = time()
 
 	if vobject:
 		calendar = vobject.iCalendar()
@@ -521,3 +505,25 @@ if __name__ == "__main__":
 		print ""
 	if vobject:
 		open("episodes.ics","w").write(calendar.serialize())
+	
+if __name__ == "__main__":
+
+	parser = OptionParser(description="Episode grabber by Tom Parker <palfrey@tevp.net>")
+	parser.add_option("--database",dest="database", type="string", default="watch.list",help="Series database (Default: watch.list)")
+	parser.add_option("-n","--series",dest="series",action="append",type="string",default=[])
+	parser.add_option("-o","--override",dest="override",action="store_true",help="Override normal date values",default=False)
+	parser.add_option("-s","--season",dest="season",type="int",default=-1)
+	parser.add_option("-e","--episode",dest="episode",type="int",default=-1)
+	parser.add_option("-d","--no-download",dest="download",action="store_false",help="Don't download anything",default=True)
+	parser.add_option("-m","--set",dest="save",action="store_true",default=False,help="Store overriden values")
+	parser.add_option("-f","--fast",dest="fast",action="store_true",default=False,help="Find now (ignoring dates)")
+	parser.add_option("--debug",dest="debug",action="store_true",default=False)
+
+	(options,args) = parser.parse_args()
+
+	if len(args)!=0:
+		parser.print_help()
+		parser.error("args after main text")
+
+	run(options, parser)
+

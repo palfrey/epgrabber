@@ -3,6 +3,7 @@ from os.path import isfile,join,dirname,splitext,basename,exists,samefile
 from shutil import move
 
 from episodes_pb2 import All
+from epgrabber import idnum, run
 
 from optparse import OptionParser
 import transmissionrpc
@@ -123,9 +124,41 @@ for f in files:
 			if l.find("=")!=-1 and l.find(" ")==-1 and l.find("==")==-1:
 				key,value = l.split("=",1)
 				values[key] = value.strip()
-		if "ID_DEMUXER" in values and values['ID_DEMUXER'] == "asf" and float(values['ID_VIDEO_FPS']) == 1000:
-			print "Dodgy file: %s"%f
-			continue
+		if ("ID_DEMUXER" in values and values['ID_DEMUXER'] == "asf" and float(values['ID_VIDEO_FPS']) == 1000) or ("ID_VIDEO_ID" in values and values["ID_VIDEO_ID"] == "0"):
+			print "Dodgy file: %s"%f, name
+			number = idnum.search(f)
+			which = [int(x) for x in number.groups() if x!=None]
+			print which
+			if not opts.execute:
+				print "Would have gotten a new copy for",name,which
+				continue
+			else:
+				class opt:
+					pass
+
+				class FakeParser:
+					def error(self, msg):
+						print msg
+						import sys
+						sys.exit(-1)
+
+				options = opt()
+				options.database = "watch.list"
+				options.debug = True
+				options.series = [name]
+				options.save = False
+				options.override = False
+				options.fast = False
+				options.season = which[0]
+				options.episode = which[1]-1
+				options.download = True
+
+				run(options, FakeParser())
+				if sep in f[len(opts.check_dir):] and not samefile(dirname(f), opts.check_dir):
+					remove_dir(dirname(f))
+				if remove_id:
+					trans.remove(remove_id)
+				continue
 		else:
 			print values
 
