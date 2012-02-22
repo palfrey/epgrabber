@@ -13,6 +13,7 @@ from os import remove
 from urlparse import urljoin
 from datetime import datetime, timedelta,date
 from optparse import OptionParser
+from types import ListType
 try:
 	import vobject
 except ImportError:
@@ -40,15 +41,27 @@ db = None
 idnum = compile("(?:S(\d+)E(\d+))|(?:(\d+)x(\d+))|(?: (\d)(\d{2}) - )|(?: (\d+)X(\d+) )|(?:\.(\d+)(\d{2}).)|(?: (\d{2}))",IGNORECASE)
 
 def saferetrieve(url,fname):
+	badurls = ["http://torrent.zoink.it"]
+
+	for b in badurls:
+		if url.find(b)!=-1:
+			print "bad url", url, b
+			return False
+
 	global bdecode
 	try:
 		print "Trying",url
 		tmpname = join("/tmp",basename(fname))
-		urllib.urlretrieve(url,tmpname)
+		cache.urlretrieve(url,tmpname)
 		if exists(tmpname) and getsize(tmpname)>1000:
 			print "Retrieved!",url
 			if bdecode:
-				bd = bdecode(open(tmpname).read())['info']
+				try:
+					torr = bdecode(open(tmpname).read())
+				except ValueError:
+					print "can't decode"
+					return False
+				bd = torr['info']
 
 				try:
 					length = bd['length']
@@ -64,7 +77,16 @@ def saferetrieve(url,fname):
 						if path.find(".wmv")!=-1:
 							print "Found %s, bad torrent!"%path
 							return False
-
+			trackers = []
+			if "announce-list" in torr:
+				for x in torr['announce-list']:
+					trackers.extend(x)
+			http = [x for x in trackers if x.find("http://")!=-1]
+			badtrackers = ["http://tracker.hexagon.cc:2710/announce", "http://tracker.thepiratebay.org/announce"]
+			good = [x for x in http if x not in badtrackers]
+			if len(good) == 0:
+				print "no good trackers", trackers
+				return False
 			move(tmpname, fname)
 			return True
 		else:
@@ -183,8 +205,35 @@ class PirateBay:
 		url = "http://thepiratebay.org/search/%s/0/7/0"%(terms).replace(" ","+")
 		print "url",url
 		torr = cache.get(url,max_age=60*60).read()
-		rows = self.row.finditer(torr)
-		return rows
+		open("dump","w").write(torr)
+		rows = list(self.row.finditer(torr))
+		if rows == []:
+			file("dump","wb").write(torr)
+			assert rows!=[],rows
+
+		terms = terms.split(" ")
+		goodterms = [x.lower() for x in terms if x[0]!="-"]
+		badterms = [x[1:].lower() for x in terms if x[0] == "-"]
+
+		print "good", goodterms
+		print "bad", badterms
+
+		ret = []
+		for nr in rows:
+			r = nr.groupdict()
+			if r['name'].find("720p") !=-1:
+				continue
+			for x in goodterms:
+				if r['name'].lower().find(x)==-1:
+					break
+			else:
+				for x in badterms:
+					if r['name'].lower().find(x)!=-1:
+						break
+				else:
+					print "good name", r['name']
+					ret.append(nr)
+		return ret
 
 	def torrent(self,r):
 		return r["path"]
@@ -222,8 +271,11 @@ class EZTV:
 
 		terms = terms.split(" ")
 		goodterms = [x.lower() for x in terms if x[0]!="-"]
-		badterms = [x.lower() for x in terms if x[0] == "-"]
-		
+		badterms = [x[1:].lower() for x in terms if x[0] == "-"]
+
+		print "good", goodterms
+		print "bad", badterms
+
 		ret = []
 		for nr in rows:
 			r = nr.groupdict()
@@ -271,6 +323,7 @@ def setup(options):
 	return items
 
 def run(options, parser):
+	got = 0
 	globals()["options"] = options
 
 	setup(options)
@@ -496,11 +549,20 @@ def run(options, parser):
 										print "wrong ep, want",(season,epnum),"got",which
 
 									print r,which
+									if not ok:
+										continue
 							if ok:
 								fname = torrent(name,season,epnum)
-								if not saferetrieve(site.torrent(r),fname):
+								items = site.torrent(r)
+								if type(items)!=ListType:
+									items = [items]
+								for url in items:
+									if saferetrieve(url,fname):
+										break
+								else:
 									continue
 								update(name,season,epnum)
+								got +=1
 								store_values()
 								gotit = True
 								break
@@ -518,6 +580,7 @@ def run(options, parser):
 		print ""
 	if vobject:
 		open("episodes.ics","w").write(calendar.serialize())
+	return got
 	
 if __name__ == "__main__":
 
