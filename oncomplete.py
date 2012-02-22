@@ -94,7 +94,7 @@ for f in files:
 			found = False
 			for nf in listdir(f):
 				ext = splitext(nf)[1].lower()
-				if ext not in (".avi",):
+				if ext not in (".avi",".mp4"):
 					print "not",nf
 					continue
 				print "ext",ext,nf
