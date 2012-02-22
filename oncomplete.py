@@ -124,9 +124,13 @@ for f in files:
 			if l.find("=")!=-1 and l.find(" ")==-1 and l.find("==")==-1:
 				key,value = l.split("=",1)
 				values[key] = value.strip()
-		if ("ID_DEMUXER" in values and values['ID_DEMUXER'] == "asf" and float(values['ID_VIDEO_FPS']) == 1000) or ("ID_VIDEO_ID" in values and values["ID_VIDEO_ID"] == "0"):
+		if ("ID_DEMUXER" in values and values['ID_DEMUXER'] == "asf" and float(values['ID_VIDEO_FPS']) == 1000) or "ID_AUDIO_ID" not in values:
+			print values
 			print "Dodgy file: %s"%f, name
 			number = idnum.search(f)
+			if number == None:
+				print "Can't get id for", name
+				continue
 			which = [int(x) for x in number.groups() if x!=None]
 			print which
 			if not opts.execute:

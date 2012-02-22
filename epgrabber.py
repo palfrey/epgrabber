@@ -186,20 +186,21 @@ def update(name,season,epnum,force=False):
 		
 class Isohunt:
 	#row = compile("<tr class=\"hlRow\" onClick=\"servOC\(\d+,\\'/torrent_details/(?P<path>[^']+)'.*?<td class=\"row3\" id=name\d+>(?P<name>.*?)(?=</td>)</td><td class=\"row3\" title='\d+ file(?:s)?'>\d+.\d+ (?:M|G|K)B</td><td class=\"row1\">(?P<seeds>\d*)</td><td class=\"row3\">(?P<peers>\d*)</td>")
-	row = compile("<a onClick=\"servOC\(\d+,\\'/torrent_details/(?P<path>[^']+)'.*?<td class=\"row3\" id=name\d+>.+?tab=summary'>(?P<name>.*?)(?=</td>)</td><td class=\"row3\" title='\d+ file(?:s)?'>\d+.\d+ (?:M|G|K)B</td><td class=\"row\d\">(?P<seeds>\d*)</td><td class=\"row\d\">(?P<peers>\d*)</td>")
+	row = compile("<a onClick=\"servOC\(\d+,\\'/torrent_details/(?P<path>[^']+)'.*?\?tab=summary'>(?P<name>.*?)(?=</a>)</a></td><td class=\"row3\" title='\d+ file(?:s)?'>\d+.\d+ (?:M|G|K)B</td><td class=\"row\d\">(?P<seeds>\d*)</td><td class=\"row\d\">(?P<peers>\d*)</td>")
 
 	def rows(self,terms, numbers):
 		url ="http://isohunt.com/torrents/%s?ihp=1&iht=-1&ihs1=2&iho1=d"%terms.replace(" ","+")
 		print "url",url
 		torr = cache.get(url,max_age=60*60).read()
 		rows = self.row.finditer(torr)
+		#raise Exception, [x.groups() for x in rows][:5]
 		return rows
 
 	def torrent(self,r):
 		return "http://isohunt.com/download/"+r["path"]
 
 class PirateBay:
-	row = compile("<a href=\"[^\"]+\" class=\"detLink\" title=\"[^\"]+\">(?P<name>[^<]+)</a>.*?(?P<path>http://torrents.thepiratebay.org/\d+/[^\"]+)\" title=\"Download this torrent\">.*?<td align=\"right\">\d+\.\d+&nbsp;(?:G|M|K)iB</td>.*?<td align=\"right\">(?P<seeds>\d+)</td>.*?<td align=\"right\">(?P<peers>\d+)</td>",MULTILINE|DOTALL)
+	row = compile("<a href=\"[^\"]+\" class=\"detLink\" title=\"[^\"]+\">(?P<name>[^<]+)</a>.*?(?P<path>http://torrents.thepiratebay.org/\d+/[^\"]+)\" title=\"Download this torrent\">.*?<td align=\"right\">(?P<seeds>\d+)</td>.*?<td align=\"right\">(?P<peers>\d+)</td>",MULTILINE|DOTALL)
 
 	def rows(self,terms,numbers):
 		url = "http://thepiratebay.org/search/%s/0/7/0"%(terms).replace(" ","+")
@@ -239,9 +240,8 @@ class PirateBay:
 		return r["path"]
 
 class NyaaTorrents:
-	row = compile("""<td class="tlistname"><a href="http://[^/]+/\?page=torrentinfo&amp;tid=\d+">(?P<name>[^<]+)</a></td>
-		<td class="tlistdownload">.*?<a href="(?P<path>http://[^/]+/\?page=download&amp;tid=\d+)" title="Download"><img src="[^\"]+" alt="DL" /></a>.*?</td>
-		<td class="tlistsize">\d+.\d+ (?:G|M)iB</td><td class="tlistsn">(?P<seeds>\d+)</td><td class="tlistln">(?P<peers>\d+)</td><td class="tlistcn">\d+</td><td class="tlistmn">\d+</td></tr>""")
+#<td class="tlistname"><a href="http://www.nyaa.eu/?page=torrentinfo&amp;tid=227748">[Bleachverse]_BLEACH_330_[480p].mkv</a></td><td class="tlistdownload"><a href="http://www.nyaa.eu/?page=download&amp;tid=227748" title="Download"><img src="http://files.nyaa.eu/ab01" alt="DL" /></a></td><td class="tlistsize">151.1 MiB</td><td class="tlistsn">34</td><td class="tlistln">4</td><td class="tlistcn">746</td><td class="tlistmn">0</td></tr>
+	row = compile("""<td class="tlistname"><a href="http://[^/]+/\?page=torrentinfo&amp;tid=\d+">(?P<name>[^<]+)</a></td>\S*<td class="tlistdownload">.*?<a href="(?P<path>http://[^/]+/\?page=download&amp;tid=\d+)" title="Download"><img src="[^\"]+" alt="DL" /></a>.*?</td>\S*<td class="tlistsize">\d+.\d+ (?:G|M)iB</td><td class="tlistsn">(?P<seeds>\d+)</td><td class="tlistln">(?P<peers>\d+)</td><td class="tlistcn">\d+</td><td class="tlistmn">\d+</td></tr>""")
 
 	def rows(self,terms,numbers):
 		terms = " ".join([x for x in terms.split(" ") if x[0]!="-"])
@@ -258,7 +258,7 @@ class NyaaTorrents:
 		return r["path"].replace("&amp;","&")
 
 class EZTV:
-	row = compile("class=\"epinfo\">(?P<name>[^<]+)</a>.+?</td>.+?<td align=\"center\" class=\"forum_thread_post\"><a href=\"(?P<path>[^\"]+)\" class=\"download_1\" title=\"Download Mirror #1\">",MULTILINE|DOTALL)
+	row = compile("class=\"epinfo\">(?P<name>[^<]+)</a>.+?</td>.+?<td align=\"center\" class=\"forum_thread_post\">(?P<allpath>(?:<a href=\"(?P<path>[^\"]+)\" class=\"download_\d+\" title=\"Download Mirror #\d+\"></a>)+)",MULTILINE|DOTALL)
 
 	def rows(self,terms, numbers):
 		url = "http://eztv.it/search/"
@@ -289,11 +289,15 @@ class EZTV:
 					if r['name'].lower().find(x)!=-1:
 						break
 				else:
+					print "good name", r['name']
 					ret.append(nr)
 		return ret
 
 	def torrent(self,r):
-		return r["path"]
+		httppat = compile("<a href=\"(http://[^\"]+)")
+		ret = httppat.findall(r["allpath"])
+		#raise Exception, ret
+		return ret
 
 def store_values():
 	global db,options
@@ -355,7 +359,7 @@ def run(options, parser):
 	
 	print "Selected series:",(", ".join(sorted(series))),"\n"
 
-	main_sites = [EZTV(),Isohunt(),PirateBay()]
+	main_sites = [Isohunt(),EZTV(),PirateBay()]
 
 	shorttd = timedelta(0,0,0,0,0,6,0)
 	longtd = timedelta(7)
@@ -500,7 +504,6 @@ def run(options, parser):
 						newrows = []
 						for nr in rows:
 							r = nr.groupdict()
-							#print "r",r
 							try:
 								r["seeds"] = int(r["seeds"])
 							except (KeyError,ValueError):
@@ -509,6 +512,7 @@ def run(options, parser):
 								r["peers"] = int(r["peers"])
 							except (KeyError,ValueError):
 								r["peers"] = 0
+							#print "r",r
 							newrows.append(r)
 
 						rows = newrows
@@ -518,7 +522,8 @@ def run(options, parser):
 						for r in rows:
 							sp = "<span title=\""
 							if r["name"].find(sp)!=-1:
-								r["name"] = r["name"][r["name"].find(sp)+len(sp):r["name"][len(sp)+1:].find("\"")+len(sp)+1]
+								first = r["name"][r["name"].find(sp)+len(sp):]
+								r["name"] = first[:first.find("\"")]
 							r["name"] = r["name"].replace("<b>","").replace("</b>","")
 							ok = False
 							print "row",r["name"]

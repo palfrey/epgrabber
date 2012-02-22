@@ -16,6 +16,9 @@ class wikipedia:
 			}
 	def run(self,inf,page,anime=False):
 		data = inf["cache"].get("http://en.wikipedia.org/wiki/%s"%page,max_age=60*60*24).read()
+		if data.find("List of")==-1: # dodgy page
+			return None
+
 		blocks = trs.findall(data)
 		items = []
 		#file("dump","wb").write(data)
@@ -78,6 +81,8 @@ class wikipedia:
 				items.append(blob)
 		#raise Exception,items
 		if len(items)==0:
+			print type(data)
+			open("dump","wb").write(data)
 			raise Exception
 		eps = []
 		#print [ms for ms in items]
