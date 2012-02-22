@@ -6,7 +6,7 @@ from episodes_pb2 import All
 from epgrabber import idnum, run
 
 from optparse import OptionParser
-import transmissionrpc
+from robustclient import RobustClient
 
 parser = OptionParser()
 parser.add_option("-w","--write",help="Actually do the actions!", action="store_true",default=False,dest="execute")
@@ -25,11 +25,11 @@ db.ParseFromString(open("watch.list","rb").read())
 series = [(x.name,x.search) for x in db.series]
 
 if opts.check_torrent:
-	trans = transmissionrpc.Client("localhost",6886,"palfrey","epsilon")
+	trans = RobustClient("localhost",6886,user="palfrey",password="epsilon")
 	torrents = trans.list()
 	ids = {}
 	for k in torrents.keys():
-		f =trans.info(k)[k].files()[0]['name']
+		f = trans.info(k).files()[0]['name']
 		if f.find(sep)!=-1:
 			f = f[:f.find(sep)]
 		ids[f] = k
@@ -77,7 +77,7 @@ for f in files:
 		if opts.check_torrent:
 			if f in ids:
 				print "torrent id", ids[f]
-				details = trans.info(ids[f])[ids[f]]
+				details = trans.info(ids[f])
 				done = details.progress
 				if done == 100.0:
 					if opts.execute:
