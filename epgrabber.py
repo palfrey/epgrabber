@@ -200,46 +200,6 @@ class Isohunt:
 	def torrent(self,r):
 		return "http://isohunt.com/download/"+r["path"]
 
-class PirateBay:
-	row = compile("<a href=\"[^\"]+\" class=\"detLink\" title=\"[^\"]+\">(?P<name>[^<]+)</a>.*?(?P<path>http://torrents.thepiratebay.org/\d+/[^\"]+)\" title=\"Download this torrent\">.*?<td align=\"right\">(?P<seeds>\d+)</td>.*?<td align=\"right\">(?P<peers>\d+)</td>",MULTILINE|DOTALL)
-
-	def rows(self,terms,numbers):
-		url = "http://thepiratebay.org/search/%s/0/7/0"%(terms).replace(" ","+")
-		print "url",url
-		torr = cache.get(url,max_age=60*60).read()
-		open("dump","w").write(torr)
-		rows = list(self.row.finditer(torr))
-		if rows == []:
-			file("dump","wb").write(torr)
-			assert rows!=[],rows
-
-		terms = terms.split(" ")
-		goodterms = [x.lower() for x in terms if x[0]!="-"]
-		badterms = [x[1:].lower() for x in terms if x[0] == "-"]
-
-		print "good", goodterms
-		print "bad", badterms
-
-		ret = []
-		for nr in rows:
-			r = nr.groupdict()
-			if r['name'].find("720p") !=-1:
-				continue
-			for x in goodterms:
-				if r['name'].lower().find(x)==-1:
-					break
-			else:
-				for x in badterms:
-					if r['name'].lower().find(x)!=-1:
-						break
-				else:
-					print "good name", r['name']
-					ret.append(nr)
-		return ret
-
-	def torrent(self,r):
-		return r["path"]
-
 class NyaaTorrents:
 #<td class="tlistname"><a href="http://www.nyaa.eu/?page=torrentinfo&amp;tid=294294">[narutoverse]_naruto_shippuden_253.avi</a></td><td class="tlistdownload"><a href="http://www.nyaa.eu/?page=download&amp;tid=294294" title="download" rel="nofollow"><img src="http://files.nyaa.eu/www-dl.png" alt="dl" /></a></td><td class="tlistsize">178.2 mib</td><td class="tlistsn">163</td><td class="tlistln">484</td><td class="tlistdn">4266</td><td class="tlistmn">0</td></tr>
 #<td class="tlistname"><a href="http://www.nyaa.eu/?page=torrentinfo&#38;tid=310959">[Narutoverse]_NARUTO_Shippuden_261.avi</a></td><td class="tlistdownload"><a href="http://www.nyaa.eu/?page=download&#38;tid=310959" title="Download" rel="nofollow"><img src="http://files.nyaa.eu/www-dl.png" alt="DL" /></a></td><td class="tlistsize">179.5 MiB</td><td class="tlistfailed" colspan="2">Status unknown</td><td class="tlistdn">17838</td><td class="tlistmn">0</td></tr>
@@ -370,7 +330,7 @@ def run(options, parser):
 	
 	print "Selected series:",(", ".join(sorted(series))),"\n"
 
-	main_sites = [Isohunt(),EZTV(),PirateBay()]
+	main_sites = [Isohunt(),EZTV()]
 
 	shorttd = timedelta(0,0,0,0,0,6,0)
 	longtd = timedelta(7)
