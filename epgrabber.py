@@ -81,11 +81,12 @@ def saferetrieve(url,fname):
 			if "announce-list" in torr:
 				for x in torr['announce-list']:
 					trackers.extend(x)
-			http = [x for x in trackers if x.find("http://")!=-1]
+			if "announce" in torr:
+				trackers.append(torr["announce"])
 			badtrackers = ["http://tracker.hexagon.cc:2710/announce", "http://tracker.thepiratebay.org/announce"]
-			good = [x for x in http if x not in badtrackers]
+			good = [x for x in trackers if x not in badtrackers]
 			if len(good) == 0:
-				print "no good trackers", trackers
+				print "no good trackers", trackers, torr
 				return False
 			move(tmpname, fname)
 			return True
