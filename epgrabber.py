@@ -240,22 +240,32 @@ class PirateBay:
 		return r["path"]
 
 class NyaaTorrents:
-#<td class="tlistname"><a href="http://www.nyaa.eu/?page=torrentinfo&amp;tid=227748">[Bleachverse]_BLEACH_330_[480p].mkv</a></td><td class="tlistdownload"><a href="http://www.nyaa.eu/?page=download&amp;tid=227748" title="Download"><img src="http://files.nyaa.eu/ab01" alt="DL" /></a></td><td class="tlistsize">151.1 MiB</td><td class="tlistsn">34</td><td class="tlistln">4</td><td class="tlistcn">746</td><td class="tlistmn">0</td></tr>
-	row = compile("""<td class="tlistname"><a href="http://[^/]+/\?page=torrentinfo&amp;tid=\d+">(?P<name>[^<]+)</a></td>\S*<td class="tlistdownload">.*?<a href="(?P<path>http://[^/]+/\?page=download&amp;tid=\d+)" title="Download"><img src="[^\"]+" alt="DL" /></a>.*?</td>\S*<td class="tlistsize">\d+.\d+ (?:G|M)iB</td><td class="tlistsn">(?P<seeds>\d+)</td><td class="tlistln">(?P<peers>\d+)</td><td class="tlistcn">\d+</td><td class="tlistmn">\d+</td></tr>""")
+#<td class="tlistname"><a href="http://www.nyaa.eu/?page=torrentinfo&amp;tid=294294">[narutoverse]_naruto_shippuden_253.avi</a></td><td class="tlistdownload"><a href="http://www.nyaa.eu/?page=download&amp;tid=294294" title="download" rel="nofollow"><img src="http://files.nyaa.eu/www-dl.png" alt="dl" /></a></td><td class="tlistsize">178.2 mib</td><td class="tlistsn">163</td><td class="tlistln">484</td><td class="tlistdn">4266</td><td class="tlistmn">0</td></tr>
+#<td class="tlistname"><a href="http://www.nyaa.eu/?page=torrentinfo&#38;tid=310959">[Narutoverse]_NARUTO_Shippuden_261.avi</a></td><td class="tlistdownload"><a href="http://www.nyaa.eu/?page=download&#38;tid=310959" title="Download" rel="nofollow"><img src="http://files.nyaa.eu/www-dl.png" alt="DL" /></a></td><td class="tlistsize">179.5 MiB</td><td class="tlistfailed" colspan="2">Status unknown</td><td class="tlistdn">17838</td><td class="tlistmn">0</td></tr>
+	row = compile("""<td class="tlistname"><a href="http://[^/]+/\?page=torrentinfo&#38;tid=\d+">(?P<name>[^<]+)</a></td>\S*<td class="tlistdownload">.*?<a href="(?P<path>http://[^/]+/\?page=download&#38;tid=\d+)" title="Download"[^>]*><img src="[^\"]+" alt="DL" /></a>.*?</td>\S*<td class="tlistsize">\d+.\d+ (?:G|M)iB</td>(?P<items>.+?)</tr>""", IGNORECASE|DOTALL)
+	item = compile("<td class=\"([^\"]+)\"[^>]*>([^<]+)</td>")
 
 	def rows(self,terms,numbers):
-		terms = " ".join([x for x in terms.split(" ") if x[0]!="-"])
-		url = "http://www.nyaatorrents.org/?page=search&term=%s&cat=0_0&tl_page=&sort=1&order=0"%(terms.replace(" ","+"))
+		terms = " ".join([x for x in (terms + " " +numbers).split(" ") if len(x)>0 and x[0]!="-"])
+		url = "http://www.nyaatorrents.org/?page=search&term=%s&sort=1"%(terms.replace(" ","+"))
+		print url
 		torr = cache.get(url,max_age=60*60).read()
 		torr = torr.replace("<div><!-- --></div>","")
 		rows = list(self.row.finditer(torr))
 		if rows == []:
 			file("dump","wb").write(torr)
 			assert rows!=[],rows
+
+		for r in rows:
+			items = dict(self.item.findall(r.group('items')))
+			if 'tlistsn' in items:
+				r['seeds'] = items['tlistsn']
+			if 'tlistln' in items:
+				r['peers'] = items['tlistln']
 		return rows
 	
 	def torrent(self,r):
-		return r["path"].replace("&amp;","&")
+		return r["path"].replace("&amp;","&").replace("&#38;", "&")
 
 class EZTV:
 	row = compile("class=\"epinfo\">(?P<name>[^<]+)</a>.+?</td>.+?<td align=\"center\" class=\"forum_thread_post\">(?P<allpath>(?:<a href=\"(?P<path>[^\"]+)\" class=\"download_\d+\" title=\"Download Mirror #\d+\"></a>)+)",MULTILINE|DOTALL)
