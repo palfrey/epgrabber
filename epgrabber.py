@@ -6,7 +6,7 @@ try:
 except:
 	print "You need to install urlgrab. Get it using 'git clone git://github.com/palfrey/urlgrab.git urlgrab'"
 	sys.exit(1)
-from re import compile,IGNORECASE,MULTILINE,DOTALL,split
+from re import compile,IGNORECASE,MULTILINE,DOTALL,split,UNICODE
 from time import strptime,strftime,localtime,time
 from os.path import exists,getsize,basename,join
 from os import remove
@@ -38,7 +38,7 @@ options = None
 cache = None
 db = None
 
-idnum = compile("(?:S(\d+)E(\d+))|(?:(\d+)x(\d+))|(?: (\d)(\d{2}) - )|(?: (\d+)X(\d+) )|(?:\.(\d+)(\d{2}).)|(?: (\d{2}))",IGNORECASE)
+idnum = compile("(?:S(\d+)E(\d+))|(?:(\d+)x(\d+))|(?: (\d)(\d{2}) - )|(?: (\d+)X(\d+) )|(?:\.(\d+)(\d{2}).)|(?: (\d{2}))|(?:Season (\d+) Episode (\d+))",IGNORECASE)
 
 def saferetrieve(url,fname):
 	badurls = ["http://torrent.zoink.it"]
@@ -190,7 +190,7 @@ class Isohunt:
 	row = compile("<a onClick=\"servOC\(\d+,\\'/torrent_details/(?P<path>[^']+)'.*?\?tab=summary'>(?P<name>.*?)(?=</a>)</a></td><td class=\"row3\" title='\d+ file(?:s)?'>\d+.\d+ (?:M|G|K)B</td><td class=\"row\d\">(?P<seeds>\d*)</td><td class=\"row\d\">(?P<peers>\d*)</td>")
 
 	def rows(self,terms, numbers):
-		url ="http://isohunt.com/torrents/%s?ihp=1&iht=-1&ihs1=2&iho1=d"%terms.replace(" ","+")
+		url ="http://isohunt.com/torrents/%s?iht=-1&ihp=1&ihs1=1&iho1=d"%(numbers+" "+terms).replace(" ","+")
 		print "url",url
 		torr = cache.get(url,max_age=60*60).read()
 		rows = self.row.finditer(torr)
@@ -229,7 +229,7 @@ class NyaaTorrents:
 		return r["path"].replace("&amp;","&").replace("&#38;", "&")
 
 class EZTV:
-	row = compile("class=\"epinfo\">(?P<name>[^<]+)</a>.+?</td>.+?<td align=\"center\" class=\"forum_thread_post\">(?P<allpath>(?:<a href=\"(?P<path>[^\"]+)\" class=\"download_\d+\" title=\"Download Mirror #\d+\"></a>)+)",MULTILINE|DOTALL)
+	row = compile("class=\"epinfo\">(?P<name>[^<]+)</a>\s+</td>\s+<td align=\"center\" class=\"forum_thread_post\">(?P<allpath>(?:<a href=\"(?P<path>[^\"]+)\" class=\"[^\"]+\" title=\"[^\"]+\"></a>)+)",MULTILINE|DOTALL|UNICODE)
 
 	def rows(self,terms, numbers):
 		url = "http://eztv.it/search/"
@@ -470,7 +470,7 @@ def run(options, parser):
 							patt += " %d"%season
 						if epnum!=0:
 							patt +=" %d"%epnum
-						rows = site.rows(info(name)["search"]+ " -zip -rar -ita -crimson -raw -mkv -psp -wmv -ipod",patt)
+						rows = site.rows(info(name)["search"]+ " -zip -rar -ita -crimson -raw -psp -ipod",patt)
 						print site
 						newrows = []
 						for nr in rows:
@@ -553,6 +553,7 @@ def run(options, parser):
 						break
 				else:
 					print "can't get %d-%d for %s"%(season,epnum,name)
+					raise Exception, "can't get %d-%d for %s"%(season,epnum,name)
 		print ""
 	if vobject:
 		open("episodes.ics","w").write(calendar.serialize())
