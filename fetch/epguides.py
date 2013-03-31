@@ -36,9 +36,10 @@ class epguides:
 						print "bits invalid",bits
 						continue
 					(season,ident) = bits[1].split("-",1)
-					del bits[1]
-					bits[1:1] = (season,ident)
+					del bits[0]
+					bits[0:1] = (ident, season, "")
 					lines.append(bits)
+					#print bits
 			eps = lines
 		elif data.find("TV.com")!=-1:
 			patt = compile("(\d+).\s+(\d+)-(.+?)\s+(?:[\dA-Z\-]+)?\s+(\d+ [A-Z][a-z]+ \d+)?\s+<a target=\"(?:visit|_blank)\" href=\"[^\"]+\">([^<]+)</a>")
@@ -53,6 +54,7 @@ class epguides:
 		neweps = []
 		for e in eps:
 			(epnum, season, identifier, date, title) = e
+			#print epnum, season, title
 			try:
 				epnum = str(int(identifier))
 			except ValueError,e:
@@ -64,6 +66,8 @@ class epguides:
 						break
 				if valid !="":
 					epnum = valid
+				else:
+					epnum = int(epnum)
 			try:
 				if kind == EpType.TVRage:
 					date = strptime(date,"%d/%b/%y")
@@ -75,5 +79,6 @@ class epguides:
 					raise
 				date = None
 			title = title.replace("[Recap]","").replace("[Trailer]","")
-			neweps.append((season, epnum, date,title))
+			neweps.append((int(season), epnum, date,title))
+			#print neweps[-1]
 		return inf["core"](inf,neweps)
