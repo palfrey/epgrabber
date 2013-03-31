@@ -13,7 +13,7 @@ from os import remove
 from urlparse import urljoin
 from datetime import datetime, timedelta,date
 from optparse import OptionParser
-from types import ListType
+from types import ListType, DictType
 try:
 	import vobject
 except ImportError:
@@ -474,7 +474,10 @@ def run(options, parser):
 						print site
 						newrows = []
 						for nr in rows:
-							r = nr.groupdict()
+							if type(nr) == DictType:
+								r = nr
+							else:
+								r = nr.groupdict()
 							try:
 								r["seeds"] = int(r["seeds"])
 							except (KeyError,ValueError):
