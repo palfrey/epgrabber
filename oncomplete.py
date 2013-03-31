@@ -29,10 +29,12 @@ if opts.check_torrent:
 	torrents = trans.list()
 	ids = {}
 	for k in torrents.keys():
-		f = trans.info(k).files()[0]['name']
-		if f.find(sep)!=-1:
-			f = f[:f.find(sep)]
-		ids[f] = k
+		files = trans.info(k).files()
+		for id in files:
+			f = files[id]['name']
+			if f.find(sep)!=-1:
+				f = f[:f.find(sep)]
+			ids[f] = k
 
 def remove_dir(top):
 	for root,dirs,files in walk(top, topdown=False):
