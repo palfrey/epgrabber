@@ -470,7 +470,7 @@ def run(options, parser):
 							patt += " %d"%season
 						if epnum!=0:
 							patt +=" %d"%epnum
-						rows = site.rows(info(name)["search"]+ " -zip -rar -ita -crimson -raw -psp -ipod",patt)
+						rows = site.rows(info(name)["search"]+ " -zip -rar -ita -crimson -raw -psp -ipod -wmv",patt)
 						print site
 						newrows = []
 						for nr in rows:
