@@ -58,7 +58,7 @@ for f in files:
 		for (name,search) in series:
 			if search == "":
 				search = name
-			bits = search.replace("eztv","").strip().lower().decode("utf-8","replace").split(" ")
+			bits = search.replace("eztv","").replace("480p", "").strip().lower().decode("utf-8","replace").split(" ")
 			for b in bits:
 				if b == "":
 					continue
@@ -96,7 +96,7 @@ for f in files:
 			found = False
 			for nf in listdir(f):
 				ext = splitext(nf)[1].lower()
-				if ext not in (".avi",".mp4"):
+				if ext not in (".avi",".mp4", ".mkv"):
 					print "not",nf
 					continue
 				print "ext",ext,nf
@@ -129,7 +129,7 @@ for f in files:
 		if ("ID_DEMUXER" in values and values['ID_DEMUXER'] == "asf" and float(values['ID_VIDEO_FPS']) == 1000) or "ID_AUDIO_ID" not in values:
 			print values
 			print "Dodgy file: %s"%f, name
-			number = idnum.search(f)
+			number = idnum.search(f.replace(".", " "))
 			if number == None:
 				print "Can't get id for", name
 				continue
