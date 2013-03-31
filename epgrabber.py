@@ -373,7 +373,8 @@ def run(options, parser):
 			mingap = longtd
 		else:
 			mingap = timedelta()#shorttd
-		print "time since last new",td
+		if last != 0:
+			print "time since last new",td
 		gap = timedelta(0,curr-checked)
 		if not options.override and gap<mingap:
 			print "not enough time has passed. gap is",gap," mingap is",mingap,"\n"
