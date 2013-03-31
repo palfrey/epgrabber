@@ -509,21 +509,22 @@ def run(options, parser):
 								except TypeError:
 									ok = globals()[next["idnum"]](r["name"],name,season,epnum)
 							else:
-								if season == 0: # assume no proper season numbers
-									num = compile("[^a-zA-Z](\d+)[^a-zA-Z]").search(r["name"])
-								else:
-									num = idnum.search(r["name"])
+								num = compile("(\d+)").findall(r["name"].replace("2HD", ""))
 								if num!=None:
-									print num.groups()
+									print num
 									try:
-										which = [int(x) for x in num.groups() if x!=None]
+										which = [int(x) for x in num if x!=None]
 									except TypeError:
-										print r["name"],num.groups()
+										print r["name"],num
 										raise
-									if len(which) == 1:
-										which = [0]+which
-									if which == [season,epnum]:
-										ok = True
+									for i in range(len(which)):
+										if season == 0:
+											if which[i] == epnum:
+												ok = True
+												break
+										elif which[i:i+2] == [season, epnum]:
+											ok = True
+											break
 									else:
 										print "wrong ep, want",(season,epnum),"got",which
 
