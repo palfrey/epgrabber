@@ -190,7 +190,8 @@ class Isohunt:
 	row = compile("<a onClick=\"servOC\(\d+,\\'/torrent_details/(?P<path>[^']+)'.*?\?tab=summary'>(?P<name>.*?)(?=</a>)</a></td><td class=\"row3\" title='\d+ file(?:s)?'>\d+.\d+ (?:M|G|K)B</td><td class=\"row\d\">(?P<seeds>\d*)</td><td class=\"row\d\">(?P<peers>\d*)</td>")
 
 	def rows(self,terms, numbers):
-		url ="http://isohunt.com/torrents/%s?iht=-1&ihp=1&ihs1=1&iho1=d"%(numbers+" "+terms).replace(" ","+")
+		#url ="http://isohunt.com/torrents/%s?iht=-1&ihp=1&ihs1=1&iho1=d"%(numbers+" "+terms).replace(" ","+")
+		url ="http://isohunt.com/torrents/%s?iht=-1&ihp=1&ihs1=1&iho1=d"%(terms).replace(" ","+")
 		print "url",url
 		torr = cache.get(url,max_age=60*60).read()
 		rows = self.row.finditer(torr)
@@ -201,9 +202,7 @@ class Isohunt:
 		return "http://isohunt.com/download/"+r["path"]
 
 class NyaaTorrents:
-#<td class="tlistname"><a href="http://www.nyaa.eu/?page=torrentinfo&amp;tid=294294">[narutoverse]_naruto_shippuden_253.avi</a></td><td class="tlistdownload"><a href="http://www.nyaa.eu/?page=download&amp;tid=294294" title="download" rel="nofollow"><img src="http://files.nyaa.eu/www-dl.png" alt="dl" /></a></td><td class="tlistsize">178.2 mib</td><td class="tlistsn">163</td><td class="tlistln">484</td><td class="tlistdn">4266</td><td class="tlistmn">0</td></tr>
-#<td class="tlistname"><a href="http://www.nyaa.eu/?page=torrentinfo&#38;tid=310959">[Narutoverse]_NARUTO_Shippuden_261.avi</a></td><td class="tlistdownload"><a href="http://www.nyaa.eu/?page=download&#38;tid=310959" title="Download" rel="nofollow"><img src="http://files.nyaa.eu/www-dl.png" alt="DL" /></a></td><td class="tlistsize">179.5 MiB</td><td class="tlistfailed" colspan="2">Status unknown</td><td class="tlistdn">17838</td><td class="tlistmn">0</td></tr>
-	row = compile("""<td class="tlistname"><a href="http://[^/]+/\?page=torrentinfo&#38;tid=\d+">(?P<name>[^<]+)</a></td>\S*<td class="tlistdownload">.*?<a href="(?P<path>http://[^/]+/\?page=download&#38;tid=\d+)" title="Download"[^>]*><img src="[^\"]+" alt="DL" /></a>.*?</td>\S*<td class="tlistsize">\d+.\d+ (?:G|M)iB</td>(?P<items>.+?)</tr>""", IGNORECASE|DOTALL)
+	row = compile("""<td class="tlistname"><a href="http://[^/]+/\?page=torrentinfo&#38;tid=\d+">(?P<name>[^<]+)</a></td>\S*<td class="tlistdownload">.*?<a href="(?P<path>http://[^/]+/\?page=download&#38;tid=\d+)" title="Download"[^>]*><img src="[^\"]+" alt="DL"></a>.*?</td>\S*<td class="tlistsize">\d+.\d+ (?:G|M)iB</td>(?P<items>.+?)</tr>""", IGNORECASE|DOTALL)
 	item = compile("<td class=\"([^\"]+)\"[^>]*>([^<]+)</td>")
 
 	def rows(self,terms,numbers):
@@ -212,13 +211,13 @@ class NyaaTorrents:
 		print url
 		torr = cache.get(url,max_age=60*60).read()
 		torr = torr.replace("<div><!-- --></div>","")
-		rows = list(self.row.finditer(torr))
+		rows = [x.groupdict() for x in list(self.row.finditer(torr))]
 		if rows == []:
 			file("dump","wb").write(torr)
 			assert rows!=[],rows
 
 		for r in rows:
-			items = dict(self.item.findall(r.group('items')))
+			items = dict(self.item.findall(r['items']))
 			if 'tlistsn' in items:
 				r['seeds'] = items['tlistsn']
 			if 'tlistln' in items:
