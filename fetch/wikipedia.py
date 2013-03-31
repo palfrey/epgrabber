@@ -59,6 +59,8 @@ class wikipedia:
 						if len(st)>0:
 							blob["title"] = st[0]
 							continue
+						elif len(blob)>0:
+							raise Exception, (bi, blob)
 				try:
 					blob["year"] = year.findall(bi)[0]
 					#print "year",blob["year"]
@@ -73,11 +75,12 @@ class wikipedia:
 							bi = bi[:bi.find("<")]
 						blob["date"] = strptime(bi,"%B %d, %Y")
 					except ValueError:
-						print "not date",bi
+						#print "not date",bi
 						pass
 			if len(blob.keys())>0:
 				if not blob.has_key("title"): # guess that first is title
-					print "title?",bits[0]
+					#print "title?",bits[0], blob
+					pass
 				items.append(blob)
 		#raise Exception,items
 		if len(items)==0:
@@ -121,8 +124,14 @@ class wikipedia:
 			else:
 				epnum = number[-2:]
 				season = number[:-2]
+
+			if "title" in ma:
+				ti = ma["title"]
+			else:
+				ti = ""
+
 			try:
-				eps.append((int(season),int(epnum),date,ma["title"]))
+				eps.append((int(season),int(epnum),date, ti))
 			except ValueError:
 				print "non-integer season or epnum?",season,epnum
 			except KeyError:
