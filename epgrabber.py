@@ -202,7 +202,7 @@ class Isohunt:
 		return "http://isohunt.com/download/"+r["path"]
 
 class NyaaTorrents:
-	row = compile("""<td class="tlistname"><a href="http://[^/]+/\?page=torrentinfo&#38;tid=\d+">(?P<name>[^<]+)</a></td>\S*<td class="tlistdownload">.*?<a href="(?P<path>http://[^/]+/\?page=download&#38;tid=\d+)" title="Download"[^>]*><img src="[^\"]+" alt="DL"></a>.*?</td>\S*<td class="tlistsize">\d+.\d+ (?:G|M)iB</td>(?P<items>.+?)</tr>""", IGNORECASE|DOTALL)
+	row = compile("""<td class="tlistname"><a href="http://[^/]+/\?page=view&#38;tid=\d+">(?P<name>[^<]+)</a></td>\S*<td class="tlistdownload">.*?<a href="(?P<path>http://[^/]+/\?page=download&#38;tid=\d+)" title="Download"[^>]*><img src="[^\"]+" alt="DL"></a>.*?</td>\S*<td class="tlistsize">\d+.\d+ (?:G|M)iB</td>(?P<items>.+?)</tr>""", IGNORECASE|DOTALL)
 	item = compile("<td class=\"([^\"]+)\"[^>]*>([^<]+)</td>")
 
 	def rows(self,terms,numbers):
