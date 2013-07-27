@@ -27,19 +27,19 @@ class epguides:
 				if matcher.search(line)!=None:
 					bits = list(split("\s+",line,3))
 					#print "bits",bits
-					if bits[-1].find("<a href=")!=0:
+					if bits[-1].find("href=")!=0:
+						#print "pre href", bits
 						bits = list(split("\s+",line,4))
-						del bits[2] # remove the ident
-					assert bits[-1].find("<a href=")==0,bits
+					assert bits[-1].find("href=")!=-1,bits
 					bits[-1] = tagstrip.sub('',bits[-1])
 					if bits[1].find("-")==-1:
 						print "bits invalid",bits
 						continue
 					(season,ident) = bits[1].split("-",1)
 					del bits[0]
-					bits[0:1] = (ident, season, "")
+					bits[0:1] = (ident, season)
 					lines.append(bits)
-					#print bits
+					#print "rev", bits
 			eps = lines
 		elif data.find("TV.com")!=-1:
 			patt = compile("(\d+).\s+(\d+)-(.+?)\s+(?:[\dA-Z\-]+)?\s+(\d+ [A-Z][a-z]+ \d+)?\s+<a target=\"(?:visit|_blank)\" href=\"[^\"]+\">([^<]+)</a>")
@@ -53,21 +53,14 @@ class epguides:
 			raise Exception
 		neweps = []
 		for e in eps:
+			#print "e", e
+			if e[3].find("/") == -1 and e[3].count(" ")!=2:
+				e.insert(2, "")
+				e.remove("<a")
+				#print "new e", e
 			(epnum, season, identifier, date, title) = e
 			#print epnum, season, title
-			try:
-				epnum = str(int(identifier))
-			except ValueError,e:
-				valid = ""
-				for x in identifier.strip():
-					if x.isdigit():
-						valid += x
-					else:
-						break
-				if valid !="":
-					epnum = valid
-				else:
-					epnum = int(epnum)
+			epnum = int(epnum)
 			try:
 				if kind == EpType.TVRage:
 					date = strptime(date,"%d/%b/%y")

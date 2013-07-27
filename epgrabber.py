@@ -58,8 +58,8 @@ def saferetrieve(url,fname):
 			if bdecode:
 				try:
 					torr = bdecode(open(tmpname).read())
-				except ValueError:
-					print "can't decode"
+				except ValueError, e:
+					print "can't decode", e
 					return False
 				bd = torr['info']
 
@@ -231,7 +231,8 @@ class EZTV:
 	row = compile("class=\"epinfo\">(?P<name>[^<]+)</a>\s+</td>\s+<td align=\"center\" class=\"forum_thread_post\">(?P<allpath>(?:<a href=\"(?P<path>[^\"]+)\" class=\"[^\"]+\" title=\"[^\"]+\"></a>)+)",MULTILINE|DOTALL|UNICODE)
 
 	def rows(self,terms, numbers):
-		url = "http://eztv.it/search/"
+		#url = "http://eztv.it/search/"
+		url = "http://www.unblocksites.me/index.php?q=aHR0cDovL2V6dHYuaXQvc2VhcmNoLw%3D%3D" # UK ISPs blocking EZTV...
 		torr = cache.get(url, max_age=60*60, data={"SearchString1":terms}).read()
 
 		rows = list(self.row.finditer(torr))
@@ -253,10 +254,12 @@ class EZTV:
 				continue
 			for x in goodterms:
 				if r['name'].lower().find(x)==-1:
+					print "bad name", r['name']
 					break
 			else:
 				for x in badterms:
 					if r['name'].lower().find(x)!=-1:
+						print "bad name", r['name']
 						break
 				else:
 					print "good name", r['name']
@@ -329,7 +332,7 @@ def run(options, parser):
 	
 	print "Selected series:",(", ".join(sorted(series))),"\n"
 
-	main_sites = [Isohunt(),EZTV()]
+	main_sites = [EZTV(), Isohunt()]
 
 	shorttd = timedelta(0,0,0,0,0,6,0)
 	longtd = timedelta(7)
@@ -470,7 +473,7 @@ def run(options, parser):
 							patt += " %d"%season
 						if epnum!=0:
 							patt +=" %d"%epnum
-						rows = site.rows(info(name)["search"]+ " -zip -rar -ita -crimson -raw -psp -ipod -wmv",patt)
+						rows = site.rows(info(name)["search"]+ " -zip -rar -ita -raw -psp -ipod -wmv",patt)
 						print site
 						newrows = []
 						for nr in rows:
@@ -557,7 +560,7 @@ def run(options, parser):
 						break
 				else:
 					print "can't get %d-%d for %s"%(season,epnum,name)
-					raise Exception, "can't get %d-%d for %s"%(season,epnum,name)
+					#raise Exception, "can't get %d-%d for %s"%(season,epnum,name)
 		print ""
 	if vobject:
 		open("episodes.ics","w").write(calendar.serialize())

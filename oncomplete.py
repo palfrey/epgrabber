@@ -93,7 +93,7 @@ for f in files:
 		else:
 			f = join(opts.check_dir,f)
 		if not isfile(f):
-			found = False
+			goodfiles = []
 			for nf in listdir(f):
 				ext = splitext(nf)[1].lower()
 				if ext not in (".avi",".mp4", ".mkv"):
@@ -109,78 +109,86 @@ for f in files:
 							print "failed with",b,nf
 							break
 					else:
-						found = True
-						break
+						goodfiles.append(nf)
 				else:
-					found = True
+					goodfiles.append(nf)
+			goodfiles = [join(f,nf) for nf in goodfiles]
+			print goodfiles
+		else:
+			goodfiles = [f]
+
+		nextTorrent = False
+		
+		for f in goodfiles:
+			mplayer = popen("mplayer -vo null -frames 0 -identify '%s' 2>&1"%f).readlines()
+			values = {}
+			for l in mplayer:
+				if l.find("=")!=-1 and l.find(" ")==-1 and l.find("==")==-1:
+					key,value = l.split("=",1)
+					values[key] = value.strip()
+			if ("ID_DEMUXER" in values and values['ID_DEMUXER'] == "asf" and float(values['ID_VIDEO_FPS']) == 1000.0) or "ID_AUDIO_ID" not in values:
+				nextTorrent = True
+				print values
+				print "Dodgy file: %s"%f, name
+				number = idnum.search(f.replace(".", " "))
+				if number == None:
+					print "Can't get id for", name
 					break
-			if found:
-				f = join(f,nf)
-				print f
+				which = [int(x) for x in number.groups() if x!=None]
+				print which
+				if not opts.execute:
+					print "Would have gotten a new copy for",name,which
+					break
+				else:
+					class opt:
+						pass
+
+					class FakeParser:
+						def error(self, msg):
+							print msg
+							import sys
+							sys.exit(-1)
+
+					options = opt()
+					options.database = "watch.list"
+					options.debug = True
+					options.series = [name]
+					options.save = False
+					options.override = False
+					options.fast = False
+					options.season = which[0]
+					options.episode = which[1]-1
+					options.download = True
+
+					got = run(options, FakeParser())
+					if got > 0:
+						if sep in f[len(opts.check_dir):] and not samefile(dirname(f), opts.check_dir):
+							remove_dir(dirname(f))
+						if remove_id:
+							trans.remove(remove_id)
+						break
 			else:
-				continue
+				print values
 
-		mplayer = popen("mplayer -vo null -frames 0 -identify '%s' 2>&1"%f).readlines()
-		values = {}
-		for l in mplayer:
-			if l.find("=")!=-1 and l.find(" ")==-1 and l.find("==")==-1:
-				key,value = l.split("=",1)
-				values[key] = value.strip()
-		if ("ID_DEMUXER" in values and values['ID_DEMUXER'] == "asf" and float(values['ID_VIDEO_FPS']) == 1000) or "ID_AUDIO_ID" not in values:
-			print values
-			print "Dodgy file: %s"%f, name
-			number = idnum.search(f.replace(".", " "))
-			if number == None:
-				print "Can't get id for", name
-				continue
-			which = [int(x) for x in number.groups() if x!=None]
-			print which
-			if not opts.execute:
-				print "Would have gotten a new copy for",name,which
-				continue
+		if nextTorrent:
+			continue
+
+		for f in goodfiles:
+			data = popen("~/bin/renamer '%s'"%f).readlines()
+			if len(data) == 1:
+				destname = basename("".join(data).split("=>")[1].strip()[1:-1])
 			else:
-				class opt:
-					pass
+				destname = basename(f)
+				assert len(data)==0,data
+			dest = join(opts.dest_dir,destname)
+			if opts.execute:
+				move(f, dest)
+			else:
+				print "Would have moved %s to %s"%(f, dest)
 
-				class FakeParser:
-					def error(self, msg):
-						print msg
-						import sys
-						sys.exit(-1)
-
-				options = opt()
-				options.database = "watch.list"
-				options.debug = True
-				options.series = [name]
-				options.save = False
-				options.override = False
-				options.fast = False
-				options.season = which[0]
-				options.episode = which[1]-1
-				options.download = True
-
-				run(options, FakeParser())
-				if sep in f[len(opts.check_dir):] and not samefile(dirname(f), opts.check_dir):
-					remove_dir(dirname(f))
-				if remove_id:
-					trans.remove(remove_id)
-				continue
-		else:
-			print values
-
-		data = popen("~/bin/renamer '%s'"%f).readlines()
-		if len(data) == 1:
-			destname = basename("".join(data).split("=>")[1].strip()[1:-1])
-		else:
-			destname = basename(f)
-			assert len(data)==0,data
-		dest = join(opts.dest_dir,destname)
 		if opts.execute:
-			move(f, dest)
 			if sep in f[len(opts.check_dir):] and not samefile(dirname(f), opts.check_dir):
 				remove_dir(dirname(f))
 			if remove_id:
 				trans.remove(remove_id)
-		else:
-			print "Would have moved %s to %s"%(f, dest)
 
