@@ -27,11 +27,8 @@ class epguides:
 				if matcher.search(line)!=None:
 					bits = list(split("\s+",line,3))
 					#print "bits",bits
-					if bits[-1].find("href=")!=0:
-						#print "pre href", bits
-						bits = list(split("\s+",line,4))
 					assert bits[-1].find("href=")!=-1,bits
-					bits[-1] = tagstrip.sub('',bits[-1])
+					bits[-1] = tagstrip.sub('',bits[-1]).strip()
 					if bits[1].find("-")==-1:
 						print "bits invalid",bits
 						continue
@@ -53,12 +50,8 @@ class epguides:
 			raise Exception
 		neweps = []
 		for e in eps:
-			#print "e", e
-			if e[3].find("/") == -1 and e[3].count(" ")!=2:
-				e.insert(2, "")
-				e.remove("<a")
-				#print "new e", e
-			(epnum, season, identifier, date, title) = e
+			print "e", e
+			(epnum, season, date, title) = e
 			#print epnum, season, title
 			epnum = int(epnum)
 			try:
@@ -71,7 +64,7 @@ class epguides:
 					print e
 					raise
 				date = None
-			title = title.replace("[Recap]","").replace("[Trailer]","")
+			title = title.replace("[Recap]","").replace("[Trailer]","").strip()
 			neweps.append((int(season), epnum, date,title))
 			#print neweps[-1]
 		return inf["core"](inf,neweps)
