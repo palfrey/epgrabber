@@ -1,4 +1,4 @@
-from os import listdir,popen,system,rmdir,remove,walk,sep
+from os import listdir,popen,rmdir,remove,walk,sep
 from os.path import isfile,join,dirname,splitext,basename,exists,samefile
 from shutil import move
 
@@ -120,7 +120,9 @@ for f in files:
 		nextTorrent = False
 		
 		for f in goodfiles:
-			mplayer = popen("mplayer -vo null -frames 0 -identify '%s' 2>&1"%f).readlines()
+			cmd ="mplayer -vo null -frames 0 -identify \"%s\" 2>&1"%f
+			print cmd
+			mplayer = popen(cmd).readlines()
 			values = {}
 			for l in mplayer:
 				if l.find("=")!=-1 and l.find(" ")==-1 and l.find("==")==-1:
@@ -174,7 +176,7 @@ for f in files:
 			continue
 
 		for f in goodfiles:
-			data = popen("~/bin/renamer '%s'"%f).readlines()
+			data = popen("~/bin/renamer \"%s\""%f).readlines()
 			if len(data) == 1:
 				destname = basename("".join(data).split("=>")[1].strip()[1:-1])
 			else:
