@@ -184,22 +184,6 @@ def update(name,season,epnum,force=False):
 		s.last = curr
 		store_values()
 	return fname
-		
-class Isohunt:
-	#row = compile("<tr class=\"hlRow\" onClick=\"servOC\(\d+,\\'/torrent_details/(?P<path>[^']+)'.*?<td class=\"row3\" id=name\d+>(?P<name>.*?)(?=</td>)</td><td class=\"row3\" title='\d+ file(?:s)?'>\d+.\d+ (?:M|G|K)B</td><td class=\"row1\">(?P<seeds>\d*)</td><td class=\"row3\">(?P<peers>\d*)</td>")
-	row = compile("<a onClick=\"servOC\(\d+,\\'/torrent_details/(?P<path>[^']+)'.*?\?tab=summary'>(?P<name>.*?)(?=</a>)</a></td><td class=\"row3\" title='\d+ file(?:s)?'>\d+.\d+ (?:M|G|K)B</td><td class=\"row\d\">(?P<seeds>\d*)</td><td class=\"row\d\">(?P<peers>\d*)</td>")
-
-	def rows(self,terms, numbers):
-		#url ="http://isohunt.com/torrents/%s?iht=-1&ihp=1&ihs1=1&iho1=d"%(numbers+" "+terms).replace(" ","+")
-		url ="http://isohunt.com/torrents/%s?iht=-1&ihp=1&ihs1=1&iho1=d"%(terms).replace(" ","+")
-		print "url",url
-		torr = cache.get(url,max_age=60*60).read()
-		rows = self.row.finditer(torr)
-		#raise Exception, [x.groups() for x in rows][:5]
-		return rows
-
-	def torrent(self,r):
-		return "http://isohunt.com/download/"+r["path"]
 
 class NyaaTorrents:
 	row = compile("""<td class="tlistname"><a href="http://[^/]+/\?page=view&#38;tid=\d+">(?P<name>[^<]+)</a></td>\S*<td class="tlistdownload">.*?<a href="(?P<path>http://[^/]+/\?page=download&#38;tid=\d+)" title="Download"[^>]*><img src="[^\"]+" alt="DL"></a>.*?</td>\S*<td class="tlistsize">\d+.\d+ (?:G|M)iB</td>(?P<items>.+?)</tr>""", IGNORECASE|DOTALL)
@@ -332,7 +316,7 @@ def run(options, parser):
 	
 	print "Selected series:",(", ".join(sorted(series))),"\n"
 
-	main_sites = [EZTV(), Isohunt()]
+	main_sites = [EZTV()]
 
 	shorttd = timedelta(0,0,0,0,0,6,0)
 	longtd = timedelta(7)
