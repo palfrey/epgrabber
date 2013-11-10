@@ -22,7 +22,7 @@ from shutil import move
 try:
 	from BitTorrent.bencode import bdecode
 except ImportError:
-	bdecode = None
+	from bencode import bdecode
 
 import fetch
 
