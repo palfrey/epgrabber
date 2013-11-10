@@ -232,7 +232,7 @@ class EZTV:
 
 	def rows(self,terms, numbers):
 		#url = "http://eztv.it/search/"
-		url = "http://www.unblocksites.me/index.php?q=aHR0cDovL2V6dHYuaXQvc2VhcmNoLw%3D%3D" # UK ISPs blocking EZTV...
+		url = "http://eztv.occupyuk.co.uk/search/" # UK ISPs blocking EZTV...
 		torr = cache.get(url, max_age=60*60, data={"SearchString1":terms}).read()
 
 		rows = list(self.row.finditer(torr))
@@ -473,7 +473,7 @@ def run(options, parser):
 							patt += " %d"%season
 						if epnum!=0:
 							patt +=" %d"%epnum
-						rows = site.rows(info(name)["search"]+ " -zip -rar -ita -raw -psp -ipod -wmv",patt)
+						rows = site.rows(info(name)["search"]+ " -zip -rar -ita -raw -psp -ipod -wmv -vostfr",patt)
 						print site
 						newrows = []
 						for nr in rows:
