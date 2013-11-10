@@ -6,7 +6,7 @@ try:
 except:
 	print "You need to install urlgrab. Get it using 'git clone git://github.com/palfrey/urlgrab.git urlgrab'"
 	sys.exit(1)
-from re import compile,IGNORECASE,MULTILINE,DOTALL,split,UNICODE
+from re import compile,findall,IGNORECASE,MULTILINE,DOTALL,split,UNICODE
 from time import strptime,strftime,localtime,time
 from os.path import exists,getsize,basename,join
 from os import remove
@@ -256,6 +256,74 @@ class EZTV:
 		#raise Exception, ret
 		return ret
 
+class Torrentz:
+	#<dl><dt><a href="/f0e1c5ba695ec3071ce2390a7466138adf9a4455"><b>Arrow</b> S02E04 HDTV x264 LOL ettv</a> &#187; sdtv tv divx xvid video shows</dt><dd><span class="v" style="color:#fff;background-color:#79CC53">5&#10003;</span><span class="a"><span title="Thu, 31 Oct 2013 01:04:29">10 days</span></span><span class="s">279 MB</span> <span class="u">7,855</span><span class="d">530</span></dd></dl>
+	row = compile("<dl><dt><a href=\"(?P<path>/[a-z0-9]+)\">(?P<name>.*?)</a>.*?</dt><dd>", MULTILINE|DOTALL|UNICODE)
+	#row = compile("class=\"epinfo\">(?P<name>[^<]+)</a>\s+</td>\s+<td align=\"center\" class=\"forum_thread_post\">(?P<allpath>(?:<a href=\"(?P<path>[^\"]+)\" class=\"[^\"]+\" title=\"[^\"]+\"></a>)+)",MULTILINE|DOTALL|UNICODE)
+
+	def rows(self,terms, numbers):
+		url = "https://torrentz.me/search?f=%s" % terms 
+		torr = cache.get(url, max_age=60*60).read()
+
+		rows = list(self.row.finditer(torr))
+		if rows == []:
+			file("dump","wb").write(torr)
+			assert rows!=[],rows
+
+		terms = terms.split(" ")
+		goodterms = [x.lower() for x in terms if x[0]!="-"]
+		badterms = [x[1:].lower() for x in terms if x[0] == "-"]
+
+		print "good", goodterms
+		print "bad", badterms
+
+		ret = []
+		for nr in rows:
+			r = nr.groupdict()
+			if r['name'].find("720p") !=-1:
+				continue
+			for x in goodterms:
+				if r['name'].lower().find(x)==-1:
+					print "bad name", r['name']
+					break
+			else:
+				for x in badterms:
+					if r['name'].lower().find(x)!=-1:
+						print "bad name", r['name']
+						break
+				else:
+					print "good name", r['name']
+					ret.append(nr)
+		return ret
+
+	def torrent(self,r):
+		url = "https://torrentz.me" + r['path']
+		page = cache.get(url, max_age = -1).read()
+		links = findall("<a href=\"([^\"]+?)\" rel=\"e\">", page)
+
+		for l in links:
+			if l.startswith("http://www.newtorrents.info"):
+				print l
+				otherpage = cache.get(l, max_age = -1).read()
+				patt = compile("<a href='(/down.php\?id=\d+)'><b>download this torrent!</b></a>")
+				torrent = patt.search(otherpage)
+				return urljoin(l, torrent.groups()[0])
+
+			if l.startswith("http://publichd.se"):
+				continue
+				print l
+				otherpage = cache.get(l, max_age = -1).read()
+				patt = compile("<a href=\"(download.php\?id=[a-z0-9]+&f=[^\"]+)\">")
+				torrent = patt.search(otherpage)
+				return urljoin(l.replace("http", "https"), torrent.groups()[0])
+
+		raise Exception, r
+		httppat = compile("<a href=\"(http://[^\"]+)")
+		ret = httppat.findall(r["allpath"])
+		#raise Exception, ret
+		return ret
+
+
 def store_values():
 	global db,options
 	open(options.database,"wb").write(db.SerializeToString())
@@ -316,7 +384,7 @@ def run(options, parser):
 	
 	print "Selected series:",(", ".join(sorted(series))),"\n"
 
-	main_sites = [EZTV()]
+	main_sites = [EZTV(), Torrentz()]
 
 	shorttd = timedelta(0,0,0,0,0,6,0)
 	longtd = timedelta(7)
