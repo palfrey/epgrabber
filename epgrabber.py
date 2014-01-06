@@ -212,11 +212,11 @@ class NyaaTorrents:
 		return r["path"].replace("&amp;","&").replace("&#38;", "&")
 
 class EZTV:
-	row = compile("class=\"epinfo\">(?P<name>[^<]+)</a>\s+</td>\s+<td align=\"center\" class=\"forum_thread_post\">(?P<allpath>(?:<a href=\"(?P<path>[^\"]+)\" class=\"[^\"]+\" title=\"[^\"]+\"></a>)+)",MULTILINE|DOTALL|UNICODE)
+	row = compile("class=\"epinfo\">(?P<name>[^<]+)</a>\s+</td>\s+<td align=\"center\" class=\"forum_thread_post\">(?P<allpath>.+?</td>)",MULTILINE|DOTALL|UNICODE)
 
 	def rows(self,terms, numbers):
 		#url = "http://eztv.it/search/"
-		url = "http://eztv.occupyuk.co.uk/search/" # UK ISPs blocking EZTV...
+		url = "http://www.eztvproxy.org/search/" # UK ISPs blocking EZTV...
 		torr = cache.get(url, max_age=60*60, data={"SearchString1":terms}).read()
 
 		rows = list(self.row.finditer(torr))
@@ -258,7 +258,7 @@ class EZTV:
 
 class Torrentz:
 	#<dl><dt><a href="/f0e1c5ba695ec3071ce2390a7466138adf9a4455"><b>Arrow</b> S02E04 HDTV x264 LOL ettv</a> &#187; sdtv tv divx xvid video shows</dt><dd><span class="v" style="color:#fff;background-color:#79CC53">5&#10003;</span><span class="a"><span title="Thu, 31 Oct 2013 01:04:29">10 days</span></span><span class="s">279 MB</span> <span class="u">7,855</span><span class="d">530</span></dd></dl>
-	row = compile("<dl><dt><a href=\"(?P<path>/[a-z0-9]+)\">(?P<name>.*?)</a>.*?</dt><dd>", MULTILINE|DOTALL|UNICODE)
+	row = compile("<dl><dt><a href=\"(?P<path>/[a-z0-9]+)\">(?P<name>.*?)</a>.*?</dt><dd>.*?<span class=\"u\">(?P<seeds>[\d,]+)</span><span class=\"d\">(?P<peers>[\d,]+)</span>", MULTILINE|DOTALL|UNICODE)
 	#row = compile("class=\"epinfo\">(?P<name>[^<]+)</a>\s+</td>\s+<td align=\"center\" class=\"forum_thread_post\">(?P<allpath>(?:<a href=\"(?P<path>[^\"]+)\" class=\"[^\"]+\" title=\"[^\"]+\"></a>)+)",MULTILINE|DOTALL|UNICODE)
 
 	def rows(self,terms, numbers):
@@ -283,13 +283,21 @@ class Torrentz:
 			if r['name'].find("720p") !=-1:
 				continue
 			for x in goodterms:
-				if r['name'].lower().find(x)==-1:
-					print "bad name", r['name']
+				try:
+					if r['name'].lower().find(x)==-1:
+						print "bad name", r['name']
+						break
+				except UnicodeDecodeError:
+					print "weird name", r['name']
 					break
 			else:
 				for x in badterms:
-					if r['name'].lower().find(x)!=-1:
-						print "bad name", r['name']
+					try:
+						if r['name'].decode('ascii').lower().find(x)!=-1:
+							print "bad name", r['name']
+							break
+					except UnicodeDecodeError as ude:
+						print "weird name", r['name']
 						break
 				else:
 					print "good name", r['name']

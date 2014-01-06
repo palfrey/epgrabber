@@ -15,7 +15,11 @@ class tvrage:
 			season = seasonNode.getAttribute("no")
 			for ep in seasonNode.getElementsByTagName("episode"):
 				title = ep.getElementsByTagName("title")[0].firstChild.data
-				date = strptime(ep.getElementsByTagName("airdate")[0].firstChild.data,"%Y-%m-%d")
+				airdate = ep.getElementsByTagName("airdate")[0].firstChild.data
+				if airdate.find("00")!=-1:
+					date = None
+				else:
+					date = strptime(airdate,"%Y-%m-%d")
 				epnum = ep.getElementsByTagName("seasonnum")[0].firstChild.data
 				#print title, date, season, epnum
 				neweps.append((int(season), int(epnum), date,title))
