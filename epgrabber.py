@@ -40,7 +40,7 @@ db = None
 
 idnum = compile("(?:S(\d+)E(\d+))|(?:(\d+)x(\d+))|(?: (\d)(\d{2}) - )|(?: (\d+)X(\d+) )|(?:\.(\d+)(\d{2}).)|(?: (\d{2}))|(?:Season (\d+) Episode (\d+))",IGNORECASE)
 
-def saferetrieve(url,fname):
+def saferetrieve(url,fname, max_megabytes):
 	badurls = ["http://torrent.zoink.it"]
 
 	for b in badurls:
@@ -67,6 +67,9 @@ def saferetrieve(url,fname):
 					length = bd['length']
 					if length in ([364904448,365431575,183500806,183500808,183656487]+list(range(367001600,367001600+50))):
 						print "Bad torrent!"
+						return False
+					if max_megabytes !=0 and max_megabytes * 1048576 < length:
+						print "Too long! %d is bigger than %d"%(length/1048576.0, max_megabytes)
 						return False
 				except KeyError:
 					assert "files" in bd,bd.keys()
@@ -512,7 +515,7 @@ def run(options, parser):
 					if not hasattr(locals(),"season"):
 						season = 0
 					fname = torrent(name,season,epnum)
-					if not saferetrieve(next["url"],fname):
+					if not saferetrieve(next["url"],fname, s.maxMegabytes):
 						continue
 					update(name,season,epnum)
 					store_values()
@@ -600,7 +603,7 @@ def run(options, parser):
 								if type(items)!=ListType:
 									items = [items]
 								for url in items:
-									if saferetrieve(url,fname):
+									if saferetrieve(url,fname, s.maxMegabytes):
 										break
 								else:
 									continue
