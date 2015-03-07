@@ -3,6 +3,7 @@ from robustclient import RobustClient
 from episodes_pb2 import All
 from datetime import datetime
 from epgrabber import idnum, run
+from re import compile
 
 db = All()
 db.ParseFromString(open("watch.list","rb").read())
@@ -44,14 +45,21 @@ for k in torrents.keys():
 		time = (delta.days*24*60*60) + delta.seconds
 		if details.eta == None and ((done == 0.0 and time > 60*60) or time > 6*60*60):
 			print "Stalled torrent", f
-			number = idnum.search(f)
+			number = compile("(\d+)").findall(f)
 			if number == None:
 				print "Can't get id for", name
 				continue
-			which = [int(x) for x in number.groups() if x!=None]
+			which = [int(x) for x in number if x!=None]
 			print which
 			if len(which)!=2:
-				continue
+				if len(which)>2:
+					for i in range(len(which)-2):
+						if which[i]>2000:
+							continue
+						which = which[i:i+2]
+						break
+					else:
+						continue
 			class opt:
 				pass
 

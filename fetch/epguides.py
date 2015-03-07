@@ -34,6 +34,16 @@ class epguides:
 						continue
 					(season,ident) = bits[1].split("-",1)
 					del bits[0]
+					
+					try:
+						int(bits[-1][:2])
+						isDate = True
+					except ValueError:
+						isDate = False
+					if isDate:
+						(date, rest) = list(split("\s+", bits[-1], 1))
+						bits[-1] = rest
+
 					bits[0:1] = (ident, season)
 					lines.append(bits)
 					#print "rev", bits

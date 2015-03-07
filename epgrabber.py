@@ -6,7 +6,7 @@ try:
 except:
 	print "You need to install urlgrab. Get it using 'git clone git://github.com/palfrey/urlgrab.git urlgrab'"
 	sys.exit(1)
-from re import compile,findall,IGNORECASE,MULTILINE,DOTALL,split,UNICODE
+from re import compile,findall,IGNORECASE,MULTILINE,DOTALL,split,UNICODE,sub
 from time import strptime,strftime,localtime,time
 from os.path import exists,getsize,basename,join
 from os import remove
@@ -40,7 +40,7 @@ db = None
 
 idnum = compile("(?:S(\d+)E(\d+))|(?:(\d+)x(\d+))|(?: (\d)(\d{2}) - )|(?: (\d+)X(\d+) )|(?:\.(\d+)(\d{2}).)|(?: (\d{2}))|(?:Season (\d+) Episode (\d+))",IGNORECASE)
 
-def saferetrieve(url,fname, max_megabytes):
+def saferetrieve(url,fname, max_megabytes, ref = None):
 	badurls = ["http://torrent.zoink.it"]
 
 	for b in badurls:
@@ -52,14 +52,14 @@ def saferetrieve(url,fname, max_megabytes):
 	try:
 		print "Trying",url
 		tmpname = join("/tmp",basename(fname))
-		cache.urlretrieve(url,tmpname)
+		cache.urlretrieve(url,tmpname, ref = ref)
 		if exists(tmpname) and getsize(tmpname)>1000:
 			print "Retrieved!",url
 			if bdecode:
 				try:
 					torr = bdecode(open(tmpname).read())
 				except ValueError, e:
-					print "can't decode", e
+					print "can't decode", e, tmpname
 					return False
 				bd = torr['info']
 
@@ -122,8 +122,8 @@ def info(name):
 	return ret
 
 def core(inf,eps):
-	if eps == []:
-		raise Exception, "NO EPISODES FOUND"
+	#if eps == []:
+	#	raise Exception, "NO EPISODES FOUND"
 	seas = inf["season"]
 	num = inf["episode"]
 	has_prev = False
@@ -191,6 +191,8 @@ def update(name,season,epnum,force=False):
 class NyaaTorrents:
 	row = compile("""<td class="tlistname"><a href="http://[^/]+/\?page=view&#38;tid=\d+">(?P<name>[^<]+)</a></td>\S*<td class="tlistdownload">.*?<a href="(?P<path>http://[^/]+/\?page=download&#38;tid=\d+)" title="Download"[^>]*><img src="[^\"]+" alt="DL"></a>.*?</td>\S*<td class="tlistsize">\d+.\d+ (?:G|M)iB</td>(?P<items>.+?)</tr>""", IGNORECASE|DOTALL)
 	item = compile("<td class=\"([^\"]+)\"[^>]*>([^<]+)</td>")
+	singleitem = compile("<span class=\"([^\"]+)\">([^<]+)</span>")
+	downloadlink = compile("<div class=\"viewdownloadbutton\"><a href=\"(http://[^/]+/\?page=download&#38;tid=\d+)")
 
 	def rows(self,terms,numbers):
 		terms = " ".join([x for x in (terms + " " +numbers).split(" ") if len(x)>0 and x[0]!="-"])
@@ -198,17 +200,24 @@ class NyaaTorrents:
 		print url
 		torr = cache.get(url,max_age=60*60).read()
 		torr = torr.replace("<div><!-- --></div>","")
-		rows = [x.groupdict() for x in list(self.row.finditer(torr))]
-		if rows == []:
-			file("dump","wb").write(torr)
-			assert rows!=[],rows
+		if torr.find("Torrent description:")!=-1: # single item redirect
+			rows = []
+			items = dict(self.singleitem.findall(torr))
+			otheritems = dict(self.item.findall(torr))
+			link = self.downloadlink.findall(torr)
+			rows.append({"seeds":items["viewsn"], "peers" :items["viewln"], "name":otheritems["viewtorrentname"], "path": link[0]})
+		else:
+			rows = [x.groupdict() for x in list(self.row.finditer(torr))]
+			if rows == []:
+				file("dump","wb").write(torr)
+				assert rows!=[],rows
 
-		for r in rows:
-			items = dict(self.item.findall(r['items']))
-			if 'tlistsn' in items:
-				r['seeds'] = items['tlistsn']
-			if 'tlistln' in items:
-				r['peers'] = items['tlistln']
+			for r in rows:
+				items = dict(self.item.findall(r['items']))
+				if 'tlistsn' in items:
+					r['seeds'] = items['tlistsn']
+				if 'tlistln' in items:
+					r['peers'] = items['tlistln']
 		return rows
 	
 	def torrent(self,r):
@@ -218,8 +227,7 @@ class EZTV:
 	row = compile("class=\"epinfo\">(?P<name>[^<]+)</a>\s+</td>\s+<td align=\"center\" class=\"forum_thread_post\">(?P<allpath>.+?</td>)",MULTILINE|DOTALL|UNICODE)
 
 	def rows(self,terms, numbers):
-		#url = "http://eztv.it/search/"
-		url = "http://www.eztvproxy.org/search/" # UK ISPs blocking EZTV...
+		url = "https://eztv.it/search/"
 		torr = cache.get(url, max_age=60*60, data={"SearchString1":terms}).read()
 
 		rows = list(self.row.finditer(torr))
@@ -237,8 +245,7 @@ class EZTV:
 		ret = []
 		for nr in rows:
 			r = nr.groupdict()
-			if r['name'].find("720p") !=-1:
-				continue
+			r['name'] = sub('<[^<]+?>', '', r['name'])
 			for x in goodterms:
 				if r['name'].lower().find(x)==-1:
 					print "bad name", r['name']
@@ -265,7 +272,8 @@ class Torrentz:
 	#row = compile("class=\"epinfo\">(?P<name>[^<]+)</a>\s+</td>\s+<td align=\"center\" class=\"forum_thread_post\">(?P<allpath>(?:<a href=\"(?P<path>[^\"]+)\" class=\"[^\"]+\" title=\"[^\"]+\"></a>)+)",MULTILINE|DOTALL|UNICODE)
 
 	def rows(self,terms, numbers):
-		url = "https://torrentz.me/search?f=%s" % terms 
+		url = "https://torrentz.eu/search?f=%s" % terms 
+		print url
 		torr = cache.get(url, max_age=60*60).read()
 
 		rows = list(self.row.finditer(torr))
@@ -283,12 +291,11 @@ class Torrentz:
 		ret = []
 		for nr in rows:
 			r = nr.groupdict()
-			if r['name'].find("720p") !=-1:
-				continue
+			#r['name'] = sub('<[^<]+?>', '', r['name'])
 			for x in goodterms:
 				try:
 					if r['name'].lower().find(x)==-1:
-						print "bad name", r['name']
+						print "bad name", x, r['name']
 						break
 				except UnicodeDecodeError:
 					print "weird name", r['name']
@@ -308,7 +315,7 @@ class Torrentz:
 		return ret
 
 	def torrent(self,r):
-		url = "https://torrentz.me" + r['path']
+		url = "https://torrentz.eu" + r['path']
 		page = cache.get(url, max_age = -1).read()
 		links = findall("<a href=\"([^\"]+?)\" rel=\"e\">", page)
 
@@ -321,18 +328,37 @@ class Torrentz:
 				return urljoin(l, torrent.groups()[0])
 
 			if l.startswith("http://publichd.se"):
-				continue
 				print l
 				otherpage = cache.get(l, max_age = -1).read()
 				patt = compile("<a href=\"(download.php\?id=[a-z0-9]+&f=[^\"]+)\">")
 				torrent = patt.search(otherpage)
 				return urljoin(l.replace("http", "https"), torrent.groups()[0])
 
-		raise Exception, r
-		httppat = compile("<a href=\"(http://[^\"]+)")
-		ret = httppat.findall(r["allpath"])
-		#raise Exception, ret
-		return ret
+			if l.startswith("https://kickass.so"):
+				print l
+				url = "http://kasssto.come.in/" + l.split("/")[-1]
+				print url
+				otherpage = cache.get(url, max_age = -1).read()
+				patt = compile("href=\"(http://torcache.[^/]+/torrent/[^\"]+)\"><span>Download torrent</span>")
+				torrent = patt.search(otherpage)
+				return torrent.groups()[0]
+
+			if l.startswith("http://www.bt-chat.com"):
+				print l
+				otherpage = cache.get(l, max_age = -1).read()
+				patt = compile("<a href=\"(download.php\?id=[a-z0-9]+)\">")
+				torrent = patt.search(otherpage)
+				return urljoin(l, torrent.groups()[0].replace("download","download1")) + "&type=torrent"
+			
+			if l.startswith("https://www.monova.org"):
+				print l
+				otherpage = cache.get(l, max_age = -1).read()
+				patt = compile("<a href=\"(//www.monova.org/download/torrent/[^\"]+.torrent)\" alt=\"Download!\" rel=\"nofollow\">Download via Torrent!</a>")
+				torrent = patt.search(otherpage)
+				return {"url" : urljoin(l, torrent.groups()[0]), "ref" : l}
+
+		print links
+		raise Exception
 
 
 def store_values():
@@ -603,7 +629,12 @@ def run(options, parser):
 								if type(items)!=ListType:
 									items = [items]
 								for url in items:
-									if saferetrieve(url,fname, s.maxMegabytes):
+									if type(url) == DictType:
+										ref = url["ref"]
+										url = url["url"]
+									else:
+										ref = None
+									if saferetrieve(url,fname, s.maxMegabytes, ref = ref):
 										break
 								else:
 									continue
@@ -616,8 +647,9 @@ def run(options, parser):
 								print "not an ep",r
 								print
 								
-					except URLTimeoutError:
+					except URLTimeoutError,e :
 						print "URLTimeout for",site
+						print e
 						continue
 					if gotit:
 						break
