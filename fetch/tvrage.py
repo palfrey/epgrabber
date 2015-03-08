@@ -8,6 +8,7 @@ class tvrage:
 	def run(self,inf,sid):
 		url = "http://services.tvrage.com/feeds/episode_list.php?sid=%s"%sid
 		data = inf["cache"].get(url,max_age=60*60*24*2).read()
+		data = data.encode('utf-8')
 		open("dump","wb").write(data)
 		xml = minidom.parseString(data)
 		neweps = []
