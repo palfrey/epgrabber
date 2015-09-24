@@ -25,8 +25,13 @@ except ImportError:
 	from bencode import bdecode
 
 import fetch
+import json
 
-from codecs import getdecoder
+from codecs import getdecoder, open, getwriter
+
+# Fix unicode
+import locale
+sys.stdout = getwriter(locale.getpreferredencoding())(sys.stdout);
 
 import urllib
 class AppURLopener(urllib.FancyURLopener):
@@ -94,9 +99,10 @@ def saferetrieve(url,fname, max_megabytes, ref = None):
 			move(tmpname, fname)
 			return True
 		else:
-			if exists(tmpname):
-				remove(tmpname)
 			print "Too small!"
+			if exists(tmpname):
+				print file(tmpname).read()
+				remove(tmpname)
 			return False
 	except IOError:
 		print "IOError!"
@@ -151,7 +157,10 @@ def core(inf,eps):
 		else:
 			print "TBA"
 			continue
-		print title
+		if type(title) == str:
+		    print title.decode("utf-8")
+		else:
+		    print title
 		if not has_prev:
 			print "has_prev"
 			has_prev = True
@@ -208,7 +217,7 @@ class NyaaTorrents:
 			rows.append({"seeds":items["viewsn"], "peers" :items["viewln"], "name":otheritems["viewtorrentname"], "path": link[0]})
 		else:
 			rows = [x.groupdict() for x in list(self.row.finditer(torr))]
-			if rows == []:
+			if rows == [] and torr.find("No torrents found") == -1:
 				file("dump","wb").write(torr)
 				assert rows!=[],rows
 
@@ -227,13 +236,21 @@ class EZTV:
 	row = compile("class=\"epinfo\">(?P<name>[^<]+)</a>\s+</td>\s+<td align=\"center\" class=\"forum_thread_post\">(?P<allpath>.+?</td>)",MULTILINE|DOTALL|UNICODE)
 
 	def rows(self,terms, numbers):
-		url = "https://eztv.it/search/"
+		url = "https://eztv.ch/search/"
+		
+		# EZTV doesnt' like exclusion terms :(
+		s = terms.split(" ")
+		terms = " ".join([x for x in s if x[0] != "-"])
+
 		torr = cache.get(url, max_age=60*60, data={"SearchString1":terms}).read()
 
 		rows = list(self.row.finditer(torr))
 		if rows == []:
-			file("dump","wb").write(torr)
-			assert rows!=[],rows
+			print terms
+			open("dump",mode = "wb", encoding="utf-8").write(torr)
+			return []
+			#assert rows!=[],rows
+
 
 		terms = terms.split(" ")
 		goodterms = [x.lower() for x in terms if x[0]!="-"]
@@ -261,10 +278,23 @@ class EZTV:
 		return ret
 
 	def torrent(self,r):
-		httppat = compile("<a href=\"(http://[^\"]+)")
-		ret = httppat.findall(r["allpath"])
+		httppat = compile("<a href=\"(https?://[^\"]+)")
+		ret = [x for x in httppat.findall(r["allpath"]) if x.endswith(".torrent")]
 		#raise Exception, ret
 		return ret
+
+class Strike:
+    def rows(self, terms, numbers):
+	url = "https://getstrike.net/api/v2/torrents/search/?phrase=%s" % (terms.replace(" ","%20"))
+	print url
+	torr = cache.get(url, max_age=60).read()
+	data = json.loads(torr)["torrents"]
+	for d in data:
+	    d["name"] = d["torrent_title"]
+	return data
+
+    def torrent(self, row):
+	return "https://getstrike.net/torrents/api/download/%s.torrent"%row["torrent_hash"]
 
 class Torrentz:
 	#<dl><dt><a href="/f0e1c5ba695ec3071ce2390a7466138adf9a4455"><b>Arrow</b> S02E04 HDTV x264 LOL ettv</a> &#187; sdtv tv divx xvid video shows</dt><dd><span class="v" style="color:#fff;background-color:#79CC53">5&#10003;</span><span class="a"><span title="Thu, 31 Oct 2013 01:04:29">10 days</span></span><span class="s">279 MB</span> <span class="u">7,855</span><span class="d">530</span></dd></dl>
@@ -303,14 +333,14 @@ class Torrentz:
 			else:
 				for x in badterms:
 					try:
-						if r['name'].decode('ascii').lower().find(x)!=-1:
+						if r['name'].encode('ascii', 'ignore').lower().find(x)!=-1:
 							print "bad name", r['name']
 							break
 					except UnicodeDecodeError as ude:
 						print "weird name", r['name']
 						break
 				else:
-					print "good name", r['name']
+					print "good name", r['name'].encode("ascii", "ignore")
 					ret.append(nr)
 		return ret
 
@@ -320,6 +350,10 @@ class Torrentz:
 		links = findall("<a href=\"([^\"]+?)\" rel=\"e\">", page)
 
 		for l in links:
+			if l.startswith("http://torcache.net"):
+				print l
+				raise Exception
+
 			if l.startswith("http://www.newtorrents.info"):
 				print l
 				otherpage = cache.get(l, max_age = -1).read()
@@ -343,22 +377,34 @@ class Torrentz:
 				torrent = patt.search(otherpage)
 				return torrent.groups()[0]
 
-			if l.startswith("http://www.bt-chat.com"):
-				print l
-				otherpage = cache.get(l, max_age = -1).read()
-				patt = compile("<a href=\"(download.php\?id=[a-z0-9]+)\">")
-				torrent = patt.search(otherpage)
-				return urljoin(l, torrent.groups()[0].replace("download","download1")) + "&type=torrent"
+			#if l.startswith("http://www.bt-chat.com"):
+			#	print l
+			#	otherpage = cache.get(l, max_age = -1).read()
+			#	patt = compile("<a href=\"(download.php\?id=[a-z0-9]+)\">")
+			#	torrent = patt.search(otherpage)
+			#	return urljoin(l, torrent.groups()[0].replace("download","download1")) + "&type=torrent"
 			
 			if l.startswith("https://www.monova.org"):
 				print l
 				otherpage = cache.get(l, max_age = -1).read()
-				patt = compile("<a href=\"(//www.monova.org/download/torrent/[^\"]+.torrent)\" alt=\"Download!\" rel=\"nofollow\">Download via Torrent!</a>")
+				patt = compile("<a id=\"download-file\" href=\"((?:https:)?//www.monova.org/torrent/download[^\"]+)\"")
+				torrent = patt.search(otherpage)
+				if torrent == None:
+					raise Exception, "Bad Regex"
+				else:
+					return {"url" : urljoin(l, torrent.groups()[0]), "ref" : l}
+			
+			if l.startswith("https://rarbg.com"):
+				print l
+				otherpage = cache.get(l, max_age = -1).read()
+				patt = compile("href=\"(/download.php\?id=[a-z0-9]+&f=.*?\.torrent)")
 				torrent = patt.search(otherpage)
 				return {"url" : urljoin(l, torrent.groups()[0]), "ref" : l}
 
+
 		print links
-		raise Exception
+		#raise Exception
+		return []
 
 
 def store_values():
@@ -421,7 +467,7 @@ def run(options, parser):
 	
 	print "Selected series:",(", ".join(sorted(series))),"\n"
 
-	main_sites = [EZTV(), Torrentz()]
+	main_sites = [Strike(), EZTV(), Torrentz()]
 
 	shorttd = timedelta(0,0,0,0,0,6,0)
 	longtd = timedelta(7)
@@ -628,12 +674,16 @@ def run(options, parser):
 								items = site.torrent(r)
 								if type(items)!=ListType:
 									items = [items]
+								print "items", items
 								for url in items:
 									if type(url) == DictType:
 										ref = url["ref"]
 										url = url["url"]
 									else:
 										ref = None
+									if url.startswith("http://imads"):
+									    print "imads workaround", url
+									    continue
 									if saferetrieve(url,fname, s.maxMegabytes, ref = ref):
 										break
 								else:

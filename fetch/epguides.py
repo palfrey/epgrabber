@@ -60,8 +60,8 @@ class epguides:
 			raise Exception
 		neweps = []
 		for e in eps:
-			print "e", e
-			(epnum, season, date, title) = e
+			print "e", e[-4:]
+			(epnum, season, date, title) = e[-4:]
 			#print epnum, season, title
 			epnum = int(epnum)
 			try:
