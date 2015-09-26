@@ -9,10 +9,10 @@ class tvdb:
 	def run(self,inf,sid):
 		url = "http://thetvdb.com/?tab=seasonall&id=%s"%sid
 		data = inf["cache"].get(url,max_age=60*60*12).read()
-		#data = data.encode('utf-8')
+		data = data.encode('utf-8')
 		open("dump","wb").write(data)
 		rows = tvdb.row.findall(data)
-		print rows
+		#print rows
 		neweps = []
 		for (season, epnum, title, date) in rows:
 			neweps.append((int(season), int(epnum), strptime(date,"%Y-%m-%d"), title))
