@@ -390,6 +390,9 @@ class Torrentz:
 				patt = compile("<a id=\"download-file\" href=\"((?:https:)?//www.monova.org/torrent/download[^\"]+)\"")
 				torrent = patt.search(otherpage)
 				if torrent == None:
+				    if otherpage.find("title=\"Magnet Download\"")!=-1:
+					print "Magnet-only page"
+				    else:
 					raise Exception, "Bad Regex"
 				else:
 					return {"url" : urljoin(l, torrent.groups()[0]), "ref" : l}
