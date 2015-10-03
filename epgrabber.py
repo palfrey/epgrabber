@@ -45,7 +45,20 @@ db = None
 
 idnum = compile("(?:S(\d+)E(\d+))|(?:(\d+)x(\d+))|(?: (\d)(\d{2}) - )|(?: (\d+)X(\d+) )|(?:\.(\d+)(\d{2}).)|(?: (\d{2}))|(?:Season (\d+) Episode (\d+))",IGNORECASE)
 
-def saferetrieve(url,fname, max_megabytes, ref = None):
+def checkLength(bd, min_megabytes, max_megabytes):
+    length = bd['length']
+    if length in ([364904448,365431575,183500806,183500808,183656487]+list(range(367001600,367001600+50))):
+	print "Bad torrent!"
+	return False
+    if min_megabytes !=0 and min_megabytes * 1048576 > length:
+        print "Too small! %d is smaller than %d"%(length/1048576.0, min_megabytes)
+	return False
+    if max_megabytes !=0 and max_megabytes * 1048576 < length:
+	print "Too long! %d is bigger than %d"%(length/1048576.0, max_megabytes)
+	return False
+    return True
+
+def saferetrieve(url,fname, min_megabytes, max_megabytes, ref = None):
 	badurls = ["http://torrent.zoink.it"]
 
 	for b in badurls:
@@ -69,22 +82,24 @@ def saferetrieve(url,fname, max_megabytes, ref = None):
 				bd = torr['info']
 
 				try:
-					length = bd['length']
-					if length in ([364904448,365431575,183500806,183500808,183656487]+list(range(367001600,367001600+50))):
-						print "Bad torrent!"
-						return False
-					if max_megabytes !=0 and max_megabytes * 1048576 < length:
-						print "Too long! %d is bigger than %d"%(length/1048576.0, max_megabytes)
-						return False
+				    ret = checkLength(bd, min_megabytes, max_megabytes)
+				    if not ret:
+					return False
 				except KeyError:
-					assert "files" in bd,bd.keys()
+			    	    assert "files" in bd,bd.keys()
 
 				if 'files' in bd: # folder torrent
-					for path in bd['files']:
-						path = path['path'][-1]
+					print bd['files']
+					for info in bd['files']:
+						path = info['path'][-1]
 						if path.find(".wmv")!=-1:
 							print "Found %s, bad torrent!"%path
 							return False
+						if path.find("mp4") !=-1 or path.find("avi")!=-1 or path.find("mkv")!=-1:
+						    ret = checkLength(info, min_megabytes, max_megabytes)
+						    if not ret:
+							return False
+
 			trackers = []
 			if "announce-list" in torr:
 				for x in torr['announce-list']:
@@ -590,7 +605,7 @@ def run(options, parser):
 					if not hasattr(locals(),"season"):
 						season = 0
 					fname = torrent(name,season,epnum)
-					if not saferetrieve(next["url"],fname, s.maxMegabytes):
+					if not saferetrieve(next["url"],fname, s.minMegabytes, s.maxMegabytes):
 						continue
 					update(name,season,epnum)
 					store_values()
@@ -687,7 +702,7 @@ def run(options, parser):
 									if url.startswith("http://imads"):
 									    print "imads workaround", url
 									    continue
-									if saferetrieve(url,fname, s.maxMegabytes, ref = ref):
+									if saferetrieve(url,fname, s.minMegabytes,s.maxMegabytes, ref = ref):
 										break
 								else:
 									continue

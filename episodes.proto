@@ -11,6 +11,7 @@ message Series
 	required bytes listing = 7;
 	optional string search_sites = 8;
 	optional uint32 maxMegabytes = 9;
+	optional uint32 minMegabytes = 10;
 }
 
 message All
