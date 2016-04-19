@@ -216,7 +216,7 @@ class NyaaTorrents:
 	row = compile("""<td class="tlistname"><a href="http://[^/]+/\?page=view&#38;tid=\d+">(?P<name>[^<]+)</a></td>\S*<td class="tlistdownload">.*?<a href="(?P<path>http://[^/]+/\?page=download&#38;tid=\d+)" title="Download"[^>]*><img src="[^\"]+" alt="DL"></a>.*?</td>\S*<td class="tlistsize">\d+.\d+ (?:G|M)iB</td>(?P<items>.+?)</tr>""", IGNORECASE|DOTALL)
 	item = compile("<td class=\"([^\"]+)\"[^>]*>([^<]+)</td>")
 	singleitem = compile("<span class=\"([^\"]+)\">([^<]+)</span>")
-	downloadlink = compile("<div class=\"viewdownloadbutton\"><a href=\"(http://[^/]+/\?page=download&#38;tid=\d+)")
+	downloadlink = compile("<div class=\"viewdownloadbutton\"><a href=\"(//[^/]+/\?page=download&#38;tid=\d+)")
 
 	def rows(self,terms,numbers):
 		terms = " ".join([x for x in (terms + " " +numbers).split(" ") if len(x)>0 and x[0]!="-"])
@@ -229,7 +229,7 @@ class NyaaTorrents:
 			items = dict(self.singleitem.findall(torr))
 			otheritems = dict(self.item.findall(torr))
 			link = self.downloadlink.findall(torr)
-			rows.append({"seeds":items["viewsn"], "peers" :items["viewln"], "name":otheritems["viewtorrentname"], "path": link[0]})
+			rows.append({"seeds":items["viewsn"], "peers" :items["viewln"], "name":otheritems["viewtorrentname"], "path": "http:" + link[0]})
 		else:
 			rows = [x.groupdict() for x in list(self.row.finditer(torr))]
 			if rows == [] and torr.find("No torrents found") == -1:
@@ -428,12 +428,13 @@ class Torrentz:
 			#	return urljoin(l, torrent.groups()[0].replace("download","download1")) + "&type=torrent"
 			
 			if l.startswith("https://www.monova.org"):
+				continue
 				print l
 				otherpage = cache.get(l, max_age = -1).read()
 				patt = compile("<a id=\"download-file\" href=\"((?:https:)?//www.monova.org/torrent/download[^\"]+)\"")
 				torrent = patt.search(otherpage)
 				if torrent == None:
-				    if otherpage.find("title=\"Magnet Download\"")!=-1:
+				    if otherpage.find("Download via magnet")!=-1:
 					print "Magnet-only page"
 				    else:
 					raise Exception, "Bad Regex"
@@ -654,7 +655,7 @@ def run(options, parser):
 							patt += " %d"%season
 						if epnum!=0:
 							patt +=" %d"%epnum
-						rows = site.rows(info(name)["search"]+ " -zip -rar -ita -raw -psp -ipod -wmv -vostfr",patt)
+						rows = site.rows(info(name)["search"]+ " -zip -ita -raw -psp -ipod -wmv -vostfr",patt)
 						print site
 						newrows = []
 						for nr in rows:
@@ -693,7 +694,7 @@ def run(options, parser):
 								except TypeError:
 									ok = globals()[next["idnum"]](r["name"],name,season,epnum)
 							else:
-								num = compile("(\d+)").findall(r["name"].replace("2HD", ""))
+								num = compile("(\d+)").findall(r["name"].replace("2HD", "").replace("mp4", ""))
 								if num!=None:
 									print num
 									try:
