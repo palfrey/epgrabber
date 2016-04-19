@@ -311,6 +311,65 @@ class Strike:
     def torrent(self, row):
 	return "https://getstrike.net/torrents/api/download/%s.torrent"%row["torrent_hash"]
 
+def checkterms(terms, rows):
+    terms = terms.split(" ")
+    goodterms = [x.lower() for x in terms if x[0]!="-"]
+    badterms = [x[1:].lower() for x in terms if x[0] == "-"]
+
+    print "good", goodterms
+    print "bad", badterms
+
+    ret = []
+    for nr in rows:
+	    r = nr.groupdict()
+	    #r['name'] = sub('<[^<]+?>', '', r['name'])
+	    for x in goodterms:
+		    try:
+			    if r['name'].lower().find(x)==-1:
+				    print "bad name", x, r['name']
+				    break
+		    except UnicodeDecodeError:
+			    print "weird name", r['name']
+			    break
+	    else:
+		    for x in badterms:
+			    try:
+				    if r['name'].encode('ascii', 'ignore').lower().find(x)!=-1:
+					    print "bad name", r['name']
+					    break
+			    except UnicodeDecodeError as ude:
+				    print "weird name", r['name']
+				    break
+		    else:
+			    print "good name", r['name'].encode("ascii", "ignore")
+			    ret.append(nr)
+    return ret
+
+class KAT:
+    row = compile("<a href=\"(?P<path>[^\"]+)\" class=\"cellMainLink\">(?P<name>.*?)</a>")
+
+    def rows(self, terms, numbers):
+	numbers = [int(x.strip()) for x in numbers.split()]
+	numbers = " S%02de%02d"% tuple(numbers)
+	url = "http://kattorrent.us/usearch/%s/?field=seeders&sorder=desc" % ((terms+numbers).replace(" ", "%20"))
+	print url
+	torr = cache.get(url, max_age=60).read()
+	rows = list(self.row.finditer(torr))
+	if rows == []:
+	    file("dump","wb").write(torr)
+	    assert rows!=[],rows
+	return checkterms(terms, rows)
+
+    def torrent(self, r):
+	url = "https://kattorrent.us" + r['path']
+	page = cache.get(url, max_age = -1).read()
+	links = findall("title=\"Download (?:verified )?torrent file\" href=\"(//torcache.kattorrent.(?:us|co)/torrent/[^\"]+)", page)
+	try:
+	    return "http:" + links[0]
+	except:
+	    open("dump","wb", encoding="utf-8").write(page)
+	    raise
+
 class Torrentz:
 	#<dl><dt><a href="/f0e1c5ba695ec3071ce2390a7466138adf9a4455"><b>Arrow</b> S02E04 HDTV x264 LOL ettv</a> &#187; sdtv tv divx xvid video shows</dt><dd><span class="v" style="color:#fff;background-color:#79CC53">5&#10003;</span><span class="a"><span title="Thu, 31 Oct 2013 01:04:29">10 days</span></span><span class="s">279 MB</span> <span class="u">7,855</span><span class="d">530</span></dd></dl>
 	row = compile("<dl><dt><a href=\"(?P<path>/[a-z0-9]+)\">(?P<name>.*?)</a>.*?</dt><dd>.*?<span class=\"u\">(?P<seeds>[\d,]+)</span><span class=\"d\">(?P<peers>[\d,]+)</span>", MULTILINE|DOTALL|UNICODE)
@@ -326,39 +385,8 @@ class Torrentz:
 			file("dump","wb").write(torr)
 			assert rows!=[],rows
 
-		terms = terms.split(" ")
-		goodterms = [x.lower() for x in terms if x[0]!="-"]
-		badterms = [x[1:].lower() for x in terms if x[0] == "-"]
-
-		print "good", goodterms
-		print "bad", badterms
-
-		ret = []
-		for nr in rows:
-			r = nr.groupdict()
-			#r['name'] = sub('<[^<]+?>', '', r['name'])
-			for x in goodterms:
-				try:
-					if r['name'].lower().find(x)==-1:
-						print "bad name", x, r['name']
-						break
-				except UnicodeDecodeError:
-					print "weird name", r['name']
-					break
-			else:
-				for x in badterms:
-					try:
-						if r['name'].encode('ascii', 'ignore').lower().find(x)!=-1:
-							print "bad name", r['name']
-							break
-					except UnicodeDecodeError as ude:
-						print "weird name", r['name']
-						break
-				else:
-					print "good name", r['name'].encode("ascii", "ignore")
-					ret.append(nr)
-		return ret
-
+	        return checkterms(terms, rows)
+	
 	def torrent(self,r):
 		url = "https://torrentz.eu" + r['path']
 		page = cache.get(url, max_age = -1).read()
@@ -485,7 +513,7 @@ def run(options, parser):
 	
 	print "Selected series:",(", ".join(sorted(series))),"\n"
 
-	main_sites = [Strike(), EZTV(), Torrentz()]
+	main_sites = [KAT(), Torrentz(), EZTV()]
 
 	shorttd = timedelta(0,0,0,0,0,6,0)
 	longtd = timedelta(7)
