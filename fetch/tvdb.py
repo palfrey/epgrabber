@@ -4,7 +4,7 @@ from time import strptime
 class tvdb:
 	args = {"sid":"Tvdb id"}
 
-	row = compile("<tr><td class=\"(?:odd|even)\"><a href=\"/\?tab=episode&seriesid=\d+&seasonid=\d+&id=\d+&amp;lid=\d+\">(?P<season>\d+) x (?P<episode>\d+)</a></td><td class=\"(?:odd|even)\"><a href=\"/\?tab=episode&seriesid=\d+&seasonid=\d+&id=\d+&amp;lid=\d+\">(?P<name>[^<]+)</a></td><td class=\"(?:odd|even)\">(?P<date>\d+-\d+-\d+)</td>")
+	row = compile("<tr><td class=\"(?:odd|even)\"><a href=\"/\?tab=episode&seriesid=\d+&seasonid=\d+&id=\d+&amp;lid=\d+\">(?P<season>\d+) x (?P<episode>\d+)</a></td><td class=\"(?:odd|even)\"><a href=\"/\?tab=episode&seriesid=\d+&seasonid=\d+&id=\d+&amp;lid=\d+\">(?P<name>[^<]*)</a></td><td class=\"(?:odd|even)\">(?P<date>\d+-\d+-\d+)</td>")
 
 	def run(self,inf,sid):
 		url = "http://thetvdb.com/?tab=seasonall&id=%s"%sid
