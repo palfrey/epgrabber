@@ -363,7 +363,7 @@ class KAT:
     def torrent(self, r):
 	url = "https://kattorrent.us" + r['path']
 	page = cache.get(url, max_age = -1).read()
-	links = findall("title=\"Download (?:verified )?torrent file\" href=\"(//torcache.kattorrent.(?:us|co)/torrent/[^\"]+)", page)
+	links = findall("title=\"Download (?:verified )?torrent file\" href=\"(//(?:torcache.kattorrent.(?:us|co)/torrent|torcache.net)/[^\"]+)", page)
 	try:
 	    return "http:" + links[0]
 	except:
@@ -694,7 +694,7 @@ def run(options, parser):
 								except TypeError:
 									ok = globals()[next["idnum"]](r["name"],name,season,epnum)
 							else:
-								num = compile("(\d+)").findall(r["name"].replace("2HD", "").replace("mp4", ""))
+								num = compile("(\d+)").findall(r["name"].replace("2HD", "").replace("mp4", "").replace("5.1Ch",""))
 								if num!=None:
 									print num
 									try:
