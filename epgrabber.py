@@ -68,6 +68,8 @@ def saferetrieve(url,fname, min_megabytes, max_megabytes, ref = None):
 
 	global bdecode
 	try:
+		if not url.startswith("http"):
+		    url = "http:" + url
 		print "Trying",url
 		tmpname = join("/tmp",basename(fname))
 		cache.urlretrieve(url,tmpname, ref = ref)
@@ -213,7 +215,7 @@ def update(name,season,epnum,force=False):
 	return fname
 
 class NyaaTorrents:
-	row = compile("""<td class="tlistname"><a href="http://[^/]+/\?page=view&#38;tid=\d+">(?P<name>[^<]+)</a></td>\S*<td class="tlistdownload">.*?<a href="(?P<path>http://[^/]+/\?page=download&#38;tid=\d+)" title="Download"[^>]*><img src="[^\"]+" alt="DL"></a>.*?</td>\S*<td class="tlistsize">\d+.\d+ (?:G|M)iB</td>(?P<items>.+?)</tr>""", IGNORECASE|DOTALL)
+	row = compile("""<td class="tlistname"><a href="(?:http:)?//[^/]+/\?page=view&#38;tid=\d+">(?P<name>[^<]+)</a></td>\S*<td class="tlistdownload">.*?<a href="(?P<path>(?:http:)?//[^/]+/\?page=download&#38;tid=\d+)" title="Download"[^>]*><img src="[^\"]+" alt="DL"></a>.*?</td>\S*<td class="tlistsize">\d+.\d+ (?:G|M)iB</td>(?P<items>.+?)</tr>""", IGNORECASE|DOTALL)
 	item = compile("<td class=\"([^\"]+)\"[^>]*>([^<]+)</td>")
 	singleitem = compile("<span class=\"([^\"]+)\">([^<]+)</span>")
 	downloadlink = compile("<div class=\"viewdownloadbutton\"><a href=\"(//[^/]+/\?page=download&#38;tid=\d+)")
