@@ -253,13 +253,13 @@ class EZTV:
 	row = compile("class=\"epinfo\">(?P<name>[^<]+)</a>\s+</td>\s+<td align=\"center\" class=\"forum_thread_post\">(?P<allpath>.+?</td>)",MULTILINE|DOTALL|UNICODE)
 
 	def rows(self,terms, numbers):
-		url = "https://eztv.ch/search/"
+		url = "https://eztv.tf/search/"
 		
 		# EZTV doesnt' like exclusion terms :(
 		s = terms.split(" ")
-		terms = " ".join([x for x in s if x[0] != "-"])
+		terms = "-".join([x for x in s if x[0] != "-"])
 
-		torr = cache.get(url, max_age=60*60, data={"SearchString1":terms}).read()
+		torr = cache.get(url + terms, max_age=60*60).read()
 
 		rows = list(self.row.finditer(torr))
 		if rows == []:
