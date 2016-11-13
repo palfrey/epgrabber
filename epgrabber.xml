@@ -3,378 +3,378 @@
   <!-- interface-requires gtk+ 2.12 -->
   <!-- interface-naming-policy project-wide -->
   <object class="GtkDialog" id="dlgSeries">
-    <property name="border_width">5</property>
-    <property name="title" translatable="yes">Epguides Wizard</property>
-    <property name="modal">True</property>
-    <property name="destroy_with_parent">True</property>
-    <property name="type_hint">normal</property>
-    <property name="has_separator">False</property>
-    <child internal-child="vbox">
-      <object class="GtkVBox" id="series-vbox">
-        <property name="visible">True</property>
-        <property name="spacing">2</property>
-        <child>
-          <object class="GtkVBox" id="vbox3">
-            <property name="visible">True</property>
-            <child>
-              <object class="GtkLabel" id="label1">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Enter name of series</property>
-              </object>
-              <packing>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkEntry" id="entNewSeries">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-              </object>
-              <packing>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-        <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area3">
-            <property name="visible">True</property>
-            <property name="layout_style">end</property>
-            <child>
-              <object class="GtkButton" id="btnAddNew">
-                <property name="label" translatable="yes">gtk-add</property>
-                <property name="visible">True</property>
-                <property name="sensitive">False</property>
-                <property name="can_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="btnCancelNew">
-                <property name="label" translatable="yes">gtk-cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="pack_type">end</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-      </object>
-    </child>
-    <action-widgets>
-      <action-widget response="0">btnAddNew</action-widget>
-      <action-widget response="0">btnCancelNew</action-widget>
-    </action-widgets>
+	<property name="border_width">5</property>
+	<property name="title" translatable="yes">Epguides Wizard</property>
+	<property name="modal">True</property>
+	<property name="destroy_with_parent">True</property>
+	<property name="type_hint">normal</property>
+	<property name="has_separator">False</property>
+	<child internal-child="vbox">
+	  <object class="GtkVBox" id="series-vbox">
+		<property name="visible">True</property>
+		<property name="spacing">2</property>
+		<child>
+		  <object class="GtkVBox" id="vbox3">
+			<property name="visible">True</property>
+			<child>
+			  <object class="GtkLabel" id="label1">
+				<property name="visible">True</property>
+				<property name="label" translatable="yes">Enter name of series</property>
+			  </object>
+			  <packing>
+				<property name="position">0</property>
+			  </packing>
+			</child>
+			<child>
+			  <object class="GtkEntry" id="entNewSeries">
+				<property name="visible">True</property>
+				<property name="can_focus">True</property>
+			  </object>
+			  <packing>
+				<property name="position">1</property>
+			  </packing>
+			</child>
+		  </object>
+		  <packing>
+			<property name="expand">False</property>
+			<property name="position">1</property>
+		  </packing>
+		</child>
+		<child internal-child="action_area">
+		  <object class="GtkHButtonBox" id="dialog-action_area3">
+			<property name="visible">True</property>
+			<property name="layout_style">end</property>
+			<child>
+			  <object class="GtkButton" id="btnAddNew">
+				<property name="label" translatable="yes">gtk-add</property>
+				<property name="visible">True</property>
+				<property name="sensitive">False</property>
+				<property name="can_focus">True</property>
+				<property name="can_default">True</property>
+				<property name="receives_default">True</property>
+				<property name="use_stock">True</property>
+			  </object>
+			  <packing>
+				<property name="expand">False</property>
+				<property name="fill">False</property>
+				<property name="position">0</property>
+			  </packing>
+			</child>
+			<child>
+			  <object class="GtkButton" id="btnCancelNew">
+				<property name="label" translatable="yes">gtk-cancel</property>
+				<property name="visible">True</property>
+				<property name="can_focus">True</property>
+				<property name="receives_default">True</property>
+				<property name="use_stock">True</property>
+			  </object>
+			  <packing>
+				<property name="expand">False</property>
+				<property name="fill">False</property>
+				<property name="position">1</property>
+			  </packing>
+			</child>
+		  </object>
+		  <packing>
+			<property name="expand">False</property>
+			<property name="pack_type">end</property>
+			<property name="position">0</property>
+		  </packing>
+		</child>
+	  </object>
+	</child>
+	<action-widgets>
+	  <action-widget response="0">btnAddNew</action-widget>
+	  <action-widget response="0">btnCancelNew</action-widget>
+	</action-widgets>
   </object>
   <object class="GtkWindow" id="wndMain">
-    <property name="title" translatable="yes">Episode grabber</property>
-    <property name="icon_name">emblem-downloads</property>
-    <child>
-      <object class="GtkVBox" id="vbox1">
-        <property name="visible">True</property>
-        <child>
-          <object class="GtkToolbar" id="toolbar1">
-            <property name="visible">True</property>
-            <child>
-              <object class="GtkToolButton" id="btnAdd">
-                <property name="visible">True</property>
-                <property name="stock_id">gtk-add</property>
-                <signal name="clicked" handler="btnAdd_clicked_cb"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolButton" id="btnRemove">
-                <property name="visible">True</property>
-                <property name="stock_id">gtk-remove</property>
-                <signal name="clicked" handler="btnRemove_clicked_cb"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolButton" id="btnWizard">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Add with Wizard...</property>
-                <property name="stock_id">gtk-select-color</property>
-                <signal name="clicked" handler="btnWizard_clicked_cb"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkScrolledWindow" id="scrolledwindow1">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="hscrollbar_policy">automatic</property>
-            <property name="vscrollbar_policy">automatic</property>
-            <child>
-              <object class="GtkTreeView" id="tblEpisodes">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="position">1</property>
-          </packing>
-        </child>
-      </object>
-    </child>
+	<property name="title" translatable="yes">Episode grabber</property>
+	<property name="icon_name">emblem-downloads</property>
+	<child>
+	  <object class="GtkVBox" id="vbox1">
+		<property name="visible">True</property>
+		<child>
+		  <object class="GtkToolbar" id="toolbar1">
+			<property name="visible">True</property>
+			<child>
+			  <object class="GtkToolButton" id="btnAdd">
+				<property name="visible">True</property>
+				<property name="stock_id">gtk-add</property>
+				<signal name="clicked" handler="btnAdd_clicked_cb"/>
+			  </object>
+			  <packing>
+				<property name="expand">False</property>
+				<property name="homogeneous">True</property>
+			  </packing>
+			</child>
+			<child>
+			  <object class="GtkToolButton" id="btnRemove">
+				<property name="visible">True</property>
+				<property name="stock_id">gtk-remove</property>
+				<signal name="clicked" handler="btnRemove_clicked_cb"/>
+			  </object>
+			  <packing>
+				<property name="expand">False</property>
+				<property name="homogeneous">True</property>
+			  </packing>
+			</child>
+			<child>
+			  <object class="GtkToolButton" id="btnWizard">
+				<property name="visible">True</property>
+				<property name="label" translatable="yes">Add with Wizard...</property>
+				<property name="stock_id">gtk-select-color</property>
+				<signal name="clicked" handler="btnWizard_clicked_cb"/>
+			  </object>
+			  <packing>
+				<property name="expand">False</property>
+				<property name="homogeneous">True</property>
+			  </packing>
+			</child>
+		  </object>
+		  <packing>
+			<property name="expand">False</property>
+			<property name="position">0</property>
+		  </packing>
+		</child>
+		<child>
+		  <object class="GtkScrolledWindow" id="scrolledwindow1">
+			<property name="visible">True</property>
+			<property name="can_focus">True</property>
+			<property name="hscrollbar_policy">automatic</property>
+			<property name="vscrollbar_policy">automatic</property>
+			<child>
+			  <object class="GtkTreeView" id="tblEpisodes">
+				<property name="visible">True</property>
+				<property name="can_focus">True</property>
+			  </object>
+			</child>
+		  </object>
+		  <packing>
+			<property name="position">1</property>
+		  </packing>
+		</child>
+	  </object>
+	</child>
   </object>
   <object class="GtkDialog" id="dlgEpguides">
-    <property name="border_width">5</property>
-    <property name="title" translatable="yes">Epguides Wizard</property>
-    <property name="modal">True</property>
-    <property name="destroy_with_parent">True</property>
-    <property name="type_hint">normal</property>
-    <property name="has_separator">False</property>
-    <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox1">
-        <property name="visible">True</property>
-        <property name="spacing">2</property>
-        <child>
-          <object class="GtkVBox" id="vbox2">
-            <property name="visible">True</property>
-            <child>
-              <object class="GtkLabel" id="label2">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Enter name of series</property>
-              </object>
-              <packing>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkEntry" id="entSeries">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-              </object>
-              <packing>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkTreeView" id="treResults">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-              </object>
-              <packing>
-                <property name="position">2</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-        <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area1">
-            <property name="visible">True</property>
-            <property name="layout_style">end</property>
-            <child>
-              <object class="GtkButton" id="btnSelect">
-                <property name="label" translatable="yes">gtk-add</property>
-                <property name="visible">True</property>
-                <property name="sensitive">False</property>
-                <property name="can_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="btnCancel">
-                <property name="label" translatable="yes">gtk-cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="pack_type">end</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-      </object>
-    </child>
-    <action-widgets>
-      <action-widget response="0">btnSelect</action-widget>
-      <action-widget response="0">btnCancel</action-widget>
-    </action-widgets>
+	<property name="border_width">5</property>
+	<property name="title" translatable="yes">Epguides Wizard</property>
+	<property name="modal">True</property>
+	<property name="destroy_with_parent">True</property>
+	<property name="type_hint">normal</property>
+	<property name="has_separator">False</property>
+	<child internal-child="vbox">
+	  <object class="GtkVBox" id="dialog-vbox1">
+		<property name="visible">True</property>
+		<property name="spacing">2</property>
+		<child>
+		  <object class="GtkVBox" id="vbox2">
+			<property name="visible">True</property>
+			<child>
+			  <object class="GtkLabel" id="label2">
+				<property name="visible">True</property>
+				<property name="label" translatable="yes">Enter name of series</property>
+			  </object>
+			  <packing>
+				<property name="position">0</property>
+			  </packing>
+			</child>
+			<child>
+			  <object class="GtkEntry" id="entSeries">
+				<property name="visible">True</property>
+				<property name="can_focus">True</property>
+			  </object>
+			  <packing>
+				<property name="position">1</property>
+			  </packing>
+			</child>
+			<child>
+			  <object class="GtkTreeView" id="treResults">
+				<property name="visible">True</property>
+				<property name="can_focus">True</property>
+			  </object>
+			  <packing>
+				<property name="position">2</property>
+			  </packing>
+			</child>
+		  </object>
+		  <packing>
+			<property name="expand">False</property>
+			<property name="position">1</property>
+		  </packing>
+		</child>
+		<child internal-child="action_area">
+		  <object class="GtkHButtonBox" id="dialog-action_area1">
+			<property name="visible">True</property>
+			<property name="layout_style">end</property>
+			<child>
+			  <object class="GtkButton" id="btnSelect">
+				<property name="label" translatable="yes">gtk-add</property>
+				<property name="visible">True</property>
+				<property name="sensitive">False</property>
+				<property name="can_focus">True</property>
+				<property name="can_default">True</property>
+				<property name="receives_default">True</property>
+				<property name="use_stock">True</property>
+			  </object>
+			  <packing>
+				<property name="expand">False</property>
+				<property name="fill">False</property>
+				<property name="position">0</property>
+			  </packing>
+			</child>
+			<child>
+			  <object class="GtkButton" id="btnCancel">
+				<property name="label" translatable="yes">gtk-cancel</property>
+				<property name="visible">True</property>
+				<property name="can_focus">True</property>
+				<property name="receives_default">True</property>
+				<property name="use_stock">True</property>
+			  </object>
+			  <packing>
+				<property name="expand">False</property>
+				<property name="fill">False</property>
+				<property name="position">1</property>
+			  </packing>
+			</child>
+		  </object>
+		  <packing>
+			<property name="expand">False</property>
+			<property name="pack_type">end</property>
+			<property name="position">0</property>
+		  </packing>
+		</child>
+	  </object>
+	</child>
+	<action-widgets>
+	  <action-widget response="0">btnSelect</action-widget>
+	  <action-widget response="0">btnCancel</action-widget>
+	</action-widgets>
   </object>
   <object class="GtkDialog" id="dlgCommand">
-    <property name="border_width">5</property>
-    <property name="title" translatable="yes">Edit command</property>
-    <property name="type_hint">normal</property>
-    <child internal-child="vbox">
-      <object class="GtkVBox" id="command-vbox3">
-        <property name="visible">True</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-        <child>
-          <object class="GtkTable" id="tblCommands">
-            <property name="visible">True</property>
-            <property name="n_columns">4</property>
-            <child>
-              <object class="GtkComboBox" id="cmbCommand">
-                <property name="visible">True</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkHBox" id="hbox-args">
-                <property name="visible">True</property>
-                <child>
-                  <object class="GtkEntry" id="arg1">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="invisible_char">&#x25CF;</property>
-                  </object>
-                  <packing>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="arg2">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="invisible_char">&#x25CF;</property>
-                  </object>
-                  <packing>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="btnAddRow">
-                <property name="label" translatable="yes">gtk-add</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="btnRemove1">
-                <property name="label" translatable="yes">gtk-remove</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="left_attach">3</property>
-                <property name="right_attach">4</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="fill">False</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-        <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area4">
-            <property name="visible">True</property>
-            <property name="layout_style">end</property>
-            <child>
-              <object class="GtkButton" id="btnOk">
-                <property name="label" translatable="yes">gtk-apply</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="btnCancel1">
-                <property name="label" translatable="yes">gtk-cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="pack_type">end</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-      </object>
-    </child>
-    <action-widgets>
-      <action-widget response="0">btnOk</action-widget>
-      <action-widget response="0">btnCancel1</action-widget>
-    </action-widgets>
+	<property name="border_width">5</property>
+	<property name="title" translatable="yes">Edit command</property>
+	<property name="type_hint">normal</property>
+	<child internal-child="vbox">
+	  <object class="GtkVBox" id="command-vbox3">
+		<property name="visible">True</property>
+		<property name="orientation">vertical</property>
+		<property name="spacing">2</property>
+		<child>
+		  <object class="GtkTable" id="tblCommands">
+			<property name="visible">True</property>
+			<property name="n_columns">4</property>
+			<child>
+			  <object class="GtkComboBox" id="cmbCommand">
+				<property name="visible">True</property>
+			  </object>
+			</child>
+			<child>
+			  <object class="GtkHBox" id="hbox-args">
+				<property name="visible">True</property>
+				<child>
+				  <object class="GtkEntry" id="arg1">
+					<property name="visible">True</property>
+					<property name="can_focus">True</property>
+					<property name="invisible_char">&#x25CF;</property>
+				  </object>
+				  <packing>
+					<property name="position">0</property>
+				  </packing>
+				</child>
+				<child>
+				  <object class="GtkEntry" id="arg2">
+					<property name="visible">True</property>
+					<property name="can_focus">True</property>
+					<property name="invisible_char">&#x25CF;</property>
+				  </object>
+				  <packing>
+					<property name="position">1</property>
+				  </packing>
+				</child>
+			  </object>
+			  <packing>
+				<property name="left_attach">1</property>
+				<property name="right_attach">2</property>
+			  </packing>
+			</child>
+			<child>
+			  <object class="GtkButton" id="btnAddRow">
+				<property name="label" translatable="yes">gtk-add</property>
+				<property name="visible">True</property>
+				<property name="can_focus">True</property>
+				<property name="receives_default">True</property>
+				<property name="use_stock">True</property>
+			  </object>
+			  <packing>
+				<property name="left_attach">2</property>
+				<property name="right_attach">3</property>
+			  </packing>
+			</child>
+			<child>
+			  <object class="GtkButton" id="btnRemove1">
+				<property name="label" translatable="yes">gtk-remove</property>
+				<property name="visible">True</property>
+				<property name="can_focus">True</property>
+				<property name="receives_default">True</property>
+				<property name="use_stock">True</property>
+			  </object>
+			  <packing>
+				<property name="left_attach">3</property>
+				<property name="right_attach">4</property>
+			  </packing>
+			</child>
+		  </object>
+		  <packing>
+			<property name="fill">False</property>
+			<property name="position">1</property>
+		  </packing>
+		</child>
+		<child internal-child="action_area">
+		  <object class="GtkHButtonBox" id="dialog-action_area4">
+			<property name="visible">True</property>
+			<property name="layout_style">end</property>
+			<child>
+			  <object class="GtkButton" id="btnOk">
+				<property name="label" translatable="yes">gtk-apply</property>
+				<property name="visible">True</property>
+				<property name="can_focus">True</property>
+				<property name="receives_default">True</property>
+				<property name="use_stock">True</property>
+			  </object>
+			  <packing>
+				<property name="expand">False</property>
+				<property name="fill">False</property>
+				<property name="position">0</property>
+			  </packing>
+			</child>
+			<child>
+			  <object class="GtkButton" id="btnCancel1">
+				<property name="label" translatable="yes">gtk-cancel</property>
+				<property name="visible">True</property>
+				<property name="can_focus">True</property>
+				<property name="receives_default">True</property>
+				<property name="use_stock">True</property>
+			  </object>
+			  <packing>
+				<property name="expand">False</property>
+				<property name="fill">False</property>
+				<property name="position">1</property>
+			  </packing>
+			</child>
+		  </object>
+		  <packing>
+			<property name="expand">False</property>
+			<property name="pack_type">end</property>
+			<property name="position">0</property>
+		  </packing>
+		</child>
+	  </object>
+	</child>
+	<action-widgets>
+	  <action-widget response="0">btnOk</action-widget>
+	  <action-widget response="0">btnCancel1</action-widget>
+	</action-widgets>
   </object>
 </interface>

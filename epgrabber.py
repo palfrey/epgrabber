@@ -37,7 +37,7 @@ sys.stdout = getwriter(locale.getpreferredencoding())(sys.stdout);
 
 import urllib
 class AppURLopener(urllib.FancyURLopener):
-    version = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11"
+	version = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11"
 
 urllib._urlopener = AppURLopener()
 
@@ -48,17 +48,17 @@ db = None
 idnum = compile("(?:S(\d+)E(\d+))|(?:(\d+)x(\d+))|(?: (\d)(\d{2}) - )|(?: (\d+)X(\d+) )|(?:\.(\d+)(\d{2}).)|(?: (\d{2}))|(?:Season (\d+) Episode (\d+))",IGNORECASE)
 
 def checkLength(bd, min_megabytes, max_megabytes):
-    length = bd['length']
-    if length in ([364904448,365431575,183500806,183500808,183656487]+list(range(367001600,367001600+50))):
+	length = bd['length']
+	if length in ([364904448,365431575,183500806,183500808,183656487]+list(range(367001600,367001600+50))):
 	print "Bad torrent!"
 	return False
-    if min_megabytes !=0 and min_megabytes * 1048576 > length:
-        print "Too small! %d is smaller than %d"%(length/1048576.0, min_megabytes)
+	if min_megabytes !=0 and min_megabytes * 1048576 > length:
+		print "Too small! %d is smaller than %d"%(length/1048576.0, min_megabytes)
 	return False
-    if max_megabytes !=0 and max_megabytes * 1048576 < length:
+	if max_megabytes !=0 and max_megabytes * 1048576 < length:
 	print "Too long! %d is bigger than %d"%(length/1048576.0, max_megabytes)
 	return False
-    return True
+	return True
 
 def saferetrieve(url,fname, min_megabytes, max_megabytes, ref = None):
 	badurls = []
@@ -71,7 +71,7 @@ def saferetrieve(url,fname, min_megabytes, max_megabytes, ref = None):
 	global bdecode
 	try:
 		if not url.startswith("http"):
-		    url = "http:" + url
+			url = "http:" + url
 		print "Trying",url
 		tmpname = join("/tmp",basename(fname))
 		cache.urlretrieve(url,tmpname, ref = ref)
@@ -86,11 +86,11 @@ def saferetrieve(url,fname, min_megabytes, max_megabytes, ref = None):
 				bd = torr['info']
 
 				try:
-				    ret = checkLength(bd, min_megabytes, max_megabytes)
-				    if not ret:
+					ret = checkLength(bd, min_megabytes, max_megabytes)
+					if not ret:
 					return False
 				except KeyError:
-			    	    assert "files" in bd,bd.keys()
+						assert "files" in bd,bd.keys()
 
 				if 'files' in bd: # folder torrent
 					print bd['files']
@@ -100,8 +100,8 @@ def saferetrieve(url,fname, min_megabytes, max_megabytes, ref = None):
 							print "Found %s, bad torrent!"%path
 							return False
 						if path.find("mp4") !=-1 or path.find("avi")!=-1 or path.find("mkv")!=-1:
-						    ret = checkLength(info, min_megabytes, max_megabytes)
-						    if not ret:
+							ret = checkLength(info, min_megabytes, max_megabytes)
+							if not ret:
 							return False
 
 			trackers = []
@@ -177,9 +177,9 @@ def core(inf,eps):
 			print "TBA"
 			continue
 		if type(title) == str:
-		    print title.decode("utf-8")
+			print title.decode("utf-8")
 		else:
-		    print title
+			print title
 		if not has_prev:
 			print "has_prev"
 			has_prev = True
@@ -217,149 +217,38 @@ def update(name,season,epnum,force=False):
 	return fname
 
 def checkterms(terms, rows):
-    terms = terms.split(" ")
-    goodterms = [x.lower() for x in terms if x[0]!="-"]
-    badterms = [x[1:].lower() for x in terms if x[0] == "-"]
+	terms = terms.split(" ")
+	goodterms = [x.lower() for x in terms if x[0]!="-"]
+	badterms = [x[1:].lower() for x in terms if x[0] == "-"]
 
-    print "good", goodterms
-    print "bad", badterms
+	print "good", goodterms
+	print "bad", badterms
 
-    ret = []
-    for nr in rows:
-	    r = nr.groupdict()
-	    #r['name'] = sub('<[^<]+?>', '', r['name'])
-	    for x in goodterms:
-		    try:
-			    if r['name'].lower().find(x)==-1:
-				    print "bad name", x, r['name']
-				    break
-		    except UnicodeDecodeError:
-			    print "weird name", r['name']
-			    break
-	    else:
-		    for x in badterms:
-			    try:
-				    if r['name'].encode('ascii', 'ignore').lower().find(x)!=-1:
-					    print "bad name", r['name']
-					    break
-			    except UnicodeDecodeError as ude:
-				    print "weird name", r['name']
-				    break
-		    else:
-			    print "good name", r['name'].encode("ascii", "ignore")
-			    ret.append(nr)
-    return ret
-
-class KAT:
-    row = compile("<a href=\"(?P<path>[^\"]+)\" class=\"cellMainLink\">(?P<name>.*?)</a>")
-
-    def rows(self, terms, numbers):
-	numbers = [int(x.strip()) for x in numbers.split()]
-	numbers = " S%02de%02d"% tuple(numbers)
-	url = "http://kattorrent.us/usearch/%s/?field=seeders&sorder=desc" % ((terms+numbers).replace(" ", "%20"))
-	print url
-	torr = cache.get(url, max_age=60).read()
-	rows = list(self.row.finditer(torr))
-	if rows == []:
-	    open("dump","wb", encoding="utf-8").write(torr)
-	    assert rows!=[],rows
-	return checkterms(terms, rows)
-
-    def torrent(self, r):
-	url = "https://kattorrent.us" + r['path']
-	page = cache.get(url, max_age = -1).read()
-	links = findall("title=\"Download (?:verified )?torrent file\" href=\"(//(?:torcache.kattorrent.(?:us|co)/torrent|torcache.net)/[^\"]+)", page)
-	try:
-	    return "http:" + links[0]
-	except:
-	    open("dump","wb", encoding="utf-8").write(page)
-	    raise
-
-class Torrentz:
-	#<dl><dt><a href="/f0e1c5ba695ec3071ce2390a7466138adf9a4455"><b>Arrow</b> S02E04 HDTV x264 LOL ettv</a> &#187; sdtv tv divx xvid video shows</dt><dd><span class="v" style="color:#fff;background-color:#79CC53">5&#10003;</span><span class="a"><span title="Thu, 31 Oct 2013 01:04:29">10 days</span></span><span class="s">279 MB</span> <span class="u">7,855</span><span class="d">530</span></dd></dl>
-	#row = compile("<dl><dt><a href=\"?(?P<path>/[a-z0-9]+)\"?>(?P<name>.*?)</a>.*?</dt><dd>.*?<span class=\"u\">(?P<seeds>[\d,]+)</span><span class=\"d\">(?P<peers>[\d,]+)</span>", MULTILINE|DOTALL|UNICODE)
-	#row = compile("<dl><dt><a href=(?P<path>/[a-z0-9]+)>(?P<name>.*?)</a>.*?</dt><dd><span>✓</span><span title=\d+>([^<]+)</span><span>(\d+ (?:M|G)B)</span><span>(?P<peers>\d+)</span>", MULTILINE|DOTALL|UNICODE)
-	row = compile("<dl><dt><a href=(?P<path>/[a-z0-9]+)>(?P<name>.*?)</a>", MULTILINE|DOTALL|UNICODE)
-	#row = compile("class=\"epinfo\">(?P<name>[^<]+)</a>\s+</td>\s+<td align=\"center\" class=\"forum_thread_post\">(?P<allpath>(?:<a href=\"(?P<path>[^\"]+)\" class=\"[^\"]+\" title=\"[^\"]+\"></a>)+)",MULTILINE|DOTALL|UNICODE)
-
-	def rows(self,terms, numbers):
-		url = "https://torrentz2.eu/search?f=%s" % terms
-		print url
-		torr = cache.get(url, max_age=60*60).read()
-
-		rows = list(self.row.finditer(torr))
-		if rows == []:
-			open("dump","wb", encoding="utf-8").write(torr)
-			assert rows!=[],rows
-
-	        return checkterms(terms, rows)
-
-	def torrent(self,r):
-		url = "https://torrentz2.eu" + r['path']
-		page = cache.get(url, max_age = -1).read()
-		links = findall("<a href=\"([^\"]+?)\" rel=\"e\">", page)
-
-		for l in links:
-			if l.startswith("http://torcache.net"):
-				print l
-				raise Exception
-
-			if l.startswith("http://www.newtorrents.info"):
-				print l
-				otherpage = cache.get(l, max_age = -1).read()
-				patt = compile("<a href='(/down.php\?id=\d+)'><b>download this torrent!</b></a>")
-				torrent = patt.search(otherpage)
-				return urljoin(l, torrent.groups()[0])
-
-			if l.startswith("http://publichd.se"):
-				print l
-				otherpage = cache.get(l, max_age = -1).read()
-				patt = compile("<a href=\"(download.php\?id=[a-z0-9]+&f=[^\"]+)\">")
-				torrent = patt.search(otherpage)
-				return urljoin(l.replace("http", "https"), torrent.groups()[0])
-
-			if l.startswith("https://kickass.so"):
-				print l
-				url = "http://kasssto.come.in/" + l.split("/")[-1]
-				print url
-				otherpage = cache.get(url, max_age = -1).read()
-				patt = compile("href=\"(http://torcache.[^/]+/torrent/[^\"]+)\"><span>Download torrent</span>")
-				torrent = patt.search(otherpage)
-				return torrent.groups()[0]
-
-			#if l.startswith("http://www.bt-chat.com"):
-			#	print l
-			#	otherpage = cache.get(l, max_age = -1).read()
-			#	patt = compile("<a href=\"(download.php\?id=[a-z0-9]+)\">")
-			#	torrent = patt.search(otherpage)
-			#	return urljoin(l, torrent.groups()[0].replace("download","download1")) + "&type=torrent"
-
-			if l.startswith("https://www.monova.org"):
-				continue
-				print l
-				otherpage = cache.get(l, max_age = -1).read()
-				patt = compile("<a id=\"download-file\" href=\"((?:https:)?//www.monova.org/torrent/download[^\"]+)\"")
-				torrent = patt.search(otherpage)
-				if torrent == None:
-				    if otherpage.find("Download via magnet")!=-1:
-					print "Magnet-only page"
-				    else:
-					raise Exception, "Bad Regex"
-				else:
-					return {"url" : urljoin(l, torrent.groups()[0]), "ref" : l}
-
-			if l.startswith("https://rarbg.com"):
-				print l
-				otherpage = cache.get(l, max_age = -1).read()
-				patt = compile("href=\"(/download.php\?id=[a-z0-9]+&f=.*?\.torrent)")
-				torrent = patt.search(otherpage)
-				return {"url" : urljoin(l, torrent.groups()[0]), "ref" : l}
-
-
-		print links
-		#raise Exception
-		return []
-
+	ret = []
+	for nr in rows:
+		r = nr.groupdict()
+		#r['name'] = sub('<[^<]+?>', '', r['name'])
+		for x in goodterms:
+			try:
+				if r['name'].lower().find(x)==-1:
+					print "bad name", x, r['name']
+					break
+			except UnicodeDecodeError:
+				print "weird name", r['name']
+				break
+		else:
+			for x in badterms:
+				try:
+					if r['name'].encode('ascii', 'ignore').lower().find(x)!=-1:
+						print "bad name", r['name']
+						break
+				except UnicodeDecodeError as ude:
+					print "weird name", r['name']
+					break
+			else:
+				print "good name", r['name'].encode("ascii", "ignore")
+				ret.append(nr)
+	return ret
 
 def store_values():
 	global db,options
@@ -637,8 +526,8 @@ def run(options, parser):
 									else:
 										ref = None
 									if url.startswith("http://imads"):
-									    print "imads workaround", url
-									    continue
+										print "imads workaround", url
+										continue
 									if saferetrieve(url,fname, s.minMegabytes,s.maxMegabytes, ref = ref):
 										break
 								else:
