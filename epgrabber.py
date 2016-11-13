@@ -60,7 +60,7 @@ def checkLength(bd, min_megabytes, max_megabytes):
     return True
 
 def saferetrieve(url,fname, min_megabytes, max_megabytes, ref = None):
-	badurls = ["http://torrent.zoink.it"]
+	badurls = []
 
 	for b in badurls:
 		if url.find(b)!=-1:
