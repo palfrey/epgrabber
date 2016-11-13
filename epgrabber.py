@@ -50,14 +50,14 @@ idnum = compile("(?:S(\d+)E(\d+))|(?:(\d+)x(\d+))|(?: (\d)(\d{2}) - )|(?: (\d+)X
 def checkLength(bd, min_megabytes, max_megabytes):
 	length = bd['length']
 	if length in ([364904448,365431575,183500806,183500808,183656487]+list(range(367001600,367001600+50))):
-	print "Bad torrent!"
-	return False
+		print "Bad torrent!"
+		return False
 	if min_megabytes !=0 and min_megabytes * 1048576 > length:
 		print "Too small! %d is smaller than %d"%(length/1048576.0, min_megabytes)
-	return False
+		return False
 	if max_megabytes !=0 and max_megabytes * 1048576 < length:
-	print "Too long! %d is bigger than %d"%(length/1048576.0, max_megabytes)
-	return False
+		print "Too long! %d is bigger than %d"%(length/1048576.0, max_megabytes)
+		return False
 	return True
 
 def saferetrieve(url,fname, min_megabytes, max_megabytes, ref = None):
@@ -88,9 +88,9 @@ def saferetrieve(url,fname, min_megabytes, max_megabytes, ref = None):
 				try:
 					ret = checkLength(bd, min_megabytes, max_megabytes)
 					if not ret:
-					return False
+						return False
 				except KeyError:
-						assert "files" in bd,bd.keys()
+					assert "files" in bd,bd.keys()
 
 				if 'files' in bd: # folder torrent
 					print bd['files']
@@ -102,7 +102,7 @@ def saferetrieve(url,fname, min_megabytes, max_megabytes, ref = None):
 						if path.find("mp4") !=-1 or path.find("avi")!=-1 or path.find("mkv")!=-1:
 							ret = checkLength(info, min_megabytes, max_megabytes)
 							if not ret:
-							return False
+								return False
 
 			trackers = []
 			if "announce-list" in torr:
@@ -439,7 +439,7 @@ def run(options, parser):
 					continue
 				gotit = False
 				try:
-					local_sites = [globals()[x]() for x in get_series(name).search_sites.split(",") if x!=""]
+					local_sites = [getattr(sites, x)(cache) for x in get_series(name).search_sites.split(",") if x!=""]
 					if local_sites == []:
 						local_sites = main_sites
 					print "sites", local_sites
@@ -452,8 +452,8 @@ def run(options, parser):
 							patt += " %d"%season
 						if epnum!=0:
 							patt +=" %d"%epnum
-						rows = site.rows(info(name)["search"]+ " -zip -ita -raw -psp -ipod -wmv -vostfr",patt)
 						print site
+						rows = site.rows(info(name)["search"]+ " -zip -ita -raw -psp -ipod -wmv -vostfr",patt)
 						newrows = []
 						for nr in rows:
 							if type(nr) == DictType:

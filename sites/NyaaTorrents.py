@@ -1,6 +1,9 @@
 from re import compile,findall,IGNORECASE,MULTILINE,DOTALL,split,UNICODE,sub
 
 class NyaaTorrents:
+	def __init__(self, cache):
+		self.cache = cache
+
 	row = compile("""<td class="tlistname"><a href="(?:http:)?//[^/]+/\?page=view&#38;tid=\d+">(?P<name>[^<]+)</a></td>\S*<td class="tlistdownload">.*?<a href="(?P<path>(?:http:)?//[^/]+/\?page=download&#38;tid=\d+)" title="Download"[^>]*><img src="[^\"]+" alt="DL"></a>.*?</td>\S*<td class="tlistsize">\d+.\d+ (?:G|M)iB</td>(?P<items>.+?)</tr>""", IGNORECASE|DOTALL)
 	item = compile("<td class=\"([^\"]+)\"[^>]*>([^<]+)</td>")
 	singleitem = compile("<span class=\"([^\"]+)\">([^<]+)</span>")
@@ -10,7 +13,7 @@ class NyaaTorrents:
 		terms = " ".join([x for x in (terms + " " +numbers).split(" ") if len(x)>0 and x[0]!="-"])
 		url = "http://www.nyaatorrents.org/?page=search&term=%s&sort=1"%(terms.replace(" ","+"))
 		print url
-		torr = cache.get(url,max_age=60*60).read()
+		torr = self.cache.get(url,max_age=60*60).read()
 		torr = torr.replace("<div><!-- --></div>","")
 		if torr.find("Torrent description:")!=-1: # single item redirect
 			rows = []

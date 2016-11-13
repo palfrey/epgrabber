@@ -1,3 +1,5 @@
+from re import compile
+
 class KAT:
 	row = compile("<a href=\"(?P<path>[^\"]+)\" class=\"cellMainLink\">(?P<name>.*?)</a>")
 
