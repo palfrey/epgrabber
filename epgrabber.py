@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# vim: set fileencoding=utf-8
 
 import sys
 try:
@@ -262,6 +263,7 @@ class EZTV:
 		torr = cache.get(url + terms, max_age=60*60).read()
 
 		rows = list(self.row.finditer(torr))
+		open("dump",mode = "wb", encoding="utf-8").write(torr)
 		if rows == []:
 			print terms
 			open("dump",mode = "wb", encoding="utf-8").write(torr)
@@ -358,7 +360,7 @@ class KAT:
 	torr = cache.get(url, max_age=60).read()
 	rows = list(self.row.finditer(torr))
 	if rows == []:
-	    file("dump","wb").write(torr)
+	    open("dump","wb", encoding="utf-8").write(torr)
 	    assert rows!=[],rows
 	return checkterms(terms, rows)
 
@@ -384,7 +386,7 @@ class Torrentz:
 
 		rows = list(self.row.finditer(torr))
 		if rows == []:
-			file("dump","wb").write(torr)
+			open("dump","wb", encoding="utf-8").write(torr)
 			assert rows!=[],rows
 
 	        return checkterms(terms, rows)
