@@ -271,7 +271,7 @@ class EZTV:
 			#assert rows!=[],rows
 
 
-		terms = terms.split(" ")
+		terms = terms.split("-")
 		goodterms = [x.lower() for x in terms if x[0]!="-"]
 		badterms = [x[1:].lower() for x in terms if x[0] == "-"]
 
