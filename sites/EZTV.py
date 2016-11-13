@@ -17,7 +17,6 @@ class EZTV:
 		torr = self.cache.get(url + terms, max_age=60*60).read()
 
 		rows = list(self.row.finditer(torr))
-		open("dump",mode = "wb", encoding="utf-8").write(torr)
 		if rows == []:
 			print terms
 			open("dump",mode = "wb", encoding="utf-8").write(torr)
