@@ -60,7 +60,7 @@ def checkLength(bd, min_megabytes, max_megabytes):
 		return False
 	return True
 
-def saferetrieve(url,fname, min_megabytes, max_megabytes, ref = None):
+def saferetrieve(url, fname, min_megabytes, max_megabytes, ref = None, headers = {}):
 	badurls = []
 
 	for b in badurls:
@@ -72,9 +72,9 @@ def saferetrieve(url,fname, min_megabytes, max_megabytes, ref = None):
 	try:
 		if not url.startswith("http"):
 			url = "http:" + url
-		print "Trying",url
+		print "Trying", url, headers
 		tmpname = join("/tmp",basename(fname))
-		cache.urlretrieve(url,tmpname, ref = ref)
+		cache.urlretrieve(url, tmpname, ref = ref, headers = headers)
 		if exists(tmpname) and getsize(tmpname)>1000:
 			print "Retrieved!",url
 			if bdecode:
@@ -519,16 +519,14 @@ def run(options, parser):
 								if type(items)!=ListType:
 									items = [items]
 								print "items", items
-								for url in items:
-									if type(url) == DictType:
-										ref = url["ref"]
-										url = url["url"]
-									else:
-										ref = None
+								for item in items:
+									if type(item) != DictType:
+										item = {"url": item}
+									url = item["url"]
 									if url.startswith("http://imads"):
 										print "imads workaround", url
 										continue
-									if saferetrieve(url,fname, s.minMegabytes,s.maxMegabytes, ref = ref):
+									if saferetrieve(url, fname, s.minMegabytes, s.maxMegabytes, ref = item.get("ref", None), headers = item.get("headers", {})):
 										break
 								else:
 									continue
