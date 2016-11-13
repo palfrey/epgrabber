@@ -26,6 +26,7 @@ except ImportError:
 	from bencode import bdecode
 
 import fetch
+import sites
 import json
 
 from codecs import getdecoder, open, getwriter
@@ -153,7 +154,7 @@ def core(inf,eps):
 	has_prev = False
 
 	eps.sort(lambda a,b:cmp(int(a[0])*100+int(a[1]),int(b[0])*100+int(b[1])))
-		
+
 	prev = (0,0)
 	last = None
 	for e in eps:
@@ -195,7 +196,7 @@ def	torrent(name,season,epnum):
 	fname = "%s - %02d-%02d.torrent"%(name,season,epnum)
 	print "fname:",fname
 	return fname
-	
+
 def update(name,season,epnum,force=False):
 	global curr
 	fname = torrent(name,season,epnum)
@@ -206,7 +207,7 @@ def update(name,season,epnum,force=False):
 		if (season == seas and epnum == num) and not force:
 			print "Duplicate numbers!"
 			return
-		
+
 		s = get_series(name)
 		if season !=0:
 			s.season = season
@@ -214,106 +215,6 @@ def update(name,season,epnum,force=False):
 		s.last = curr
 		store_values()
 	return fname
-
-class NyaaTorrents:
-	row = compile("""<td class="tlistname"><a href="(?:http:)?//[^/]+/\?page=view&#38;tid=\d+">(?P<name>[^<]+)</a></td>\S*<td class="tlistdownload">.*?<a href="(?P<path>(?:http:)?//[^/]+/\?page=download&#38;tid=\d+)" title="Download"[^>]*><img src="[^\"]+" alt="DL"></a>.*?</td>\S*<td class="tlistsize">\d+.\d+ (?:G|M)iB</td>(?P<items>.+?)</tr>""", IGNORECASE|DOTALL)
-	item = compile("<td class=\"([^\"]+)\"[^>]*>([^<]+)</td>")
-	singleitem = compile("<span class=\"([^\"]+)\">([^<]+)</span>")
-	downloadlink = compile("<div class=\"viewdownloadbutton\"><a href=\"(//[^/]+/\?page=download&#38;tid=\d+)")
-
-	def rows(self,terms,numbers):
-		terms = " ".join([x for x in (terms + " " +numbers).split(" ") if len(x)>0 and x[0]!="-"])
-		url = "http://www.nyaatorrents.org/?page=search&term=%s&sort=1"%(terms.replace(" ","+"))
-		print url
-		torr = cache.get(url,max_age=60*60).read()
-		torr = torr.replace("<div><!-- --></div>","")
-		if torr.find("Torrent description:")!=-1: # single item redirect
-			rows = []
-			items = dict(self.singleitem.findall(torr))
-			otheritems = dict(self.item.findall(torr))
-			link = self.downloadlink.findall(torr)
-			rows.append({"seeds":items["viewsn"], "peers" :items["viewln"], "name":otheritems["viewtorrentname"], "path": "http:" + link[0]})
-		else:
-			rows = [x.groupdict() for x in list(self.row.finditer(torr))]
-			if rows == [] and torr.find("No torrents found") == -1:
-				file("dump","wb").write(torr)
-				assert rows!=[],rows
-
-			for r in rows:
-				items = dict(self.item.findall(r['items']))
-				if 'tlistsn' in items:
-					r['seeds'] = items['tlistsn']
-				if 'tlistln' in items:
-					r['peers'] = items['tlistln']
-		return rows
-	
-	def torrent(self,r):
-		return r["path"].replace("&amp;","&").replace("&#38;", "&")
-
-class EZTV:
-	row = compile("class=\"epinfo\">(?P<name>[^<]+)</a>\s+</td>\s+<td align=\"center\" class=\"forum_thread_post\">(?P<allpath>.+?</td>)",MULTILINE|DOTALL|UNICODE)
-
-	def rows(self,terms, numbers):
-		url = "https://eztv.unblocked.stream/search/"
-		
-		# EZTV doesnt' like exclusion terms :(
-		s = terms.split(" ")
-		terms = "-".join([x for x in s if x[0] != "-"])
-
-		torr = cache.get(url + terms, max_age=60*60).read()
-
-		rows = list(self.row.finditer(torr))
-		open("dump",mode = "wb", encoding="utf-8").write(torr)
-		if rows == []:
-			print terms
-			open("dump",mode = "wb", encoding="utf-8").write(torr)
-			return []
-			#assert rows!=[],rows
-
-
-		terms = terms.split("-")
-		goodterms = [x.lower() for x in terms if x[0]!="-"]
-		badterms = [x[1:].lower() for x in terms if x[0] == "-"]
-
-		print "good", goodterms
-		print "bad", badterms
-
-		ret = []
-		for nr in rows:
-			r = nr.groupdict()
-			r['name'] = sub('<[^<]+?>', '', r['name'])
-			for x in goodterms:
-				if r['name'].lower().find(x)==-1:
-					print "bad name", r['name']
-					break
-			else:
-				for x in badterms:
-					if r['name'].lower().find(x)!=-1:
-						print "bad name", r['name']
-						break
-				else:
-					print "good name", r['name']
-					ret.append(nr)
-		return ret
-
-	def torrent(self,r):
-		httppat = compile("<a href=\"(https?://[^\"]+)")
-		ret = [x for x in httppat.findall(r["allpath"]) if x.endswith(".torrent")]
-		#raise Exception, ret
-		return ret
-
-class Strike:
-    def rows(self, terms, numbers):
-	url = "https://getstrike.net/api/v2/torrents/search/?phrase=%s" % (terms.replace(" ","%20"))
-	print url
-	torr = cache.get(url, max_age=60).read()
-	data = json.loads(torr)["torrents"]
-	for d in data:
-	    d["name"] = d["torrent_title"]
-	return data
-
-    def torrent(self, row):
-	return "https://getstrike.net/torrents/api/download/%s.torrent"%row["torrent_hash"]
 
 def checkterms(terms, rows):
     terms = terms.split(" ")
@@ -392,7 +293,7 @@ class Torrentz:
 			assert rows!=[],rows
 
 	        return checkterms(terms, rows)
-	
+
 	def torrent(self,r):
 		url = "https://torrentz2.eu" + r['path']
 		page = cache.get(url, max_age = -1).read()
@@ -432,7 +333,7 @@ class Torrentz:
 			#	patt = compile("<a href=\"(download.php\?id=[a-z0-9]+)\">")
 			#	torrent = patt.search(otherpage)
 			#	return urljoin(l, torrent.groups()[0].replace("download","download1")) + "&type=torrent"
-			
+
 			if l.startswith("https://www.monova.org"):
 				continue
 				print l
@@ -446,7 +347,7 @@ class Torrentz:
 					raise Exception, "Bad Regex"
 				else:
 					return {"url" : urljoin(l, torrent.groups()[0]), "ref" : l}
-			
+
 			if l.startswith("https://rarbg.com"):
 				print l
 				otherpage = cache.get(l, max_age = -1).read()
@@ -505,7 +406,7 @@ def run(options, parser):
 				series.append(s.name)
 	else:
 		series = [s.name for s in sorted(db.series,key=lambda x:x.last,reverse=True)]
-	
+
 	if options.series != []:
 		missing = [x for x in options.series if x not in series]
 		if len(missing)>0:
@@ -517,10 +418,11 @@ def run(options, parser):
 		series = sorted([s.name for s in db.series])
 		print "We have:",(", ".join(series))
 		sys.exit(1)
-	
+
 	print "Selected series:",(", ".join(sorted(series))),"\n"
 
-	main_sites = [EZTV()]
+	print dir(sites)
+	main_sites = [sites.EZTV(cache)]
 
 	shorttd = timedelta(0,0,0,0,0,6,0)
 	longtd = timedelta(7)
@@ -559,7 +461,7 @@ def run(options, parser):
 
 		#print "since",curr-last
 		td = timedelta(0,curr-last)
-		
+
 		if td>limit:
 			mingap = longtd
 		else:
@@ -648,13 +550,13 @@ def run(options, parser):
 					continue
 				gotit = False
 				try:
-					sites = [globals()[x]() for x in get_series(name).search_sites.split(",") if x!=""]
-					if sites == []:
-						sites = main_sites
-					print "sites", sites
+					local_sites = [globals()[x]() for x in get_series(name).search_sites.split(",") if x!=""]
+					if local_sites == []:
+						local_sites = main_sites
+					print "sites", local_sites
 				except KeyError:
 					raise
-				for site in sites:
+				for site in local_sites:
 					try:
 						patt = ""
 						if season!=0:
@@ -683,7 +585,7 @@ def run(options, parser):
 						rows = newrows
 						#assert(rows!=[])
 						rows.sort(lambda x,y:cmp(y["seeds"],x["seeds"]))
-							
+
 						for r in rows:
 							sp = "<span title=\""
 							if r["name"].find(sp)!=-1:
@@ -749,7 +651,7 @@ def run(options, parser):
 							else:
 								print "not an ep",r
 								print
-								
+
 					except URLTimeoutError,e :
 						print "URLTimeout for",site
 						print e
@@ -763,7 +665,7 @@ def run(options, parser):
 	if vobject:
 		open("episodes.ics","w").write(calendar.serialize())
 	return got
-	
+
 if __name__ == "__main__":
 
 	parser = OptionParser(description="Episode grabber by Tom Parker <palfrey@tevp.net>")
@@ -784,4 +686,3 @@ if __name__ == "__main__":
 		parser.error("args after main text")
 
 	run(options, parser)
-
