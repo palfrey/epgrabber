@@ -402,10 +402,8 @@ def run(options, parser):
 				encoder = getdecoder("ascii")
 				utc = vobject.icalendar.utc
 				event = calendar.add('vevent')
-				if "title" in next:
-					event.add('summary').value = "%s - %02dx%02d: %s"%(name, season, epnum, encoder(title,'ignore')[0])
-				else:
-					event.add('summary').value = str("%s - %02dx%02d"%(name, season, epnum))
+				name = encoder(name, 'ignore')[0]
+				event.add('summary').value = str("%s - %02dx%02d"%(name, season, epnum))
 				event.add('dtstart').value = datetime(date[0],date[1],date[2],tzinfo=utc)
 				event.add('dtend').value = datetime(date[0],date[1],date[2],tzinfo=utc)
 			delta = None
