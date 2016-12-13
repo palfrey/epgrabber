@@ -310,7 +310,7 @@ def run(options, parser):
 
 	print "Selected series:",(", ".join(sorted(series))),"\n"
 
-	main_sites = [sites.EZTV(cache), sites.TorrentDay(cache)]
+	main_sites = [sites.LimeTorrents(cache), sites.EZTV(cache), sites.TorrentDay(cache)]
 
 	shorttd = timedelta(0,0,0,0,0,6,0)
 	longtd = timedelta(7)
