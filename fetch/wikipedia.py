@@ -15,7 +15,7 @@ class wikipedia:
 			"anime":"Is this an anime series? i.e. no seasons, just episode numbers"
 			}
 	def run(self,inf,page,anime=False):
-		data = inf["cache"].get("http://en.wikipedia.org/wiki/%s"%page,max_age=60*60*24).read()
+		data = inf["cache"].get("https://en.wikipedia.org/wiki/%s"%page,max_age=60*60*24,ignore_move=True).read()
 		if data.find("List of")==-1: # dodgy page
 			return None
 
