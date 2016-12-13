@@ -8,7 +8,7 @@ class EZTV:
 	row = compile("class=\"epinfo\">(?P<name>[^<]+)</a>\s+</td>\s+<td align=\"center\" class=\"forum_thread_post\">(?P<allpath>.+?</td>)",MULTILINE|DOTALL|UNICODE)
 
 	def rows(self, terms, numbers):
-		url = "https://eztv.unblocked.stream/search/"
+		url = "https://eztv.unblocked.video/search/"
 
 		# EZTV doesnt' like exclusion terms :(
 		s = terms.split(" ")
