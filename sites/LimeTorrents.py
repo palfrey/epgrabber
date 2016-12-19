@@ -5,7 +5,7 @@ class LimeTorrents:
     def __init__(self, cache):
         self.cache = cache
 
-    row = compile("<a href=\"(?P<path>http://itorrents.org/torrent/[0-9A-Z]+.torrent\?title=[^\"]+)\" rel=\"nofollow\" class=\"csprite_dl14\"></a><a href=\"[^\"]+\">(?P<name>[^<]+)</a></div><div class=\"tt-options\"><div class=\"tt-vdown\">.*?<td class=\"tdseed\">(?P<seeds>[\d,]+)</td><td class=\"tdleech\">(?P<peers>[\d,]+)</td>")
+    row = compile("<a href=\"(?P<path>http://itorrents.org/torrent/[0-9A-Z]+.torrent\?title=[^\"]+)\" rel=\"nofollow\" class=\"csprite_dl14\"></a><a href=\"[^\"]+\">(?P<name>[^<]+)</a></div><div class=\"tt-options\">.*?<td class=\"tdseed\">(?P<seeds>[\d,]+)</td><td class=\"tdleech\">(?P<peers>[\d,]+)</td>")
 
     def rows(self, terms, numbers):
         numbers = [int(x.strip()) for x in numbers.split()]
