@@ -78,6 +78,9 @@ class wikipedia:
 						#print "not date",bi
 						pass
 			if len(blob.keys())>0:
+			        #print "blob", blob
+			        if bits[0] == "Total TD":
+				    continue
 				if not blob.has_key("title"): # guess that first is title
 					#print "title?",bits[0], blob
 					pass
