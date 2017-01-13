@@ -18,7 +18,7 @@ class LimeTorrents:
         print url
         torr = self.cache.get(url, max_age=60).read()
         rows = list(self.row.finditer(torr))
-        if rows == []:
+        if rows == [] and torr.find("No results found")==-1:
             open("dump","wb", encoding="utf-8").write(torr)
             assert rows!=[],rows
         return rows
