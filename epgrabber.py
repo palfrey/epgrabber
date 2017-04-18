@@ -501,11 +501,11 @@ def run(options, parser):
 											if which[i] == epnum:
 												ok = True
 												break
-										elif which[i:i+2] == [season, epnum]:
+										elif which[i:i+2] == [season+s.season_delta, epnum]:
 											ok = True
 											break
 									else:
-										print "wrong ep, want",(season,epnum),"got",which
+										print "wrong ep, want",(season+s.season_delta,epnum),"got",which
 
 									print r,which
 									if not ok:

@@ -12,6 +12,7 @@ message Series
 	optional string search_sites = 8;
 	optional uint32 maxMegabytes = 9;
 	optional uint32 minMegabytes = 10;
+	optional int32 season_delta = 11;
 }
 
 message All
