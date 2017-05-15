@@ -19,11 +19,13 @@ class TorrentDay:
 		print url
 		torr = self.cache.get(url, max_age=60*60, headers={"Cookie": self.cookie}).read()
 		rows = list(self.row.finditer(torr))
-		expected = int(self.rowcount.findall(torr)[0])
-		if len(rows) != expected:
-		    for row in rows:
-			print row.groups()
-		    raise Exception, (len(rows), expected)
+		if torr.find("Nothing found!")==-1:
+		    expected = int(self.rowcount.findall(torr)[0])
+		    if len(rows) != expected:
+			for row in rows:
+			    print row.groups()
+			open("dump",mode = "wb", encoding="utf-8").write(torr)
+			raise Exception, (len(rows), expected)
 		if rows == []:
 			print terms
 			open("dump",mode = "wb", encoding="utf-8").write(torr)
