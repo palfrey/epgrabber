@@ -398,6 +398,7 @@ def run(options, parser):
 			epnum = next["epnum"]
 			date = next["date"]
 			title = next["title"]
+			should_have = False
 			if vobject:
 				encoder = getdecoder("ascii")
 				utc = vobject.icalendar.utc
@@ -410,6 +411,8 @@ def run(options, parser):
 			if date!=None:
 				delta = datetime(date[0],date[1],date[2])-datetime(now[0],now[1],now[2])
 				print "delta",delta
+				if delta < -timedelta(days=1, hours=12):
+					should_have = True
 
 			if (date == None or now[:3]<=date[:3]) and not options.fast:
 				print "too early",
@@ -544,7 +547,8 @@ def run(options, parser):
 						break
 				else:
 					print "can't get %d-%d for %s"%(season,epnum,name)
-					#raise Exception, "can't get %d-%d for %s"%(season,epnum,name)
+					if should_have:
+						raise Exception, "can't get %d-%d for %s"%(season,epnum,name)
 		print ""
 	if vobject:
 		open("episodes.ics","w").write(calendar.serialize())
