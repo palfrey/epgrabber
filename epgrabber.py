@@ -411,7 +411,7 @@ def run(options, parser):
 			if date!=None:
 				delta = datetime(date[0],date[1],date[2])-datetime(now[0],now[1],now[2])
 				print "delta",delta
-				if delta < -timedelta(days=1, hours=12):
+				if s.max_days !=-1 and delta < -timedelta(days=s.max_days):
 					should_have = True
 
 			if (date == None or now[:3]<=date[:3]) and not options.fast:
