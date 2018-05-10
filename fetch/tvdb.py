@@ -20,7 +20,7 @@ class tvdb:
 
 	def run(self,inf,sid):
 		url = "https://api.thetvdb.com/series/%s/episodes" % sid
-		if not inf["cache"].has_item(url):
+		if not inf["cache"].has_item(url, max_age=60*60*24*2):
 			if self.token == None:
 				self.get_token()
 
