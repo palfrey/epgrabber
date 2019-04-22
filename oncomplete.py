@@ -58,7 +58,7 @@ for f in files:
 		for (name,search) in series:
 			if search == "":
 				search = name
-			bits = search.replace("eztv","").replace("480p", "").strip().lower().decode("utf-8","replace").split(" ")
+			bits = search.replace("eztv","").replace("xvid","").replace("480p", "").strip().lower().decode("utf-8","replace").split(" ")
 			for b in bits:
 				if b == "":
 					continue

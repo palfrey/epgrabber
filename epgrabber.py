@@ -87,16 +87,24 @@ def saferetrieve(url, fname, min_megabytes, max_megabytes, ref = None, headers =
 					assert "files" in bd,list(bd.keys())
 
 				if 'files' in bd: # folder torrent
-					print(bd['files'])
+					#print "files", bd['files']
 					for info in bd['files']:
 						path = info['path'][-1]
+						if path.lower().find("sample") != -1:
+							print "Found sample, skip", info['path']
+							continue
 						if path.find(".wmv")!=-1:
 							print("Found %s, bad torrent!"%path)
 							return False
 						if path.find("mp4") !=-1 or path.find("avi")!=-1 or path.find("mkv")!=-1:
 							ret = checkLength(info, min_megabytes, max_megabytes)
 							if not ret:
-								return False
+							    return False
+							else:
+							    break
+					else:
+					    print "can't find", bd["files"]
+					    return False
 
 			trackers = []
 			if "announce-list" in torr:
@@ -106,9 +114,9 @@ def saferetrieve(url, fname, min_megabytes, max_megabytes, ref = None, headers =
 				trackers.append(torr["announce"])
 			badtrackers = ["http://tracker.hexagon.cc:2710/announce", "http://tracker.thepiratebay.org/announce"]
 			good = [x for x in trackers if x not in badtrackers]
-			if len(good) == 0:
-				print("no good trackers", trackers, torr)
-				return False
+			# if len(good) == 0:
+			# 	print "no good trackers", trackers, torr
+			# 	return False
 			move(tmpname, fname)
 			return True
 		else:
@@ -301,7 +309,10 @@ def run(options, parser):
 
 	print("Selected series:",(", ".join(sorted(series))),"\n")
 
-	main_sites = [sites.LimeTorrents(cache), sites.EZTV(cache), sites.TorrentDay(cache)]
+	#main_sites = [sites.LimeTorrents(cache), sites.EZTV(cache), sites.TorrentDay(cache)]
+	#main_sites = [sites.EZTV(cache), sites.TorrentDay(cache)]
+	main_sites = [sites.TorrentDay(cache), sites.KAT(cache, checkterms), sites.LimeTorrents(cache)]
+	#main_sites = [sites.EZTV(cache)]
 
 	shorttd = timedelta(0,0,0,0,0,6,0)
 	longtd = timedelta(7)
@@ -373,8 +384,11 @@ def run(options, parser):
 			try:
 				next = cmd().run(*args)
 			except URLTimeoutError as e:
-				print("URL TIMEOUT!",e.url)
-				continue
+				if e.code == -1:
+					print "URL TIMEOUT!",e.url
+					continue
+				else:
+					raise
 			success = True
 			if next!=None:
 				print("found",next)
@@ -389,6 +403,7 @@ def run(options, parser):
 			epnum = next["epnum"]
 			date = next["date"]
 			title = next["title"]
+			should_have = False
 			if vobject:
 				#encoder = getdecoder("ascii")
 				utc = vobject.icalendar.utc
@@ -400,7 +415,9 @@ def run(options, parser):
 			delta = None
 			if date!=None:
 				delta = datetime(date[0],date[1],date[2])-datetime(now[0],now[1],now[2])
-				print("delta",delta)
+				print("delta", delta)
+				if s.max_days !=-1 and delta < -timedelta(days=s.max_days):
+					should_have = True
 
 			if (date == None or now[:3]<=date[:3]) and not options.fast:
 				print("too early", end=' ')
@@ -492,11 +509,11 @@ def run(options, parser):
 											if which[i] == epnum:
 												ok = True
 												break
-										elif which[i:i+2] == [season, epnum]:
+										elif which[i:i+2] == [season+s.season_delta, epnum]:
 											ok = True
 											break
 									else:
-										print("wrong ep, want",(season,epnum),"got",which)
+										print("wrong ep, want",(season+s.season_delta,epnum),"got",which)
 
 									print(r,which)
 									if not ok:
@@ -516,6 +533,7 @@ def run(options, parser):
 										continue
 									if saferetrieve(url, fname, s.minMegabytes, s.maxMegabytes, ref = item.get("ref", None), headers = item.get("headers", {})):
 										break
+									#raise Exception
 								else:
 									continue
 								update(name,season,epnum)
@@ -535,7 +553,8 @@ def run(options, parser):
 						break
 				else:
 					print("can't get %d-%d for %s"%(season,epnum,name))
-					#raise Exception, "can't get %d-%d for %s"%(season,epnum,name)
+					if should_have:
+						raise Exception, "can't get %d-%d for %s"%(season,epnum,name)
 		print("")
 	if vobject:
 		open("episodes.ics","w").write(calendar.serialize())
