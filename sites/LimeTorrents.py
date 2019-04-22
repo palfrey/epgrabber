@@ -15,7 +15,7 @@ class LimeTorrents:
         terms = "-".join([x for x in s if x[0] != "-"])
 
         url = "https://limetorrents.unblocked.video/search/all/%s/" % ((terms+numbers).replace(" ", "-"))
-        print url
+        print(url)
         torr = self.cache.get(url, max_age=60).read()
         rows = list(self.row.finditer(torr))
         if rows == []:

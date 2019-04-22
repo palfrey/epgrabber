@@ -26,16 +26,16 @@ class scarywater:
 				if season in added:
 					continue
 			except UnboundLocalError:
-				print url,text
+				print(url,text)
 				raise
 			added.append(season)
 			eps.append((season,0,yesterday,text))
 			crossref[season] = url
 		if eps == []:
-			print "NO SCARYWATER EPISODES"
+			print("NO SCARYWATER EPISODES")
 			return None
 		ret = core(inf,eps)
-		if ret!=None and crossref.has_key(ret["season"]):
+		if ret!=None and ret["season"] in crossref:
 			ret["url"] = base+crossref[ret["season"]]
 		#print "ret",ret
 		return ret

@@ -40,12 +40,12 @@ class EnumMetaClass:
 		"""
 		for base in bases:
 			if base.__class__ is not EnumMetaClass:
-				raise TypeError, "Enumeration base class must be enumeration"
-		bases = filter(lambda x: x is not Enum, bases)
+				raise TypeError("Enumeration base class must be enumeration")
+		bases = [x for x in bases if x is not Enum]
 		self.__name__ = name
 		self.__bases__ = bases
 		self.__dict = {}
-		for key, value in dict.items():
+		for key, value in list(dict.items()):
 			self.__dict[key] = EnumInstance(name, key, value)
 
 	def __getattr__(self, name):
@@ -64,7 +64,7 @@ class EnumMetaClass:
 
 		"""
 		if name == '__members__':
-			return [x for x in self.__dict.keys() if len(x)<2 or x[:2]!="__"]
+			return [x for x in list(self.__dict.keys()) if len(x)<2 or x[:2]!="__"]
 
 		try:
 			return self.__dict[name]
@@ -75,13 +75,13 @@ class EnumMetaClass:
 				except AttributeError:
 					continue
 
-		raise AttributeError, name
+		raise AttributeError(name)
 
 	def valid(self,name):
 		if name in self.__dict:
 			return self.__dict[name]
 		else:
-			raise ValueError, "Specified name not in enum"
+			raise ValueError("Specified name not in enum")
 
 	def getWithValue(self,value):
 		try:
@@ -97,16 +97,15 @@ class EnumMetaClass:
 				except AttributeError:
 					continue
 
-		raise AttributeError, value
+		raise AttributeError(value)
 	
 	def __repr__(self):
 		s = self.__name__
 		if self.__bases__:
-			s = s + '(' + string.join(map(lambda x: x.__name__,
-										  self.__bases__), ", ") + ')'
+			s = s + '(' + string.join([x.__name__ for x in self.__bases__], ", ") + ')'
 		if self.__dict:
 			list = []
-			for key, value in self.__dict.items():
+			for key, value in list(self.__dict.items()):
 				if key[0] == "_":
 					continue
 				list.append("%s: %s" % (key, value.value()))
@@ -142,9 +141,9 @@ class EnumInstance:
 		self.__value = value
 
 	def __repr__(self):
-		return "EnumInstance(%s, %s, %s)" % (`self.__classname`,
-											 `self.__enumname`,
-											 `self.__value`)
+		return "EnumInstance(%s, %s, %s)" % (repr(self.__classname),
+											 repr(self.__enumname),
+											 repr(self.__value))
 
 	def __str__(self):
 		return "%s.%s" % (self.__classname, self.__enumname)
@@ -178,7 +177,7 @@ def check_enum(option, opt, value):
 	try:
 		return option.enum.valid(value)
 	except ValueError:
-		raise OptionValueError,"'%s' is an invalid type for %s (valid types are %s)"%(value,option, ", ".join(option.enum.__members__))
+		raise OptionValueError("'%s' is an invalid type for %s (valid types are %s)"%(value,option, ", ".join(option.enum.__members__)))
 
 class EnumOption (Option):
 	TYPES = Option.TYPES + ("enum",)
@@ -189,9 +188,9 @@ class EnumOption (Option):
 
 class SpecificParser(OptionParser):
 	def __init__(self,*args,**kwargs):
-		if kwargs.has_key('option_class'):
+		if 'option_class' in kwargs:
 			if not issubclass(kwargs['option_class'],self._option):
-				raise Exception, "option_class must be a subclass of %s"%self._option.__name__
+				raise Exception("option_class must be a subclass of %s"%self._option.__name__)
 		else:
 			kwargs['option_class'] = self._option
 		OptionParser.__init__(self,*args,**kwargs)
@@ -200,7 +199,7 @@ class EnumOptionParser(SpecificParser):
 	_option = EnumOption
 
 	def add_option(self, *args, **kwargs):
-		if kwargs.has_key('enum') and not kwargs.has_key('help'):
+		if 'enum' in kwargs and 'help' not in kwargs:
 			kwargs['help'] = "%s ("%kwargs['enum'].name()+"|".join(kwargs['enum'].__members__)+")"
 		OptionParser.add_option(self,*args,**kwargs)
 
@@ -211,13 +210,13 @@ def _test():
 		green = 2
 		blue = 3
 
-	print Color.red
-	print dir(Color)
+	print(Color.red)
+	print(dir(Color))
 
-	print Color.red == Color.red
-	print Color.red == Color.blue
-	print Color.red == 1
-	print Color.red == 2
+	print(Color.red == Color.red)
+	print(Color.red == Color.blue)
+	print(Color.red == 1)
+	print(Color.red == 2)
 
 	class ExtendedColor(Color):
 		white = 0
@@ -226,10 +225,10 @@ def _test():
 		purple = 6
 		black = 7
 
-	print ExtendedColor.orange
-	print ExtendedColor.red
+	print(ExtendedColor.orange)
+	print(ExtendedColor.red)
 
-	print Color.red == ExtendedColor.red
+	print(Color.red == ExtendedColor.red)
 
 	class OtherColor(Enum):
 		white = 4
@@ -238,13 +237,13 @@ def _test():
 	class MergedColor(Color, OtherColor):
 		pass
 
-	print MergedColor.red
-	print MergedColor.white
+	print(MergedColor.red)
+	print(MergedColor.white)
 
-	print Color
-	print ExtendedColor
-	print OtherColor
-	print MergedColor
+	print(Color)
+	print(ExtendedColor)
+	print(OtherColor)
+	print(MergedColor)
 
 
 

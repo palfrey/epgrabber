@@ -7,7 +7,7 @@ class KAT:
 		numbers = [int(x.strip()) for x in numbers.split()]
 		numbers = " S%02de%02d"% tuple(numbers)
 		url = "http://kattorrent.us/usearch/%s/?field=seeders&sorder=desc" % ((terms+numbers).replace(" ", "%20"))
-		print url
+		print(url)
 		torr = cache.get(url, max_age=60).read()
 		rows = list(self.row.finditer(torr))
 		if rows == []:

@@ -11,7 +11,7 @@ class Torrentz:
 
 	def rows(self, terms, numbers):
 		url = "https://torrentz2.eu/search?f=%s" % terms
-		print url
+		print(url)
 		torr = cache.get(url, max_age=60*60).read()
 
 		rows = list(self.row.finditer(torr))
@@ -28,27 +28,27 @@ class Torrentz:
 
 		for l in links:
 			if l.startswith("http://torcache.net"):
-				print l
+				print(l)
 				raise Exception
 
 			if l.startswith("http://www.newtorrents.info"):
-				print l
+				print(l)
 				otherpage = cache.get(l, max_age = -1).read()
 				patt = compile("<a href='(/down.php\?id=\d+)'><b>download this torrent!</b></a>")
 				torrent = patt.search(otherpage)
 				return urljoin(l, torrent.groups()[0])
 
 			if l.startswith("http://publichd.se"):
-				print l
+				print(l)
 				otherpage = cache.get(l, max_age = -1).read()
 				patt = compile("<a href=\"(download.php\?id=[a-z0-9]+&f=[^\"]+)\">")
 				torrent = patt.search(otherpage)
 				return urljoin(l.replace("http", "https"), torrent.groups()[0])
 
 			if l.startswith("https://kickass.so"):
-				print l
+				print(l)
 				url = "http://kasssto.come.in/" + l.split("/")[-1]
-				print url
+				print(url)
 				otherpage = cache.get(url, max_age = -1).read()
 				patt = compile("href=\"(http://torcache.[^/]+/torrent/[^\"]+)\"><span>Download torrent</span>")
 				torrent = patt.search(otherpage)
@@ -63,26 +63,26 @@ class Torrentz:
 
 			if l.startswith("https://www.monova.org"):
 				continue
-				print l
+				print(l)
 				otherpage = cache.get(l, max_age = -1).read()
 				patt = compile("<a id=\"download-file\" href=\"((?:https:)?//www.monova.org/torrent/download[^\"]+)\"")
 				torrent = patt.search(otherpage)
 				if torrent == None:
 					if otherpage.find("Download via magnet")!=-1:
-						print "Magnet-only page"
+						print("Magnet-only page")
 					else:
-						raise Exception, "Bad Regex"
+						raise Exception("Bad Regex")
 				else:
 					return {"url" : urljoin(l, torrent.groups()[0]), "ref" : l}
 
 			if l.startswith("https://rarbg.com"):
-				print l
+				print(l)
 				otherpage = cache.get(l, max_age = -1).read()
 				patt = compile("href=\"(/download.php\?id=[a-z0-9]+&f=.*?\.torrent)")
 				torrent = patt.search(otherpage)
 				return {"url" : urljoin(l, torrent.groups()[0]), "ref" : l}
 
 
-		print links
+		print(links)
 		#raise Exception
 		return []

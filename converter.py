@@ -15,7 +15,7 @@ all = All()
 
 for row in cur.fetchall():
 	series = all.series.add()
-	print row
+	print(row)
 	(series.name,series.search,series.season,series.episode,series.listing,series.last,series.checked) = row
 
 f = open(argv[2],"wb")

@@ -4,17 +4,16 @@
 import sys
 try:
 	from urlgrab import Cache, URLTimeoutError
-except:
-	print "You need to install urlgrab. Get it using 'git clone git://github.com/palfrey/urlgrab.git urlgrab'"
+except ImportError:
+	print("You need to install urlgrab. Get it using 'git clone git://github.com/palfrey/urlgrab.git urlgrab'")
 	sys.exit(1)
 from re import compile,findall,IGNORECASE,MULTILINE,DOTALL,split,UNICODE,sub
 from time import strptime,strftime,localtime,time
 from os.path import exists,getsize,basename,join
 from os import remove
-from urlparse import urljoin
+from urllib.parse import urljoin
 from datetime import datetime, timedelta,date
 from optparse import OptionParser
-from types import ListType, DictType
 try:
 	import vobject
 except ImportError:
@@ -23,7 +22,7 @@ from shutil import move
 try:
 	from BitTorrent.bencode import bdecode
 except ImportError:
-	from bencode import bdecode
+	from bencode3 import bdecode
 
 import fetch
 import sites
@@ -31,15 +30,11 @@ import json
 
 from codecs import getdecoder, open, getwriter
 
-# Fix unicode
-import locale
-sys.stdout = getwriter(locale.getpreferredencoding())(sys.stdout);
-
-import urllib
-class AppURLopener(urllib.FancyURLopener):
+import urllib.request, urllib.parse, urllib.error
+class AppURLopener(urllib.request.FancyURLopener):
 	version = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11"
 
-urllib._urlopener = AppURLopener()
+urllib.request._urlopener = AppURLopener()
 
 options = None
 cache = None
@@ -50,13 +45,13 @@ idnum = compile("(?:S(\d+)E(\d+))|(?:(\d+)x(\d+))|(?: (\d)(\d{2}) - )|(?: (\d+)X
 def checkLength(bd, min_megabytes, max_megabytes):
 	length = bd['length']
 	if length in ([364904448,365431575,183500806,183500808,183656487]+list(range(367001600,367001600+50))):
-		print "Bad torrent!"
+		print("Bad torrent!")
 		return False
 	if min_megabytes !=0 and min_megabytes * 1048576 > length:
-		print "Too small! %d is smaller than %d"%(length/1048576.0, min_megabytes)
+		print("Too small! %d is smaller than %d"%(length/1048576.0, min_megabytes))
 		return False
 	if max_megabytes !=0 and max_megabytes * 1048576 < length:
-		print "Too long! %d is bigger than %d"%(length/1048576.0, max_megabytes)
+		print("Too long! %d is bigger than %d"%(length/1048576.0, max_megabytes))
 		return False
 	return True
 
@@ -65,23 +60,22 @@ def saferetrieve(url, fname, min_megabytes, max_megabytes, ref = None, headers =
 
 	for b in badurls:
 		if url.find(b)!=-1:
-			print "bad url", url, b
+			print("bad url", url, b)
 			return False
 
-	global bdecode
 	try:
 		if not url.startswith("http"):
 			url = "http:" + url
-		print "Trying", url, headers
+		print("Trying", url, headers)
 		tmpname = join("/tmp",basename(fname))
 		cache.urlretrieve(url, tmpname, ref = ref, headers = headers)
 		if exists(tmpname) and getsize(tmpname)>1000:
-			print "Retrieved!",url
+			print("Retrieved!",url)
 			if bdecode:
 				try:
 					torr = bdecode(open(tmpname).read())
-				except ValueError, e:
-					print "can't decode", e, tmpname
+				except ValueError as e:
+					print("can't decode", e, tmpname)
 					return False
 				bd = torr['info']
 
@@ -90,14 +84,14 @@ def saferetrieve(url, fname, min_megabytes, max_megabytes, ref = None, headers =
 					if not ret:
 						return False
 				except KeyError:
-					assert "files" in bd,bd.keys()
+					assert "files" in bd,list(bd.keys())
 
 				if 'files' in bd: # folder torrent
-					print bd['files']
+					print(bd['files'])
 					for info in bd['files']:
 						path = info['path'][-1]
 						if path.find(".wmv")!=-1:
-							print "Found %s, bad torrent!"%path
+							print("Found %s, bad torrent!"%path)
 							return False
 						if path.find("mp4") !=-1 or path.find("avi")!=-1 or path.find("mkv")!=-1:
 							ret = checkLength(info, min_megabytes, max_megabytes)
@@ -113,18 +107,18 @@ def saferetrieve(url, fname, min_megabytes, max_megabytes, ref = None, headers =
 			badtrackers = ["http://tracker.hexagon.cc:2710/announce", "http://tracker.thepiratebay.org/announce"]
 			good = [x for x in trackers if x not in badtrackers]
 			if len(good) == 0:
-				print "no good trackers", trackers, torr
+				print("no good trackers", trackers, torr)
 				return False
 			move(tmpname, fname)
 			return True
 		else:
-			print "Too small!"
+			print("Too small!")
 			if exists(tmpname):
-				print file(tmpname).read()
+				print(open(tmpname).read())
 				remove(tmpname)
 			return False
 	except IOError:
-		print "IOError!"
+		print("IOError!")
 		return False
 
 def info(name):
@@ -153,7 +147,7 @@ def core(inf,eps):
 	num = inf["episode"]
 	has_prev = False
 
-	eps.sort(lambda a,b:cmp(int(a[0])*100+int(a[1]),int(b[0])*100+int(b[1])))
+	eps.sort(key=lambda a:int(a[0])*100+int(a[1]))
 
 	prev = (0,0)
 	last = None
@@ -167,34 +161,31 @@ def core(inf,eps):
 		if season<seas or (season==seas and num>epnum):
 			last = (season,epnum,date)
 			continue
-		print season,epnum,date,has_prev
+		print(season,epnum,date,has_prev)
 		if not has_prev and (season>seas or (season==seas and num!=epnum)):
 			has_prev= True
-		print "%02d-%02d"%(season,epnum),
+		print("%02d-%02d"%(season,epnum), end=' ')
 		if date !=None:
-			print strftime("%Y-%m-%d",date),
+			print(strftime("%Y-%m-%d",date), end=' ')
 		else:
-			print "TBA"
+			print("TBA")
 			continue
-		if type(title) == str:
-			print title.decode("utf-8")
-		else:
-			print title
+		print(title)
 		if not has_prev:
-			print "has_prev"
+			print("has_prev")
 			has_prev = True
 			last = (season,epnum,date)
 			continue
 		else:
-			print "last",last
+			print("last",last)
 		return {"name":inf["name"],"season":season,"epnum":epnum,"date":date, "title":title}
 	else:
-		print "ran out of episodes!"
+		print("ran out of episodes!")
 		return None
 
 def	torrent(name,season,epnum):
 	fname = "%s - %02d-%02d.torrent"%(name,season,epnum)
-	print "fname:",fname
+	print("fname:",fname)
 	return fname
 
 def update(name,season,epnum,force=False):
@@ -203,9 +194,9 @@ def update(name,season,epnum,force=False):
 	if exists(fname) or force:
 		seas = info(name)["season"]
 		num  = info(name)["episode"]
-		print "season,epnum",season,epnum,seas,num
+		print("season,epnum",season,epnum,seas,num)
 		if (season == seas and epnum == num) and not force:
-			print "Duplicate numbers!"
+			print("Duplicate numbers!")
 			return
 
 		s = get_series(name)
@@ -221,8 +212,8 @@ def checkterms(terms, rows):
 	goodterms = [x.lower() for x in terms if x[0]!="-"]
 	badterms = [x[1:].lower() for x in terms if x[0] == "-"]
 
-	print "good", goodterms
-	print "bad", badterms
+	print("good", goodterms)
+	print("bad", badterms)
 
 	ret = []
 	for nr in rows:
@@ -231,22 +222,22 @@ def checkterms(terms, rows):
 		for x in goodterms:
 			try:
 				if r['name'].lower().find(x)==-1:
-					print "bad name", x, r['name']
+					print("bad name", x, r['name'])
 					break
 			except UnicodeDecodeError:
-				print "weird name", r['name']
+				print("weird name", r['name'])
 				break
 		else:
 			for x in badterms:
 				try:
 					if r['name'].encode('ascii', 'ignore').lower().find(x)!=-1:
-						print "bad name", r['name']
+						print("bad name", r['name'])
 						break
 				except UnicodeDecodeError as ude:
-					print "weird name", r['name']
+					print("weird name", r['name'])
 					break
 			else:
-				print "good name", r['name'].encode("ascii", "ignore")
+				print("good name", r['name'].encode("ascii", "ignore"))
 				ret.append(nr)
 	return ret
 
@@ -303,12 +294,12 @@ def run(options, parser):
 			parser.error("Can't find series called: "+(", ".join(missing))+"\nWe have: "+(", ".join(series)))
 
 	if series == []:
-		print "Don't have any selected series!"
+		print("Don't have any selected series!")
 		series = sorted([s.name for s in db.series])
-		print "We have:",(", ".join(series))
+		print("We have:", (", ".join(series)))
 		sys.exit(1)
 
-	print "Selected series:",(", ".join(sorted(series))),"\n"
+	print("Selected series:",(", ".join(sorted(series))),"\n")
 
 	main_sites = [sites.LimeTorrents(cache), sites.EZTV(cache), sites.TorrentDay(cache)]
 
@@ -322,7 +313,7 @@ def run(options, parser):
 		calendar = vobject.iCalendar()
 
 	for name in series:
-		print "Running: %s"%name
+		print("Running: %s"%name)
 		if options.save:
 			if len(series)>1:
 				raise Exception
@@ -337,7 +328,7 @@ def run(options, parser):
 			#raise Exception,inf
 
 		s = get_series(name)
-		(last,checked,command) = s.last,s.checked,s.listing
+		(last,checked,command) = s.last,s.checked,s.listing.decode('utf-8')
 		if last == None:
 			get_series(name).last = curr
 			store_values()
@@ -355,13 +346,13 @@ def run(options, parser):
 		else:
 			mingap = timedelta()#shorttd
 		if last != 0:
-			print "time since last new",td
+			print("time since last new",td)
 		gap = timedelta(0,curr-checked)
 		if not options.override and gap<mingap:
-			print "not enough time has passed. gap is",gap," mingap is",mingap,"\n"
+			print("not enough time has passed. gap is",gap," mingap is",mingap,"\n")
 			continue
 
-		print "command '%s'"%command
+		print("command '%s'"%command)
 		if command in ["",None]:
 			raise Exception
 		next = None
@@ -373,20 +364,20 @@ def run(options, parser):
 				c = c[:c.find("(")]
 			else:
 				args = []
-			print "cmd: '%s' args: "%c,args
+			print("cmd: '%s' args: "%c,args)
 			try:
 				cmd = getattr(fetch,c)
 			except ImportError:
-				raise Exception, "can't find command %s"%c
+				raise Exception("can't find command %s"%c)
 			args = [info(name)]+args
 			try:
 				next = cmd().run(*args)
-			except URLTimeoutError,e:
-				print "URL TIMEOUT!",e.url
+			except URLTimeoutError as e:
+				print("URL TIMEOUT!",e.url)
 				continue
 			success = True
 			if next!=None:
-				print "found",next
+				print("found",next)
 				#raise Exception
 				break
 
@@ -399,32 +390,32 @@ def run(options, parser):
 			date = next["date"]
 			title = next["title"]
 			if vobject:
-				encoder = getdecoder("ascii")
+				#encoder = getdecoder("ascii")
 				utc = vobject.icalendar.utc
 				event = calendar.add('vevent')
-				name = encoder(name, 'ignore')[0]
+				#name = encoder(name, 'ignore')[0]
 				event.add('summary').value = str("%s - %02dx%02d"%(name, season, epnum))
 				event.add('dtstart').value = datetime(date[0],date[1],date[2],tzinfo=utc)
 				event.add('dtend').value = datetime(date[0],date[1],date[2],tzinfo=utc)
 			delta = None
 			if date!=None:
 				delta = datetime(date[0],date[1],date[2])-datetime(now[0],now[1],now[2])
-				print "delta",delta
+				print("delta",delta)
 
 			if (date == None or now[:3]<=date[:3]) and not options.fast:
-				print "too early",
+				print("too early", end=' ')
 				if date!=None:
-					print now[:3],date[:3],
+					print(now[:3],date[:3], end=' ')
 					if delta<longtd and td>longtd:
 						get_series(name).last = curr
 						store_values()
 				else:
-					print "(don't know next date)",
-				print "\n"
+					print("(don't know next date)", end=' ')
+				print("\n")
 				continue
 
 			if options.download:
-				if next.has_key("url"):
+				if "url" in next:
 					if not hasattr(locals(),"season"):
 						season = 0
 					fname = torrent(name,season,epnum)
@@ -432,14 +423,14 @@ def run(options, parser):
 						continue
 					update(name,season,epnum)
 					store_values()
-					print ""
+					print("")
 					continue
 				gotit = False
 				try:
 					local_sites = [getattr(sites, x)(cache) for x in get_series(name).search_sites.split(",") if x!=""]
 					if local_sites == []:
 						local_sites = main_sites
-					print "sites", local_sites
+					print("sites", local_sites)
 				except KeyError:
 					raise
 				for site in local_sites:
@@ -449,11 +440,11 @@ def run(options, parser):
 							patt += " %d"%season
 						if epnum!=0:
 							patt +=" %d"%epnum
-						print site
+						print(site)
 						rows = site.rows(info(name)["search"]+ " -zip -ita -raw -psp -ipod -wmv -vostfr",patt)
 						newrows = []
 						for nr in rows:
-							if type(nr) == DictType:
+							if type(nr) == dict:
 								r = nr
 							else:
 								r = nr.groupdict()
@@ -470,7 +461,7 @@ def run(options, parser):
 
 						rows = newrows
 						#assert(rows!=[])
-						rows.sort(lambda x,y:cmp(y["seeds"],x["seeds"]))
+						rows.sort(key=lambda x:x["seeds"])
 
 						for r in rows:
 							sp = "<span title=\""
@@ -479,9 +470,9 @@ def run(options, parser):
 								r["name"] = first[:first.find("\"")]
 							r["name"] = r["name"].replace("<b>","").replace("</b>","")
 							ok = False
-							print "row",r["name"]
-							if next.has_key("idnum"):
-								print "options",options
+							print("row",r["name"])
+							if "idnum" in next:
+								print("options",options)
 								globals()["options"] = options
 								try:
 									ok = next["idnum"](r["name"],name,season,epnum)
@@ -490,11 +481,11 @@ def run(options, parser):
 							else:
 								num = compile("(\d+)").findall(r["name"].replace("2HD", "").replace("mp4", "").replace("5.1Ch",""))
 								if num!=None:
-									print num
+									print(num)
 									try:
 										which = [int(x) for x in num if x!=None]
 									except TypeError:
-										print r["name"],num
+										print(r["name"],num)
 										raise
 									for i in range(len(which)):
 										if season == 0:
@@ -505,23 +496,23 @@ def run(options, parser):
 											ok = True
 											break
 									else:
-										print "wrong ep, want",(season,epnum),"got",which
+										print("wrong ep, want",(season,epnum),"got",which)
 
-									print r,which
+									print(r,which)
 									if not ok:
 										continue
 							if ok:
 								fname = torrent(name,season,epnum)
 								items = site.torrent(r)
-								if type(items)!=ListType:
+								if type(items) != list:
 									items = [items]
-								print "items", items
+								print("items", items)
 								for item in items:
-									if type(item) != DictType:
+									if type(item) != dict:
 										item = {"url": item}
 									url = item["url"]
 									if url.startswith("http://imads"):
-										print "imads workaround", url
+										print("imads workaround", url)
 										continue
 									if saferetrieve(url, fname, s.minMegabytes, s.maxMegabytes, ref = item.get("ref", None), headers = item.get("headers", {})):
 										break
@@ -533,19 +524,19 @@ def run(options, parser):
 								gotit = True
 								break
 							else:
-								print "not an ep",r
-								print
+								print("not an ep",r)
+								print()
 
-					except URLTimeoutError,e :
-						print "URLTimeout for",site
-						print e
+					except URLTimeoutError as e :
+						print("URLTimeout for",site)
+						print(e)
 						continue
 					if gotit:
 						break
 				else:
-					print "can't get %d-%d for %s"%(season,epnum,name)
+					print("can't get %d-%d for %s"%(season,epnum,name))
 					#raise Exception, "can't get %d-%d for %s"%(season,epnum,name)
-		print ""
+		print("")
 	if vobject:
 		open("episodes.ics","w").write(calendar.serialize())
 	return got

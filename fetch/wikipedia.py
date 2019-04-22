@@ -60,7 +60,7 @@ class wikipedia:
 							blob["title"] = st[0]
 							continue
 						elif len(blob)>0:
-							raise Exception, (bi, blob)
+							raise Exception(bi, blob)
 				try:
 					blob["year"] = year.findall(bi)[0]
 					#print "year",blob["year"]
@@ -77,14 +77,14 @@ class wikipedia:
 					except ValueError:
 						#print "not date",bi
 						pass
-			if len(blob.keys())>0:
-				if not blob.has_key("title"): # guess that first is title
+			if len(list(blob.keys()))>0:
+				if "title" not in blob: # guess that first is title
 					#print "title?",bits[0], blob
 					pass
 				items.append(blob)
 		#raise Exception,items
 		if len(items)==0:
-			print type(data)
+			print(type(data))
 			open("dump","wb").write(data)
 			raise Exception
 		eps = []
@@ -99,21 +99,21 @@ class wikipedia:
 				try:
 					cmb = (ma["date"]+" "+ma["year"]).replace("-"," ")
 				except KeyError:
-					print ma
+					print(ma)
 					raise
 				try:
 					date = strptime(cmb,"%B %d %Y")
-				except ValueError,e: # alternate format?
+				except ValueError as e: # alternate format?
 					try:
 						date = strptime(cmb,"%m %d %Y")
 					except ValueError: # no matches
-						print "date doesn't match for",cmb,"discarding"
+						print("date doesn't match for",cmb,"discarding")
 						continue
 
 			try:
 				number = ma["number"]
 			except KeyError:
-				print "no valid number. keys are",ma
+				print("no valid number. keys are",ma)
 				continue
 				
 			if len(number)<3 or anime:
@@ -133,9 +133,9 @@ class wikipedia:
 			try:
 				eps.append((int(season),int(epnum),date, ti))
 			except ValueError:
-				print "non-integer season or epnum?",season,epnum
+				print("non-integer season or epnum?",season,epnum)
 			except KeyError:
-				print "no valid title. keys are",ma
+				print("no valid title. keys are",ma)
 		if len(eps) == 0:
 			raise Exception
 		#print eps

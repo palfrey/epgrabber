@@ -1,6 +1,6 @@
 # vim: set fileencoding=utf-8
 from re import compile,split
-from enum import Enum
+from .enum import Enum
 from time import strptime
 
 class EpType(Enum):
@@ -30,7 +30,7 @@ class epguides:
 					assert bits[-1].find("href=")!=-1,bits
 					bits[-1] = tagstrip.sub('',bits[-1]).strip()
 					if bits[1].find("-")==-1:
-						print "bits invalid",bits
+						print("bits invalid",bits)
 						continue
 					(season,ident) = bits[1].split("-",1)
 					del bits[0]
@@ -60,7 +60,7 @@ class epguides:
 			raise Exception
 		neweps = []
 		for e in eps:
-			print "e", e[-4:]
+			print("e", e[-4:])
 			(epnum, season, date, title) = e[-4:]
 			#print epnum, season, title
 			epnum = int(epnum)
@@ -71,7 +71,7 @@ class epguides:
 					date = strptime(date,"%d %b %y")
 			except ValueError:
 				if date.find(" ")!=-1 or date.find(" ")!=-1:
-					print e
+					print(e)
 					raise
 				date = None
 			title = title.replace("[Recap]","").replace("[Trailer]","").strip()

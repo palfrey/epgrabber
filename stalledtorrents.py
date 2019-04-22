@@ -12,7 +12,7 @@ series = [(x.name,x.search) for x in db.series]
 trans = RobustClient("localhost",6886,"palfrey","epsilon")
 torrents = trans.list()
 ids = {}
-for k in torrents.keys():
+for k in list(torrents.keys()):
 	details = trans.info(k)
 	for val in details.files():
 		f = details.files()[val]['name']
@@ -41,16 +41,16 @@ for k in torrents.keys():
 			break
 
 		delta = datetime.now() - details.date_started
-		print delta, f, done, details.eta
+		print(delta, f, done, details.eta)
 		time = (delta.days*24*60*60) + delta.seconds
 		if details.eta == None and ((done == 0.0 and time > 60*60) or time > 6*60*60):
-			print "Stalled torrent", f
+			print("Stalled torrent", f)
 			number = compile("(\d+)").findall(f)
 			if number == None:
-				print "Can't get id for", name
+				print("Can't get id for", name)
 				continue
 			which = [int(x) for x in number if x!=None]
-			print which
+			print(which)
 			if len(which)!=2:
 				if len(which)>2:
 					for i in range(len(which)-2):
@@ -65,7 +65,7 @@ for k in torrents.keys():
 
 			class FakeParser:
 				def error(self, msg):
-					print msg
+					print(msg)
 					import sys
 					sys.exit(-1)
 

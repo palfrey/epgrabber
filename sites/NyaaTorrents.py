@@ -12,7 +12,7 @@ class NyaaTorrents:
 	def rows(self,terms,numbers):
 		terms = " ".join([x for x in (terms + " " +numbers).split(" ") if len(x)>0 and x[0]!="-"])
 		url = "http://www.nyaatorrents.org/?page=search&term=%s&sort=1"%(terms.replace(" ","+"))
-		print url
+		print(url)
 		torr = self.cache.get(url,max_age=60*60).read()
 		torr = torr.replace("<div><!-- --></div>","")
 		if torr.find("Torrent description:")!=-1: # single item redirect

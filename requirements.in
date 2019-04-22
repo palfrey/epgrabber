@@ -1,0 +1,6 @@
+bencode3
+protobuf
+pycurl < 7.43.0.2 # Because openssl issues https://github.com/pycurl/pycurl/issues/526
+vobject
+
+pip-tools

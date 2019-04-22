@@ -28,7 +28,7 @@ if opts.check_torrent:
 	trans = RobustClient("localhost",6886,user="palfrey",password="epsilon")
 	torrents = trans.list()
 	ids = {}
-	for k in torrents.keys():
+	for k in list(torrents.keys()):
 		files = trans.info(k).files()
 		for id in files:
 			f = files[id]['name']
@@ -74,11 +74,11 @@ for f in files:
 		found = True
 		name = ""
 	if found:
-		print "Found for %s - %s"%(name,f.decode("utf-8"))
+		print("Found for %s - %s"%(name,f.decode("utf-8")))
 		remove_id = None
 		if opts.check_torrent:
 			if f in ids:
-				print "torrent id", ids[f]
+				print("torrent id", ids[f])
 				details = trans.info(ids[f])
 				done = details.progress
 				if done == 100.0:
@@ -86,7 +86,7 @@ for f in files:
 						remove_id = ids[f]
 					f = join(opts.check_dir,f)
 				else:
-					print "Only %.2f%% complete"%done
+					print("Only %.2f%% complete"%done)
 					continue
 			else:
 				continue
@@ -97,23 +97,23 @@ for f in files:
 			for nf in listdir(f):
 				ext = splitext(nf)[1].lower()
 				if ext not in (".avi",".mp4", ".mkv"):
-					print "not",nf
+					print("not",nf)
 					continue
-				print "ext",ext,nf
+				print("ext",ext,nf)
 				if docheck:
 					small = nf.lower().decode("utf-8")
 					for b in bits:
 						if len(b)==0 or b[0] == "-": # an ignore
 							continue
 						if small.find(b)==-1:
-							print "failed with",b,nf
+							print("failed with",b,nf)
 							break
 					else:
 						goodfiles.append(nf)
 				else:
 					goodfiles.append(nf)
 			goodfiles = [join(f,nf) for nf in goodfiles]
-			print goodfiles
+			print(goodfiles)
 		else:
 			goodfiles = [f]
 
@@ -121,7 +121,7 @@ for f in files:
 		
 		for f in goodfiles:
 			cmd ="mplayer -vo null -frames 0 -identify \"%s\" 2>&1"%f
-			print cmd
+			print(cmd)
 			mplayer = popen(cmd).readlines()
 			values = {}
 			for l in mplayer:
@@ -130,16 +130,16 @@ for f in files:
 					values[key] = value.strip()
 			if ("ID_DEMUXER" in values and values['ID_DEMUXER'] == "asf" and float(values['ID_VIDEO_FPS']) == 1000.0) or "ID_AUDIO_ID" not in values:
 				nextTorrent = True
-				print values
-				print "Dodgy file: %s"%f, name
+				print(values)
+				print("Dodgy file: %s"%f, name)
 				number = idnum.search(f.replace(".", " "))
 				if number == None:
-					print "Can't get id for", name
+					print("Can't get id for", name)
 					break
 				which = [int(x) for x in number.groups() if x!=None]
-				print which
+				print(which)
 				if not opts.execute:
-					print "Would have gotten a new copy for",name,which
+					print("Would have gotten a new copy for",name,which)
 					break
 				else:
 					class opt:
@@ -147,7 +147,7 @@ for f in files:
 
 					class FakeParser:
 						def error(self, msg):
-							print msg
+							print(msg)
 							import sys
 							sys.exit(-1)
 
@@ -170,7 +170,7 @@ for f in files:
 							trans.remove(remove_id)
 						break
 			else:
-				print values
+				print(values)
 
 		if nextTorrent:
 			continue
@@ -186,7 +186,7 @@ for f in files:
 			if opts.execute:
 				move(f, dest)
 			else:
-				print "Would have moved %s to %s"%(f, dest)
+				print("Would have moved %s to %s"%(f, dest))
 
 		if opts.execute:
 			if sep in f[len(opts.check_dir):] and not samefile(dirname(f), opts.check_dir):

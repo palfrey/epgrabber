@@ -5,7 +5,7 @@ import gtk, pango
 
 ver = gtk.check_version(2,12,0)
 if ver:
-	raise Exception,ver
+	raise Exception(ver)
 
 import gobject
 from time import *
@@ -38,7 +38,7 @@ class EpgrabberGUI:
 					else:
 						newrow.append(float(val))
 				else:
-					raise Exception,t
+					raise Exception(t)
 			self.episodes.append(newrow)
 
 	def rowClicked(self,treeview, path, view_column):
@@ -46,9 +46,9 @@ class EpgrabberGUI:
 		if view_column.get_property("title") == "Command":
 			dlg = self.wTree.get_object("dlgCommand")
 			command = self.episodes.get(self.episodes.get_iter(path),4)[0]
-			print "command",command
+			print("command",command)
 			commands = command.split(";")
-			print "commands",commands
+			print("commands",commands)
 
 			if commands == []:
 				count = 1
@@ -62,7 +62,7 @@ class EpgrabberGUI:
 					assert open_brkt!=-1 and close_brkt != -1, k
 					name = k[:open_brkt]
 					args = k[open_brkt+1:close_brkt].split(",")
-					print "name,args",name,args
+					print("name,args",name,args)
 					parsed.append(tuple([name,args]))
 
 			# FIXME: we're assembling tblCommands manually. This could also be done with treeview
@@ -95,17 +95,17 @@ class EpgrabberGUI:
 						cmb.set_active(len(liststore)-1)
 						arg_count = len(cls.args)
 						if len(args)<arg_count:
-							assert arg_count <= len(args)+len(cls.run.func_defaults),(args,cls.args,cls.run.func_defaults)
-							defaults = [str(x) for x in cls.run.func_defaults]
+							assert arg_count <= len(args)+len(cls.run.__defaults__),(args,cls.args,cls.run.__defaults__)
+							defaults = [str(x) for x in cls.run.__defaults__]
 							args.extend(defaults[-(arg_count-len(args)):])
 							assert arg_count == len(args),(args,cls.args,defaults)
-							print "args",args
+							print("args",args)
 						for j in range(arg_count):
 							tb = gtk.TextBuffer()
 							tb.set_text(args[j])
 							txt = gtk.TextView(tb)
 							txt.set_property("editable",True)
-							txt.set_tooltip_text(cls.args[cls.args.keys()[j]])
+							txt.set_tooltip_text(cls.args[list(cls.args.keys())[j]])
 							txt.set_border_window_size(gtk.TEXT_WINDOW_LEFT, 5)
 							argboxes.append(txt)
 
@@ -174,8 +174,8 @@ class EpgrabberGUI:
 		self.episodesList.connect("row-activated",self.rowClicked)
 		
 		self.mapping = ("Name","Search","Season","Episode","Command")
-		self.mapping = dict(zip(range(len(self.mapping)),self.mapping))
-		self.rev_mapping = dict([list(x)[::-1] for x in self.mapping.items()])
+		self.mapping = dict(list(zip(list(range(len(self.mapping))),self.mapping)))
+		self.rev_mapping = dict([list(x)[::-1] for x in list(self.mapping.items())])
 		for k in self.mapping:
 			self.episodesList.append_column(build_tree_column(self.mapping[k],k))
 		
@@ -196,8 +196,9 @@ class EpgrabberGUI:
 			when = strftime("%a, %d %b %Y",localtime(when))
 		cell.set_property('markup', when)
 	
-	def edit_data(self, cellrenderertext, path, new_text, (model,column)):
-		print "trying to change",path,new_text,column
+	def edit_data(self, cellrenderertext, path, new_text, xxx_todo_changeme):
+		(model,column) = xxx_todo_changeme
+		print("trying to change",path,new_text,column)
 		cmd = "update series set %s=\"%s\" where name=\"%s\""%(self.mapping[column].lower(),new_text,self.episodes[path][self.rev_mapping["Name"]])
 		typ = self.episodes.get_column_type(column)
 		if typ == gobject.TYPE_UINT:
@@ -208,13 +209,13 @@ class EpgrabberGUI:
 				dialog.run()
 				dialog.destroy()
 				return
-		print cmd
+		print(cmd)
 		try:
 			self.cur.execute(cmd)
 			assert self.cur.rowcount == 1, self.cur.rowcount
 			self.episodes[path][column] = new_text
 			self.con.commit()
-		except sqlite.IntegrityError,e:
+		except sqlite.IntegrityError as e:
 			dialog = gtk.MessageDialog(parent=self.window, flags=gtk.DIALOG_MODAL, type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK, message_format="Sqlite integrity failure. Can't use that name!")
 			dialog.run()
 			dialog.destroy()
@@ -245,7 +246,7 @@ class EpgrabberGUI:
 
 	def _removerow(self, model, path, iter):
 		series = model.get_value(iter, 0)
-		print "del series",series
+		print("del series",series)
 		model.remove(iter)
 		cmd = "delete from series where name=\"%s\""%series
 		self.cur.execute(cmd)
