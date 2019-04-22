@@ -25,8 +25,8 @@ class TorrentDay:
 		if torr.find("Nothing found!")==-1:
 			open("dump",mode = "wb", encoding="utf-8").write(torr)
 		else:
-			print torr.find("Nothing found")
-		print "row count", len(rows)
+			print(torr.find("Nothing found"))
+		print("row count", len(rows))
 		if rows == []:
 			print(terms)
 			open("dump",mode = "wb", encoding="utf-8").write(torr)

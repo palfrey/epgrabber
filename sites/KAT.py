@@ -22,13 +22,13 @@ class KAT:
 
 	def torrent(self, r):
 		url = "https://katcrs.bid/" + r['path']
-		print url
+		print(url)
 		page = self.cache.get(url, max_age = -1).read()
 		links = findall("title=\"Download (?:verified )?torrent file\" href=\"(//itorrents.org/torrent/[^\"]+)", page)
 		try:
 			return list(set(["http:" + x for x in links]))
 		except:
 			open("dump","wb", encoding="utf-8").write(page)
-			print "No torrent link"
+			print("No torrent link")
 			raise
 			return []
