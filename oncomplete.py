@@ -54,11 +54,11 @@ else:
 for f in files:
 	found = False
 	if docheck:
-		small = f.lower().decode("utf-8")
+		small = f.lower()
 		for (name,search) in series:
 			if search == "":
 				search = name
-			bits = search.replace("eztv","").replace("xvid","").replace("480p", "").strip().lower().decode("utf-8","replace").split(" ")
+			bits = search.replace("eztv","").replace("xvid","").replace("480p", "").strip().lower().split(" ")
 			for b in bits:
 				if b == "":
 					continue
@@ -74,7 +74,7 @@ for f in files:
 		found = True
 		name = ""
 	if found:
-		print("Found for %s - %s"%(name,f.decode("utf-8")))
+		print("Found for %s - %s"%(name,f))
 		remove_id = None
 		if opts.check_torrent:
 			if f in ids:
