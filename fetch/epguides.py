@@ -76,5 +76,5 @@ class epguides:
 				date = None
 			title = title.replace("[Recap]","").replace("[Trailer]","").strip()
 			neweps.append((int(season), epnum, date, title))
-			print neweps[-1]
+			print(neweps[-1])
 		return inf["core"](inf, neweps)

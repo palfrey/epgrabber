@@ -91,7 +91,7 @@ def saferetrieve(url, fname, min_megabytes, max_megabytes, ref = None, headers =
 					for info in bd['files']:
 						path = info['path'][-1]
 						if path.lower().find("sample") != -1:
-							print "Found sample, skip", info['path']
+							print("Found sample, skip", info['path'])
 							continue
 						if path.find(".wmv")!=-1:
 							print("Found %s, bad torrent!"%path)
@@ -103,7 +103,7 @@ def saferetrieve(url, fname, min_megabytes, max_megabytes, ref = None, headers =
 							else:
 							    break
 					else:
-					    print "can't find", bd["files"]
+					    print("can't find", bd["files"])
 					    return False
 
 			trackers = []
@@ -385,7 +385,7 @@ def run(options, parser):
 				next = cmd().run(*args)
 			except URLTimeoutError as e:
 				if e.code == -1:
-					print "URL TIMEOUT!",e.url
+					print("URL TIMEOUT!",e.url)
 					continue
 				else:
 					raise
@@ -554,7 +554,7 @@ def run(options, parser):
 				else:
 					print("can't get %d-%d for %s"%(season,epnum,name))
 					if should_have:
-						raise Exception, "can't get %d-%d for %s"%(season,epnum,name)
+						raise Exception("can't get %d-%d for %s"%(season,epnum,name))
 		print("")
 	if vobject:
 		open("episodes.ics","w").write(calendar.serialize())

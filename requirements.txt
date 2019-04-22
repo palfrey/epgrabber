@@ -5,10 +5,15 @@
 #    pip-compile 
 #
 bencode3==0.1.0
+certifi==2019.3.9         # via requests
+chardet==3.0.4            # via requests
 click==7.0                # via pip-tools
+idna==2.8                 # via requests
 pip-tools==3.6.0
 protobuf==3.7.1
 pycurl==7.43.0.1
 python-dateutil==2.8.0    # via vobject
+requests==2.21.0
 six==1.12.0               # via pip-tools, protobuf, python-dateutil
+urllib3==1.24.2           # via requests
 vobject==0.9.6.1
