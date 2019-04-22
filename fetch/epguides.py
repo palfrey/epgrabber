@@ -60,8 +60,8 @@ class epguides:
 			raise Exception
 		neweps = []
 		for e in eps:
-			print "e", e[-4:]
-			(epnum, season, date, title) = e[-4:]
+			#print "e", e[-4:]
+			(season, epnum, date, title) = e[-4:]
 			#print epnum, season, title
 			epnum = int(epnum)
 			try:
@@ -75,6 +75,6 @@ class epguides:
 					raise
 				date = None
 			title = title.replace("[Recap]","").replace("[Trailer]","").strip()
-			neweps.append((int(season), epnum, date,title))
-			#print neweps[-1]
-		return inf["core"](inf,neweps)
+			neweps.append((int(season), epnum, date, title))
+			print neweps[-1]
+		return inf["core"](inf, neweps)

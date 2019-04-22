@@ -93,16 +93,24 @@ def saferetrieve(url, fname, min_megabytes, max_megabytes, ref = None, headers =
 					assert "files" in bd,bd.keys()
 
 				if 'files' in bd: # folder torrent
-					print bd['files']
+					#print "files", bd['files']
 					for info in bd['files']:
 						path = info['path'][-1]
+						if path.lower().find("sample") != -1:
+							print "Found sample, skip", info['path']
+							continue
 						if path.find(".wmv")!=-1:
 							print "Found %s, bad torrent!"%path
 							return False
 						if path.find("mp4") !=-1 or path.find("avi")!=-1 or path.find("mkv")!=-1:
 							ret = checkLength(info, min_megabytes, max_megabytes)
 							if not ret:
-								return False
+							    return False
+							else:
+							    break
+					else:
+					    print "can't find", bd["files"]
+					    return False
 
 			trackers = []
 			if "announce-list" in torr:
@@ -112,9 +120,9 @@ def saferetrieve(url, fname, min_megabytes, max_megabytes, ref = None, headers =
 				trackers.append(torr["announce"])
 			badtrackers = ["http://tracker.hexagon.cc:2710/announce", "http://tracker.thepiratebay.org/announce"]
 			good = [x for x in trackers if x not in badtrackers]
-			if len(good) == 0:
-				print "no good trackers", trackers, torr
-				return False
+			# if len(good) == 0:
+			# 	print "no good trackers", trackers, torr
+			# 	return False
 			move(tmpname, fname)
 			return True
 		else:
@@ -310,7 +318,10 @@ def run(options, parser):
 
 	print "Selected series:",(", ".join(sorted(series))),"\n"
 
-	main_sites = [sites.LimeTorrents(cache), sites.EZTV(cache), sites.TorrentDay(cache)]
+	#main_sites = [sites.LimeTorrents(cache), sites.EZTV(cache), sites.TorrentDay(cache)]
+	#main_sites = [sites.EZTV(cache), sites.TorrentDay(cache)]
+	main_sites = [sites.TorrentDay(cache), sites.KAT(cache, checkterms), sites.LimeTorrents(cache)]
+	#main_sites = [sites.EZTV(cache)]
 
 	shorttd = timedelta(0,0,0,0,0,6,0)
 	longtd = timedelta(7)
@@ -381,9 +392,12 @@ def run(options, parser):
 			args = [info(name)]+args
 			try:
 				next = cmd().run(*args)
-			except URLTimeoutError,e:
-				print "URL TIMEOUT!",e.url
-				continue
+			except URLTimeoutError, e:
+				if e.code == -1:
+					print "URL TIMEOUT!",e.url
+					continue
+				else:
+					raise
 			success = True
 			if next!=None:
 				print "found",next
@@ -528,6 +542,7 @@ def run(options, parser):
 										continue
 									if saferetrieve(url, fname, s.minMegabytes, s.maxMegabytes, ref = item.get("ref", None), headers = item.get("headers", {})):
 										break
+									#raise Exception
 								else:
 									continue
 								update(name,season,epnum)
