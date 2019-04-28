@@ -73,7 +73,7 @@ def saferetrieve(url, fname, min_megabytes, max_megabytes, ref = None, headers =
 			print("Retrieved!",url)
 			if bdecode:
 				try:
-					torr = bdecode(open(tmpname).read())
+					torr = bdecode(open(tmpname, 'rb').read())
 				except ValueError as e:
 					print("can't decode", e, tmpname)
 					return False
