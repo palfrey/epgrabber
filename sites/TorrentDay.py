@@ -16,7 +16,7 @@ class TorrentDay:
 		# TorrentDay doesn't like exclusion terms :(
 		s = terms.split(" ")
 		terms = "+".join([x for x in s if x[0] != "-"])
-		url = "https://torrentday.it/t?q=%s&qf=" % (terms.replace(" ", "+"))
+		url = "https://torrentday.it/t?q=%s;o=seeders" % (terms.replace(" ", "+"))
 		print(url)
 		torr = self.cache.get(url, max_age=60, headers={"Cookie": self.cookie})
 		print(torr)
@@ -24,7 +24,6 @@ class TorrentDay:
 		rows = list(self.row.finditer(torr))
 		if torr.find("Nothing found!")==-1:
 			open("dump",mode = "wb", encoding="utf-8").write(torr)
-			raise Exception
 		else:
 			print(torr.find("Nothing found"))
 		print("row count", len(rows))
