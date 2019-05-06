@@ -24,6 +24,7 @@ class TorrentDay:
 		rows = list(self.row.finditer(torr))
 		if torr.find("Nothing found!")==-1:
 			open("dump",mode = "wb", encoding="utf-8").write(torr)
+			raise Exception
 		else:
 			print(torr.find("Nothing found"))
 		print("row count", len(rows))
