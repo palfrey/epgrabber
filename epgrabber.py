@@ -478,7 +478,7 @@ def run(options, parser):
 
 						rows = newrows
 						#assert(rows!=[])
-						rows.sort(key=lambda x:x["seeds"])
+						rows.sort(key=lambda x:x["seeds"], reverse=True)
 
 						for r in rows:
 							sp = "<span title=\""
