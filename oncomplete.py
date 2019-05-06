@@ -101,7 +101,7 @@ for f in files:
 					continue
 				print("ext",ext,nf)
 				if docheck:
-					small = nf.lower().decode("utf-8")
+					small = nf.lower()
 					for b in bits:
 						if len(b)==0 or b[0] == "-": # an ignore
 							continue
