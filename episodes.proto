@@ -1,3 +1,4 @@
+syntax = "proto2";
 package episodes;
 
 message Series
@@ -14,6 +15,7 @@ message Series
 	optional uint32 minMegabytes = 10 [default=50];
 	optional int32 season_delta = 11;
 	optional int32 max_days = 12 [default=2];
+	optional bool needs_season = 13 [default=true];
 }
 
 message All

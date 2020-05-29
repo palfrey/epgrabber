@@ -453,7 +453,7 @@ def run(options, parser):
 				for site in local_sites:
 					try:
 						patt = ""
-						if season!=0:
+						if season!=0 and s.needs_season:
 							patt += " %d"%season
 						if epnum!=0:
 							patt +=" %d"%epnum
@@ -504,16 +504,20 @@ def run(options, parser):
 									except TypeError:
 										print(r["name"],num)
 										raise
+									if s.needs_season and season!=0:
+										want = [season+s.season_delta,epnum]
+									else:
+										want = [epnum]
 									for i in range(len(which)):
-										if season == 0:
+										if season == 0 or not s.needs_season:
 											if which[i] == epnum:
 												ok = True
 												break
-										elif which[i:i+2] == [season+s.season_delta, epnum]:
+										elif which[i:i+2] == want:
 											ok = True
 											break
 									else:
-										print("wrong ep, want",(season+s.season_delta,epnum),"got",which)
+										print("wrong ep, want",want,"got",which)
 
 									print(r,which)
 									if not ok:
@@ -552,9 +556,13 @@ def run(options, parser):
 					if gotit:
 						break
 				else:
-					print("can't get %d-%d for %s"%(season,epnum,name))
+					if s.needs_season:
+						wants = "%d-%d" % (season,epnum)
+					else:
+						wants = str(epnum)
+					print("can't get %s for %s"%(wants,name))
 					if should_have:
-						raise Exception("can't get %d-%d for %s"%(season,epnum,name))
+						raise Exception("can't get %s for %s"%(wants,name))
 		print("")
 	if vobject:
 		open("episodes.ics","w").write(calendar.serialize())
