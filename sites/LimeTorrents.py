@@ -8,8 +8,9 @@ class LimeTorrents:
     row = compile("<a href=\"(?P<path>http://itorrents.org/torrent/[0-9A-Z]+.torrent\?title=[^\"]+)\" rel=\"nofollow\" class=\"csprite_dl14\".*></a><a href=\"[^\"]+\"><(?P<name>[^<]+)/a>")
 
     def rows(self, terms, numbers):
-        numbers = [int(x.strip()) for x in numbers.split()]
-        numbers = " S%02de%02d"% tuple(numbers)
+        split_numbers = [int(x.strip()) for x in numbers.split()]
+        if len(split_numbers) == 2:
+            numbers = " S%02de%02d"% tuple(split_numbers)
         # LimeTorrents doesnt' like exclusion terms :(
         s = terms.split(" ")
         terms = "-".join([x for x in s if x[0] != "-"])

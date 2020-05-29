@@ -1,10 +1,11 @@
 from codecs import open
 from re import compile, MULTILINE, DOTALL
 import os.path
+import html
 
 class TorrentDay:
 	#<td class=torrentNameInfo><a class="b hv" href="/t/4104213">Game of Thrones S08E04 480p x264-mSD</a> <a href="/download.php/4104213/Game.of.Thrones.S08E04.480p.x264-mSD.torrent"> <td class="ac seedersInfo">235</td><td class="ac leechersInfo">22</td>
-	row = compile("<td class=torrentNameInfo><a class=\"b hv\" href=\"\/t\/\d+\">(?P<name>[^<]+)</a>.*?<a href=\"(?P<download>/download.php/\d+/[^\"]+)\">.*?<td class=\"ac seedersInfo\">(?P<seeds>[\d,]+)</td><td class=\"ac leechersInfo\">(?P<peers>[\d,]+)</td>", MULTILINE|DOTALL)
+	row = compile("<td class=torrentNameInfo><a class=\"b? hv\" href=\"\/t\/\d+\">(?P<name>[^<]+)</a>.*?<a href=\"(?P<download>/download.php/\d+/[^\"]+)\">.*?<td class=\"ac seedersInfo\">(?P<seeds>[\d,]+)</td><td class=\"ac leechersInfo\">(?P<peers>[\d,]+)</td>", MULTILINE|DOTALL)
 	#rowcount = compile("<div align='center' class='paging'><span>1-(\d+)</span>")
 
 	cookie = open(os.path.join(os.path.dirname(__file__), "td-cookie")).read()
@@ -34,4 +35,4 @@ class TorrentDay:
 		return [x for x in rows if x.groupdict()["name"].find("Leaked")==-1 and x.groupdict()["name"].find("SUBFRENCH") == -1]
 
 	def torrent(self, row):
-		return [{"url":"https://torrentday.it/" + row["download"], "headers":{"Cookie":self.cookie}}]
+		return [{"url":"https://torrentday.it" + html.unescape(row["download"]), "headers":{"Cookie":self.cookie}}]
