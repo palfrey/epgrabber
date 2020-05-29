@@ -69,7 +69,7 @@ def saferetrieve(url, fname, min_megabytes, max_megabytes, ref = None, headers =
 		print("Trying", url, headers)
 		tmpname = join("/tmp",basename(fname))
 		cache.urlretrieve(url, tmpname, ref = ref, headers = headers)
-		if exists(tmpname) and getsize(tmpname)>1000:
+		if exists(tmpname) and getsize(tmpname)>500:
 			print("Retrieved!",url)
 			if bdecode:
 				try:
@@ -120,7 +120,7 @@ def saferetrieve(url, fname, min_megabytes, max_megabytes, ref = None, headers =
 			move(tmpname, fname)
 			return True
 		else:
-			print("Too small!")
+			print("Too small!",tmpname)
 			if exists(tmpname):
 				print(open(tmpname).read())
 				remove(tmpname)
