@@ -188,10 +188,10 @@ def core(inf,eps):
 			print("last",last)
 		return {"name":inf["name"],"season":season,"epnum":epnum,"date":date, "title":title}
 	else:
-		print("ran out of episodes!")
+		print("ran out of episodes!", last)
 		return None
 
-def	torrent(name,season,epnum):
+def torrent(name,season,epnum):
 	fname = "%s - %02d-%02d.torrent"%(name,season,epnum)
 	print("fname:",fname)
 	return fname
@@ -311,7 +311,8 @@ def run(options, parser):
 
 	#main_sites = [sites.LimeTorrents(cache), sites.EZTV(cache), sites.TorrentDay(cache)]
 	#main_sites = [sites.EZTV(cache), sites.TorrentDay(cache)]
-	main_sites = [sites.TorrentDay(cache), sites.KAT(cache, checkterms), sites.LimeTorrents(cache)]
+	#main_sites = [sites.TorrentDay(cache), sites.KAT(cache, checkterms), sites.LimeTorrents(cache)]
+	main_sites = [sites.TorrentDay(cache), sites.LimeTorrents(cache)]
 	#main_sites = [sites.EZTV(cache)]
 
 	shorttd = timedelta(0,0,0,0,0,6,0)
