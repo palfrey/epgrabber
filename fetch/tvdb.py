@@ -4,6 +4,7 @@ from codecs import open
 import json
 import requests
 import os.path
+from urlgrab import URLTimeoutError
 
 class tvdb:
 	args = {"sid":"Tvdb id"}
@@ -30,11 +31,14 @@ class tvdb:
 				if self.token == None: # failure
 					return inf["core"](inf,[])
 
-			data = inf["cache"].get(url, headers={"Authorization": "Bearer %s" % self.token}, max_age=60*60*24*2).read()
+			try:
+				data = inf["cache"].get(url, headers={"Authorization": "Bearer %s" % self.token}, max_age=60*60*24*2).read()
+			except URLTimeoutError as e:
+				raise
 			episodes = json.loads(data)["data"]
 			for ep in episodes:
 				try:
-					neweps.append((ep["airedSeason"], ep["airedEpisodeNumber"], strptime(ep["firstAired"], "%Y-%m-%d") if ep["firstAired"] != "" else None, ep["episodeName"]))
+					neweps.append((ep["airedSeason"], ep["airedEpisodeNumber"], strptime(ep["firstAired"], "%Y-%m-%d") if ep["firstAired"] != "" and ep["firstAired"] != "0000-00-00" else None, ep["episodeName"]))
 				except:
 					print(ep)
 					raise
