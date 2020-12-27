@@ -34,6 +34,8 @@ class tvdb:
 			try:
 				data = inf["cache"].get(url, headers={"Authorization": "Bearer %s" % self.token}, max_age=60*60*24*2).read()
 			except URLTimeoutError as e:
+				if e.code == 404:
+				    break
 				raise
 			episodes = json.loads(data)["data"]
 			for ep in episodes:
