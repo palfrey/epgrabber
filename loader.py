@@ -5,6 +5,5 @@ from codecs import open
 from episodes_pb2 import All
 
 db = All()
-text_format.Merge(open(argv[1],"rb","utf-8").read(),db)
-open(argv[2],"wb").write(db.SerializeToString())
-
+text_format.Merge(open(argv[1], "rb", "utf-8").read(), db)
+open(argv[2], "wb").write(db.SerializeToString())
