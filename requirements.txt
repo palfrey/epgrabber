@@ -6,7 +6,7 @@
 #
 bencode3==0.1.0
     # via -r requirements.in
-certifi==2019.3.9
+certifi==2022.12.7
     # via requests
 charset-normalizer==2.0.12
     # via requests
