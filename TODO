@@ -1,1 +1,4 @@
 - use BBC programme feeds e.g. http://www.bbc.co.uk/programmes/b006m8ln.rdf for Torchwood
+
+get_iplayer --modes tvbetter https://www.bbc.co.uk/programmes/m001jfsg
+get_iplayer --modes tvbetter https://www.bbc.co.uk/programmes/m001jfsn --pid-recursive
