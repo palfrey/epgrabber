@@ -6,3 +6,4 @@ requests
 transmissionrpc
 
 pip-tools
+pre-commit

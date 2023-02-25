@@ -5,33 +5,28 @@
 #    pip-compile 
 #
 bencode3==0.1.0
-    # via -r requirements.in
-certifi==2022.12.7
-    # via requests
-charset-normalizer==2.0.12
-    # via requests
-click==7.0
-    # via pip-tools
-idna==2.8
-    # via requests
+certifi==2022.12.7        # via requests
+cfgv==3.3.1               # via pre-commit
+charset-normalizer==2.0.12  # via requests
+click==7.0                # via pip-tools
+distlib==0.3.6            # via virtualenv
+filelock==3.9.0           # via virtualenv
+identify==2.5.18          # via pre-commit
+idna==2.8                 # via requests
+importlib-metadata==6.0.0  # via pre-commit, virtualenv
+nodeenv==1.7.0            # via pre-commit
 pip-tools==3.6.0
-    # via -r requirements.in
+platformdirs==3.0.0       # via virtualenv
+pre-commit==2.21.0
 protobuf==3.18.3
-    # via -r requirements.in
 pycurl==7.43.0.1
-    # via -r requirements.in
-python-dateutil==2.8.0
-    # via vobject
+python-dateutil==2.8.0    # via vobject
+pyyaml==6.0               # via pre-commit
 requests==2.27.1
-    # via -r requirements.in
-six==1.12.0
-    # via
-    #   pip-tools
-    #   python-dateutil
-    #   transmissionrpc
+six==1.12.0               # via pip-tools, python-dateutil, transmissionrpc
 transmissionrpc==0.11
-    # via -r requirements.in
-urllib3==1.26.8
-    # via requests
+typing-extensions==4.5.0  # via importlib-metadata, platformdirs
+urllib3==1.26.8           # via requests
+virtualenv==20.19.0       # via pre-commit
 vobject==0.9.6.1
-    # via -r requirements.in
+zipp==3.15.0              # via importlib-metadata
