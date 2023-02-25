@@ -12,7 +12,7 @@ class EZTV:
     )
 
     def rows(self, terms, numbers):
-        url = "https://eztv.re/search/"
+        url = "https://eztv.wf/search/"
 
         # EZTV doesnt' like exclusion terms :(
         s = terms.split(" ")
