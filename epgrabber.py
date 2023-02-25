@@ -69,7 +69,7 @@ def saferetrieve(url, fname, min_megabytes, max_megabytes, ref = None, headers =
 		print("Trying", url, headers)
 		tmpname = join("/tmp",basename(fname))
 		cache.urlretrieve(url, tmpname, ref = ref, headers = headers)
-		if exists(tmpname) and getsize(tmpname)>500:
+		if exists(tmpname) and getsize(tmpname)>50:
 			print("Retrieved!",url)
 			if bdecode:
 				try:
@@ -312,7 +312,7 @@ def run(options, parser):
 	#main_sites = [sites.LimeTorrents(cache), sites.EZTV(cache), sites.TorrentDay(cache)]
 	#main_sites = [sites.EZTV(cache), sites.TorrentDay(cache)]
 	#main_sites = [sites.TorrentDay(cache), sites.KAT(cache, checkterms), sites.LimeTorrents(cache)]
-	main_sites = [sites.TorrentDay(cache), sites.LimeTorrents(cache)]
+	main_sites = [sites.TorrentDay(cache), sites.EZTV(cache)]
 	#main_sites = [sites.EZTV(cache)]
 
 	shorttd = timedelta(0,0,0,0,0,6,0)
