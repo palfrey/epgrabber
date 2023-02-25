@@ -10,3 +10,4 @@ episodes_pb2.py
 watch.txt
 complete.log
 ENV/
+.vscode/
