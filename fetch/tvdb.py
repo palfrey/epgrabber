@@ -52,15 +52,16 @@ class tvdb:
             for ep in episodes:
                 try:
                     neweps.append(
-                        (
-                            ep["airedSeason"],
-                            ep["airedEpisodeNumber"],
-                            strptime(ep["firstAired"], "%Y-%m-%d")
+                        {
+                            "season": ep["airedSeason"],
+                            "epnum": ep["airedEpisodeNumber"],
+                            "date": strptime(ep["firstAired"], "%Y-%m-%d")
                             if ep["firstAired"] != ""
                             and ep["firstAired"] != "0000-00-00"
                             else None,
-                            ep["episodeName"],
-                        )
+                            "title": ep["episodeName"],
+                            "extra": ep,
+                        }
                     )
                 except:
                     print(ep)

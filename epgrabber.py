@@ -185,9 +185,9 @@ def core(inf, eps):
     prev = (0, 0)
     last = None
     for e in eps:
-        (season, epnum, date, title) = e
-        season = int(season)
-        epnum = int(epnum)
+        season = int(e["season"])
+        epnum = int(e["epnum"])
+        date = e["date"]
         if (season, epnum) == prev:
             continue
         prev = (season, epnum)
@@ -203,7 +203,7 @@ def core(inf, eps):
         else:
             print("TBA")
             continue
-        print(title)
+        print(e["title"])
         if not has_prev:
             print("has_prev")
             has_prev = True
@@ -211,12 +211,14 @@ def core(inf, eps):
             continue
         else:
             print("last", last)
+
         return {
             "name": inf["name"],
             "season": season,
             "epnum": epnum,
             "date": date,
-            "title": title,
+            "title": e["title"],
+            "extra": e.get("extra"),
         }
     else:
         print("ran out of episodes!", last)
