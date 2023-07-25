@@ -6,7 +6,7 @@
 #
 bencode3==0.1.0
     # via -r requirements.in
-certifi==2022.12.7
+certifi==2023.7.22
     # via requests
 cfgv==3.3.1
     # via pre-commit
