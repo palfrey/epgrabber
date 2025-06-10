@@ -14,9 +14,9 @@ charset-normalizer==2.0.12
     # via requests
 click==7.0
     # via pip-tools
-distlib==0.3.6
+distlib==0.3.9
     # via virtualenv
-filelock==3.9.0
+filelock==3.18.0
     # via virtualenv
 identify==2.5.18
     # via pre-commit
@@ -26,7 +26,7 @@ nodeenv==1.7.0
     # via pre-commit
 pip-tools==3.6.0
     # via -r requirements.in
-platformdirs==3.0.0
+platformdirs==4.3.8
     # via virtualenv
 pre-commit==2.21.0
     # via -r requirements.in
@@ -49,7 +49,7 @@ transmissionrpc==0.11
     # via -r requirements.in
 urllib3==1.26.19
     # via requests
-virtualenv==20.19.0
+virtualenv==20.26.6
     # via pre-commit
 vobject==0.9.6.1
     # via -r requirements.in
