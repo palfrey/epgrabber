@@ -20,7 +20,7 @@ filelock==3.9.0
     # via virtualenv
 identify==2.5.18
     # via pre-commit
-idna==2.8
+idna==3.7
     # via requests
 nodeenv==1.7.0
     # via pre-commit
