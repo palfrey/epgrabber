@@ -30,7 +30,7 @@ platformdirs==4.3.8
     # via virtualenv
 pre-commit==2.21.0
     # via -r requirements.in
-protobuf==3.18.3
+protobuf==4.25.8
     # via -r requirements.in
 pycurl==7.43.0.1
     # via -r requirements.in
