@@ -17,6 +17,7 @@ jobs:
     - run: make pre-commit
     - name: Check commands
       run: |-
+        make episodes_pb2.py
         echo "{}" > fetch/tvdb-login
         touch sites/td-cookie
         .venv/bin/python epgrabber.py --help
