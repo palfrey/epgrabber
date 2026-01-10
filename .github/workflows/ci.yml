@@ -1,0 +1,24 @@
+---
+name: CI
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Install asdf & tools
+      uses: asdf-vm/actions/install@v4    
+    - run: make pre-commit
+    - name: Check commands
+      run: |-
+        make episodes_pb2.py
+        echo "{}" > fetch/tvdb-login
+        touch sites/td-cookie
+        .venv/bin/python epgrabber.py --help
+        .venv/bin/python oncomplete.py --help
