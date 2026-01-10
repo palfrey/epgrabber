@@ -20,7 +20,7 @@ nodeenv==1.7.0
     # via pre-commit
 platformdirs==4.3.8
     # via virtualenv
-pre-commit==2.21.0
+pre-commit==4.5.1
     # via -r requirements.in
 protobuf==6.33.3
     # via -r requirements.in
