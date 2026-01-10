@@ -1,9 +1,8 @@
 bencode3
 protobuf
-pycurl < 7.43.0.2 # Because openssl issues https://github.com/pycurl/pycurl/issues/526
+pycurl
 vobject
 requests
 transmissionrpc
 
-pip-tools
 pre-commit

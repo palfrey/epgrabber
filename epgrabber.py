@@ -10,32 +10,24 @@ except ImportError:
         "You need to install urlgrab. Get it using 'git clone git://github.com/palfrey/urlgrab.git urlgrab'"
     )
     sys.exit(1)
-from re import compile, findall, IGNORECASE, MULTILINE, DOTALL, split, UNICODE, sub
-from time import strptime, strftime, localtime, time
+from re import compile, IGNORECASE
+from time import strftime, localtime, time
 from os.path import exists, getsize, basename, join
 from os import remove
-from urllib.parse import urljoin
 from datetime import datetime, timedelta, date
 from optparse import OptionParser
 
-try:
-    import vobject
-except ImportError:
-    vobject = None
+import vobject
 from shutil import move
 
-try:
-    from BitTorrent.bencode import bdecode
-except ImportError:
-    from bencode3 import bdecode
+from bencode3 import bdecode
 
 import fetch
 import sites
-import json
 
-from codecs import getdecoder, open, getwriter
+from codecs import open
 
-import urllib.request, urllib.parse, urllib.error
+import urllib.request
 
 
 class AppURLopener(urllib.request.FancyURLopener):
@@ -562,7 +554,7 @@ def run(options, parser):
                                         r["name"], name, season, epnum
                                     )
                             else:
-                                num = compile("(\d+)").findall(
+                                num = compile(r"(\d+)").findall(
                                     r["name"]
                                     .replace("2HD", "")
                                     .replace("mp4", "")
