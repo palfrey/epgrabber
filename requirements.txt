@@ -22,7 +22,7 @@ platformdirs==4.3.8
     # via virtualenv
 pre-commit==4.5.1
     # via -r requirements.in
-protobuf==6.33.3
+protobuf==6.33.5
     # via -r requirements.in
 pycurl==7.45.7
     # via -r requirements.in
