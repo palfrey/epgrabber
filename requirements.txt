@@ -30,7 +30,7 @@ python-dateutil==2.8.0
     # via vobject
 pyyaml==6.0
     # via pre-commit
-requests==2.32.4
+requests==2.33.0
     # via -r requirements.in
 setuptools==82.0.0
     # via nodeenv
