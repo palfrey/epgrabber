@@ -19,7 +19,7 @@ requirements.txt: requirements.in
 
 .PHONY: sync
 sync: requirements.txt .venv/bin/activate
-	uv pip sync requirements.txt
+	uv pip sync --strict requirements.txt
 
 install-pre-commit: sync
 	uv run pre-commit install
