@@ -10,8 +10,10 @@ charset-normalizer==3.4.4
     # via requests
 distlib==0.3.9
     # via virtualenv
-filelock==3.20.3
-    # via virtualenv
+filelock==3.25.2
+    # via
+    #   python-discovery
+    #   virtualenv
 identify==2.5.18
     # via pre-commit
 idna==3.7
@@ -19,7 +21,9 @@ idna==3.7
 nodeenv==1.7.0
     # via pre-commit
 platformdirs==4.3.8
-    # via virtualenv
+    # via
+    #   python-discovery
+    #   virtualenv
 pre-commit==4.5.1
     # via -r requirements.in
 protobuf==7.34.0
@@ -28,6 +32,8 @@ pycurl==7.45.7
     # via -r requirements.in
 python-dateutil==2.8.0
     # via vobject
+python-discovery==1.2.1
+    # via virtualenv
 pyyaml==6.0
     # via pre-commit
 requests==2.33.0
@@ -42,7 +48,7 @@ transmissionrpc==0.11
     # via -r requirements.in
 urllib3==2.6.3
     # via requests
-virtualenv==20.36.1
+virtualenv==21.2.0
     # via pre-commit
 vobject==0.9.6.1
     # via -r requirements.in
