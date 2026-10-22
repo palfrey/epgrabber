@@ -28,7 +28,7 @@ protobuf==7.35.1
     # via -r requirements.in
 pycurl==7.45.7
     # via -r requirements.in
-python-dateutil==2.8.0
+python-dateutil==3.0.0
     # via vobject
 python-discovery==1.6.1
     # via virtualenv
