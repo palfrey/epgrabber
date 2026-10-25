@@ -11,15 +11,12 @@ dump::
 
 .PHONY: load dump
 
-requirements.txt: requirements.in
-	uv pip compile --python-version 3.11 --no-strip-extras requirements.in -o requirements.txt
-
 .venv/bin/activate:
 	uv venv --python=3.11
 
 .PHONY: sync
-sync: requirements.txt .venv/bin/activate
-	uv pip sync --strict requirements.txt
+sync: uv.lock pyproject.toml .venv/bin/activate
+	uv sync
 
 install-pre-commit: sync
 	uv run pre-commit install

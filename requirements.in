@@ -1,8 +1,0 @@
-bencode3
-protobuf
-pycurl
-vobject
-requests
-transmissionrpc
-
-pre-commit
